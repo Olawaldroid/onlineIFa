@@ -1,0 +1,70 @@
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { prisma } from "@/lib/db";
+import { ReviewStatus } from "@prisma/client";
+
+const Body = z.object({
+  oduSlug: z.string(),
+  language: z.string().default("en"),
+  tradition: z.string().optional(),
+  title: z.string().optional(),
+  contentMd: z.string().min(1),
+  notes: z.string().optional(),
+  sourceType: z.enum([
+    "ORIGINAL_APP", "CONTRIBUTOR", "PUBLIC_DOMAIN", "LICENSED", "ORAL_TRADITION", "ACADEMIC",
+  ]),
+  sourceId: z.string().optional(),
+  contributorId: z.string().optional(),
+  authorUserId: z.string().optional(),
+});
+
+// POST /api/interpretations — contributor submits an interpretation (DRAFT →
+// SUBMITTED). Visibility requires admin approval AND a publishable source.
+export async function POST(req: NextRequest) {
+  try {
+    const body = Body.parse(await req.json());
+    const odu = await prisma.odu.findUnique({ where: { slug: body.oduSlug } });
+    if (!odu) return NextResponse.json({ error: "Unknown Odù" }, { status: 404 });
+
+    const interp = await prisma.interpretation.create({
+      data: {
+        oduId: odu.id,
+        language: body.language,
+        tradition: body.tradition,
+        title: body.title,
+        contentMd: body.contentMd,
+        notes: body.notes,
+        sourceType: body.sourceType,
+        sourceId: body.sourceId,
+        contributorId: body.contributorId,
+        authorUserId: body.authorUserId,
+        reviewStatus: ReviewStatus.SUBMITTED,
+      },
+    });
+
+    await prisma.interpretationVersion.create({
+      data: {
+        interpretationId: interp.id,
+        version: 1,
+        contentMd: interp.contentMd,
+        reviewStatus: ReviewStatus.SUBMITTED,
+        editedByUserId: body.authorUserId,
+        changeNote: "Initial submission.",
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        actorUserId: body.authorUserId,
+        action: "CREATE",
+        entityType: "Interpretation",
+        entityId: interp.id,
+        summary: `Submitted interpretation for ${body.oduSlug}`,
+      },
+    });
+
+    return NextResponse.json({ interpretation: interp }, { status: 201 });
+  } catch (err) {
+    return NextResponse.json({ error: `${err}` }, { status: 400 });
+  }
+}

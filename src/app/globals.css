@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-serif: "Georgia", serif;
+}
+
+body {
+  @apply bg-ifa-bg text-ifa-cream antialiased;
+}
+
+a {
+  @apply text-ifa-gold hover:text-ifa-cream transition-colors;
+}
+
+.card {
+  @apply rounded-xl border border-ifa-border bg-ifa-surface p-5;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center rounded-lg px-4 py-2 font-medium transition-colors;
+}
+
+.btn-primary {
+  @apply btn bg-ifa-gold text-ifa-bg hover:bg-ifa-cream;
+}
+
+.btn-secondary {
+  @apply btn border border-ifa-border bg-transparent text-ifa-cream hover:border-ifa-gold;
+}
+
+.signature-mark {
+  @apply font-mono tracking-widest;
+}
+
+.prose-ifa {
+  @apply max-w-none leading-relaxed;
+}
+.prose-ifa h2 {
+  @apply mt-4 mb-2 text-xl font-semibold text-ifa-gold;
+}
+.prose-ifa p {
+  @apply mb-3;
+}
+.prose-ifa strong {
+  @apply text-ifa-cream;
+}
+.prose-ifa em {
+  @apply text-ifa-sage;
+}
