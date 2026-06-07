@@ -1,0 +1,512 @@
+// ===========================================================================
+// Online Ifá — Prisma schema
+// ---------------------------------------------------------------------------
+// DESIGN PRINCIPLE: Odù FACTS are separated from INTERPRETATIONS.
+//   * `Odu`, `OduRelation`, `Theme`, `Proverb` describe verifiable structure
+//     and culturally-shared facts (names, signatures, ranks, combinations).
+//   * `Interpretation`, `Verse` carry meaning and ALWAYS reference a `Source`
+//     with an explicit licence + permission status, plus a review workflow.
+//
+// No copyrighted book text is stored as fact. Interpretations are original,
+// public-domain, licensed, or contributor-submitted, and are versioned.
+// ===========================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// ENUMS
+// ---------------------------------------------------------------------------
+
+enum OduType {
+  PRIMARY // one of the 16 principal Odù (Olódù / Méjì)
+  COMBINED // one of the 240 derivative Odù (Omo Odù), formed from two legs
+}
+
+enum UserRole {
+  GUEST
+  USER
+  CONTRIBUTOR
+  ADMIN
+}
+
+enum ContributorRole {
+  BABALAWO
+  RESEARCHER
+  TRANSLATOR
+  EDITOR
+  ADMIN
+}
+
+enum SourceType {
+  ORIGINAL_APP // written originally for this app
+  CONTRIBUTOR // submitted by a verified contributor
+  PUBLIC_DOMAIN // verifiably out of copyright
+  LICENSED // used under an explicit licence/permission
+  ORAL_TRADITION // transcribed oral tradition, attributed to lineage
+  ACADEMIC // cited academic work (facts/attribution only)
+}
+
+enum LicenceType {
+  ORIGINAL_APP_LICENCE
+  PUBLIC_DOMAIN
+  CC0
+  CC_BY
+  CC_BY_SA
+  CC_BY_NC
+  ALL_RIGHTS_RESERVED
+  CUSTOM_PERMISSION
+  UNKNOWN
+}
+
+enum PermissionStatus {
+  NOT_REQUIRED // public domain / original
+  PENDING // awaiting confirmation
+  GRANTED // permission on file
+  DENIED // explicitly refused — must never publish
+  EXPIRED
+}
+
+enum ReviewStatus {
+  DRAFT
+  SUBMITTED
+  IN_REVIEW
+  CHANGES_REQUESTED
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+enum ConcernArea {
+  GENERAL
+  HEALTH
+  FAMILY
+  MARRIAGE
+  MONEY
+  WORK
+  TRAVEL
+  CONFLICT
+  SPIRITUAL
+  PERSONAL_DECISION
+}
+
+enum CastingMode {
+  SIMULATED // digital pseudo-random cast (clearly labelled, not spiritual authority)
+  MANUAL_BABALAWO // entered by a verified Babalawo
+  USER_SELECTED // user picks a known Odù
+  LEARNING // app explains the process step by step, no claim of authority
+}
+
+enum ConsultationState {
+  STARTED
+  AREA_SELECTED
+  QUESTION_ENTERED
+  SAFETY_ACKNOWLEDGED
+  CASTING
+  ODU_SELECTED
+  INTERPRETED
+  SAVED
+  ABANDONED
+}
+
+enum SafetyCategory {
+  MEDICAL_EMERGENCY
+  MENTAL_HEALTH_CRISIS
+  LEGAL
+  FINANCIAL
+  HARMFUL_RITUAL
+  ABUSE_OR_COERCION
+  MINOR
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  PUBLISH
+  UNPUBLISH
+  APPROVE
+  REJECT
+  REQUEST_CHANGES
+  FLAG
+  LOGIN
+  EXPORT
+}
+
+// ---------------------------------------------------------------------------
+// USERS & CONTRIBUTORS
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String   @id @default(cuid())
+  email         String?  @unique
+  name          String?
+  role          UserRole @default(USER)
+  isGuest       Boolean  @default(false)
+  // Onboarding: the cultural/educational disclaimer must be accepted.
+  disclaimerAcceptedAt DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  contributor    Contributor?
+  consultations  Consultation[]
+  interpretations Interpretation[] @relation("InterpretationAuthor")
+  reviews        Review[]
+  auditLogs      AuditLog[]
+  savedNotes     ConsultationNote[]
+}
+
+model Contributor {
+  id          String          @id @default(cuid())
+  userId      String          @unique
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        ContributorRole
+  displayName String
+  bio         String?
+  lineage     String? // tradition / lineage / Ilé
+  verified    Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  interpretations Interpretation[] @relation("InterpretationContributor")
+}
+
+// ---------------------------------------------------------------------------
+// ODÙ FACTS  (NO interpretation text lives here)
+// ---------------------------------------------------------------------------
+
+model Odu {
+  id        String  @id @default(cuid())
+  // Stable, URL-safe identifier, e.g. "ogbe-meji", "ogbe-oyeku".
+  slug      String  @unique
+  // Primary display name, e.g. "Èjì Ogbè".
+  name      String
+  // Variant spellings for search (Yoruba diacritic variants, anglicisations).
+  altNames  String[] @default([])
+  type      OduType
+  // Seniority rank (1 = Èjì Ogbè ... 16 = Òfún Méjì; combined ranked after).
+  rank      Int
+  // Binary-style signature. Two legs of 4 marks. "1" = single mark (Òkan),
+  // "2" = double mark (Èjì). Stored as right+left, e.g. "1111|1111".
+  signature String
+
+  // Combination structure: a combined Odù is formed from a right + left leg,
+  // each of which is one of the 16 primary Odù.
+  rightOduId String?
+  rightOdu   Odu?    @relation("RightLeg", fields: [rightOduId], references: [id])
+  leftOduId  String?
+  leftOdu    Odu?    @relation("LeftLeg", fields: [leftOduId], references: [id])
+
+  rightLegOf Odu[] @relation("RightLeg")
+  leftLegOf  Odu[] @relation("LeftLeg")
+
+  // Short, factual, culturally-shared summary (NOT a divinatory interpretation).
+  factualSummary String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  themes          OduTheme[]
+  proverbs        Proverb[]
+  verses          Verse[]
+  interpretations Interpretation[]
+  relatedFrom     OduRelation[]    @relation("RelationFrom")
+  relatedTo       OduRelation[]    @relation("RelationTo")
+  consultations   Consultation[]
+
+  @@index([type])
+  @@index([rank])
+}
+
+model Theme {
+  id      String     @id @default(cuid())
+  slug    String     @unique
+  label   String
+  // Optional grouping, e.g. "life-stage", "virtue", "challenge".
+  category String?
+  odus    OduTheme[]
+}
+
+// Many-to-many join so themes are reusable + searchable across Odù.
+model OduTheme {
+  oduId   String
+  themeId String
+  odu     Odu   @relation(fields: [oduId], references: [id], onDelete: Cascade)
+  theme   Theme @relation(fields: [themeId], references: [id], onDelete: Cascade)
+
+  @@id([oduId, themeId])
+}
+
+// Directed relationships between Odù (e.g. "complements", "contrasts").
+model OduRelation {
+  id        String @id @default(cuid())
+  fromId    String
+  toId      String
+  kind      String // e.g. "complement", "contrast", "shares-leg"
+  note      String?
+  from      Odu    @relation("RelationFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  to        Odu    @relation("RelationTo", fields: [toId], references: [id], onDelete: Cascade)
+
+  @@unique([fromId, toId, kind])
+}
+
+model Proverb {
+  id     String  @id @default(cuid())
+  oduId  String?
+  odu    Odu?    @relation(fields: [oduId], references: [id], onDelete: SetNull)
+  yoruba String
+  english String?
+  // Proverbs are culturally-shared; still tracked to a source where possible.
+  sourceId String?
+  source   Source? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+}
+
+// ---------------------------------------------------------------------------
+// SOURCES & PERMISSIONS
+// ---------------------------------------------------------------------------
+
+model Source {
+  id               String           @id @default(cuid())
+  title            String
+  author           String?
+  publisher        String?
+  year             Int?
+  sourceType       SourceType
+  licenceType      LicenceType      @default(UNKNOWN)
+  permissionStatus PermissionStatus @default(PENDING)
+  permissionDocUrl String?
+  attributionText  String?
+  notes            String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  verses          Verse[]
+  interpretations Interpretation[]
+  proverbs        Proverb[]
+
+  @@index([permissionStatus])
+  @@index([licenceType])
+}
+
+// ---------------------------------------------------------------------------
+// VERSES  (Ese Ifá — always attached to a Source; never scraped book text)
+// ---------------------------------------------------------------------------
+
+model Verse {
+  id           String       @id @default(cuid())
+  oduId        String
+  odu          Odu          @relation(fields: [oduId], references: [id], onDelete: Cascade)
+  language     String       @default("yo")
+  // Verse text. For copyrighted material this stays empty until permission is
+  // GRANTED; the app shows a placeholder instead (enforced in app layer).
+  textYoruba   String?
+  textEnglish  String?
+  sourceId     String
+  source       Source       @relation(fields: [sourceId], references: [id])
+  reviewStatus ReviewStatus @default(DRAFT)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  interpretations Interpretation[]
+
+  @@index([oduId])
+  @@index([reviewStatus])
+}
+
+// ---------------------------------------------------------------------------
+// INTERPRETATIONS  (meaning layer — original / approved only, versioned)
+// ---------------------------------------------------------------------------
+
+model Interpretation {
+  id            String       @id @default(cuid())
+  oduId         String
+  odu           Odu          @relation(fields: [oduId], references: [id], onDelete: Cascade)
+  verseId       String?
+  verse         Verse?       @relation(fields: [verseId], references: [id], onDelete: SetNull)
+
+  language      String       @default("en")
+  tradition     String? // tradition or lineage this reading comes from
+  title         String?
+  // Markdown content. Until APPROVED, the app shows a safe placeholder.
+  contentMd     String
+  notes         String?
+
+  sourceType    SourceType
+  sourceId      String?
+  source        Source?      @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  authorUserId    String?
+  author          User?        @relation("InterpretationAuthor", fields: [authorUserId], references: [id], onDelete: SetNull)
+  contributorId   String?
+  contributor     Contributor? @relation("InterpretationContributor", fields: [contributorId], references: [id], onDelete: SetNull)
+
+  reviewStatus  ReviewStatus @default(DRAFT)
+  // Flagged for re-review by a user/admin.
+  flagged       Boolean      @default(false)
+  publishedAt   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  reviews  Review[]
+  versions InterpretationVersion[]
+  reflectionQuestions ReflectionQuestion[]
+
+  @@index([oduId])
+  @@index([reviewStatus])
+  @@index([flagged])
+}
+
+// Immutable history — every change to an interpretation is versioned.
+model InterpretationVersion {
+  id               String       @id @default(cuid())
+  interpretationId String
+  interpretation   Interpretation @relation(fields: [interpretationId], references: [id], onDelete: Cascade)
+  version          Int
+  contentMd        String
+  reviewStatus     ReviewStatus
+  editedByUserId   String?
+  changeNote       String?
+  createdAt        DateTime     @default(now())
+
+  @@unique([interpretationId, version])
+}
+
+// Reflection questions surfaced in consultation results (never directives).
+model ReflectionQuestion {
+  id               String  @id @default(cuid())
+  interpretationId String?
+  interpretation   Interpretation? @relation(fields: [interpretationId], references: [id], onDelete: Cascade)
+  concernArea      ConcernArea?
+  prompt           String
+}
+
+// ---------------------------------------------------------------------------
+// REVIEW WORKFLOW
+// ---------------------------------------------------------------------------
+
+model Review {
+  id               String       @id @default(cuid())
+  interpretationId String
+  interpretation   Interpretation @relation(fields: [interpretationId], references: [id], onDelete: Cascade)
+  reviewerUserId   String
+  reviewer         User         @relation(fields: [reviewerUserId], references: [id])
+  decision         ReviewStatus // APPROVED / REJECTED / CHANGES_REQUESTED
+  comment          String?
+  createdAt        DateTime     @default(now())
+
+  @@index([interpretationId])
+}
+
+// ---------------------------------------------------------------------------
+// CONSULTATIONS
+// ---------------------------------------------------------------------------
+
+model Consultation {
+  id           String            @id @default(cuid())
+  userId       String?
+  user         User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  // Allows guest sessions to be reclaimed after sign-up.
+  guestToken   String?
+  state        ConsultationState @default(STARTED)
+  concernArea  ConcernArea?
+  question     String?
+  castingMode  CastingMode       @default(SIMULATED)
+  // Audit trail of safety prompts the user acknowledged.
+  safetyAcknowledged Boolean      @default(false)
+  safetyFlags  SafetyCategory[]  @default([])
+
+  oduId        String?
+  odu          Odu?              @relation(fields: [oduId], references: [id], onDelete: SetNull)
+  // Snapshot of which interpretation was shown (may be a placeholder).
+  shownInterpretationId String?
+  // Free-form JSON snapshot of the casting (seed, draws, mode metadata).
+  castingDetail Json?
+
+  saved        Boolean           @default(false)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  notes        ConsultationNote[]
+
+  @@index([userId])
+  @@index([state])
+}
+
+model ConsultationNote {
+  id             String       @id @default(cuid())
+  consultationId String
+  consultation   Consultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  body           String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// SAFETY & AUDIT
+// ---------------------------------------------------------------------------
+
+model SafetyResource {
+  id          String         @id @default(cuid())
+  category    SafetyCategory
+  region      String         @default("GLOBAL")
+  title       String
+  description String?
+  url         String?
+  phone       String?
+}
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  actorUserId String?
+  actor      User?       @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  action     AuditAction
+  entityType String // e.g. "Interpretation", "Source", "Consultation"
+  entityId   String?
+  summary    String?
+  metadata   Json?
+  createdAt  DateTime    @default(now())
+
+  @@index([entityType, entityId])
+  @@index([action])
+}
+
+// ---------------------------------------------------------------------------
+// PAYMENTS (optional, later phase — models present so the flow exists day one)
+// ---------------------------------------------------------------------------
+
+model Product {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String?
+  // Price in minor units (e.g. cents). Free tiers use 0.
+  priceCents  Int      @default(0)
+  currency    String   @default("usd")
+  active      Boolean  @default(true)
+  // e.g. "free_learning", "free_basic", "reviewed_consultation",
+  // "babalawo_session", "donation"
+  kind        String
+  createdAt   DateTime @default(now())
+
+  orders Order[]
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  userId          String?
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id])
+  amountCents     Int
+  currency        String   @default("usd")
+  status          String   @default("pending") // pending|paid|refunded|failed
+  stripeSessionId String?
+  createdAt       DateTime @default(now())
+}
