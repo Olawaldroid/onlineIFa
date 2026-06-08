@@ -76,12 +76,21 @@ legs identical for Méjì):
 
 | Source | Type | Licence | Permission | How we use it |
 |--------|------|---------|------------|---------------|
-| Wikipedia — *Ifá*, *Odu Ifa* | Encyclopaedia | CC BY-SA 4.0 | GRANTED (with attribution + share-alike) | Factual structure, names, instruments |
+| Wikipedia — *Ifá*, *Odu Ifa* | Encyclopaedia | CC BY-SA 4.0 (older edits 3.0) | GRANTED (attribution + share-alike) | Factual structure, names, instruments |
+| *African Traditional Religions Textbook: Ifa* (Pressbooks / OER) | Open educational resource | **CC BY-NC 4.0** (attrib. Will Coleman & Awo Fa'lokun Fatunmbi) | GRANTED (non-commercial) | Thematic grounding, educational depth |
+| Ellis, *The Yoruba-Speaking Peoples of the Slave Coast* (1894) | Ethnography | **Public domain** (archive.org) | NOT_REQUIRED | Historical/structural facts (read critically) |
+| Dennett, *Nigerian Studies* (1910) | Ethnography | **Public domain** (archive.org) | NOT_REQUIRED | Historical/structural facts (read critically) |
+| Frobenius, *The Voice of Africa* (1913) | Ethnography | **Public domain** (archive.org) | NOT_REQUIRED | Historical context (read critically) |
 | UNESCO ICH — *Ifa divination system* (00146) | Institutional | © UNESCO | NOT stored verbatim | Heritage status, factual context |
-| *African Traditional Religions Textbook: Ifa* (Pressbooks / OER Commons) | Open educational resource | Check per-page CC licence | Attribution | Thematic grounding |
-| Abimbola, *Ifá: An Exposition of Ifá Literary Corpus* (1976); *Sixteen Great Poems of Ifá* (UNESCO, 1975) | Academic / literary | © rights reserved | NOT copied | Cited for facts/attribution only |
+| Abimbola, *Ifá: An Exposition…* (1976); *Ifá Divination Poetry* (1977) | Academic / literary | © all rights reserved | NOT copied | Cited for facts/attribution only |
+| Owomoyela, *Yoruba Proverbs* (2005), *A Kì í* (1988) | Academic collection | © all rights reserved | NOT copied | Awareness only; proverbs sourced from oral tradition instead |
+| Lucas, *The Religion of the Yorubas* (1948) | Scholarly | © all rights reserved | NOT copied | Facts/attribution only |
 | "Algebraic characterization of Ifá main divination codes" (peer-reviewed) | Academic | © rights reserved | NOT copied | Binary/structure facts |
-| Owomoyela, *Yoruba Proverbs* (2005) | Academic collection | © rights reserved | NOT copied | Awareness only; proverbs sourced from common oral tradition instead |
+
+> **Colonial-era caution.** Ellis/Dennett/Frobenius are public-domain and useful
+> for structural/historical facts, but carry the biases of their era. Use them
+> for facts, not for interpretive framing, and prefer Yorùbá-authored and
+> contemporary scholarship for meaning.
 
 These are seeded as `Source` rows so the permission flow is exercised from day
 one (see `prisma/seed.ts`). Copyrighted sources are stored with
