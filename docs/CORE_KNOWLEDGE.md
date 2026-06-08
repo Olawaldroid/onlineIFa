@@ -113,13 +113,16 @@ identical for Méjì) in our `1`=single / `2`=double convention.
 > change it there too** (and re-seed). Epithets are translative/interpretive and
 > vary by source — treat as `[working]`.
 
-### Disputed: ordering across traditions
-Whether the **Cuban/Lukumí** order matches the West African order is
-**disputed** in our sources (one search claimed identical; the broader
-literature and older anthropology describe differences, and position 6 is often
-**Owonrin vs Ojuani** in Lukumí). **We do not assert they are identical.** We
-adopt the West African order, store Lukumí spellings as `altNames` for search,
-and keep the ordering question open (§7).
+### Ordering across traditions (partially resolved)
+The **Cuban/Lukumí** tradition uses **parallel names** for the same 16 figures,
+with consistent spelling differences (Ejiogbe/Eyiogbe, Oyekun, Iroso, **Ojuani =
+Owonrin** at position 6, Okana, Otrupon, Oche, etc.). Whether the full
+**seniority order** is identical to the West African order is **still not
+cleanly settled** across our authoritative sources — accounts differ, and this
+is partly a naming vs. ordering confusion. **We therefore do not assert the
+orders are identical.** We adopt the West African order, store Lukumí spellings
+as `altNames` for search, and keep full ordering equivalence as an open item
+(§7). `[working]`
 
 ## 5. Meaning & themes (informs our ORIGINAL summaries)
 
@@ -162,12 +165,18 @@ Detailed notes in [`IFA_RESEARCH.md`](IFA_RESEARCH.md). Posture by tier:
   **CC BY-NC 4.0**, attribution to Will Coleman & Awo Fa'lokun Fatunmbi,
   **non-commercial only**. Educational reuse with care. `permission GRANTED (NC)`.
 
-**Public domain (facts + text usable; pre-1929 US publication):**
-- A. B. Ellis, *The Yoruba-Speaking Peoples of the Slave Coast* (1894) — archive.org.
-- R. E. Dennett, *Nigerian Studies* (1910) — archive.org.
-- Leo Frobenius, *The Voice of Africa* (1913) — archive.org.
-  (Use with care: colonial-era framing; treat ethnographic interpretation
-  critically, use mainly for historical/structural facts.) `permission NOT_REQUIRED`.
+**Public domain (facts + text usable; pre-1929 US publication):** registered in
+`src/lib/sources/publicDomain.ts`, seeded as `Source` rows, and surfaced to
+users at `/library`.
+- **Samuel Johnson, *The History of the Yorubas* (1921)** — Yorùbá-authored;
+  `historyofyorubas00john` on archive.org. Preferred over the colonial works.
+- A. B. Ellis, *The Yoruba-Speaking Peoples of the Slave Coast* (1894) —
+  `yorubaspeakingpe0000elli`.
+- R. E. Dennett, *Nigerian Studies* (1910) — `nigerianstudieso00dennuoft`.
+- Leo Frobenius, *The Voice of Africa* (1913) — `voiceofafricabei01frob`.
+  (Colonial-era works: treat interpretation critically; use for historical/
+  structural facts. Verbatim passages must be added by a contributor with an
+  exact page citation and reviewed.) `permission NOT_REQUIRED`.
 
 **Facts/attribution only — DO NOT copy text (all rights reserved):**
 - Abimbola, *Ifá: An Exposition…* (1976), *Ifá Divination Poetry* (1977).
@@ -191,6 +200,14 @@ our **own** translations; never from the copyrighted collections above.
 - [ ] Have a Yorùbá-language reviewer verify diacritics/orthography of all names.
 
 ## 8. Changelog
+- **2026-06-08 (public-domain library)** — Verified and registered four
+  public-domain books on archive.org (Johnson 1921, Ellis 1894, Dennett 1910,
+  Frobenius 1913) in `src/lib/sources/publicDomain.ts`; seeded them as
+  `Source` rows (PUBLIC_DOMAIN, permission NOT_REQUIRED) and surfaced them to
+  users at `/library`. Recorded the Lukumí ordering finding (parallel names;
+  full seniority equivalence still open). Shipped the admin approve/reject UI
+  and wired the live (flag-gated) AI assistant model call. No verbatim text was
+  extracted from the books — passages await cited contributor submissions.
 - **2026-06-08 (deep research pass)** — Ran a 5-angle, multi-source, adversarially
   cross-checked research pass. Promoted §1–§4 to `[verified]` (structure, binary
   system, instruments/process, 16-Odù order + signatures — matching
