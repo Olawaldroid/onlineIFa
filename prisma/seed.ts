@@ -23,8 +23,46 @@ import {
   SafetyCategory,
 } from "@prisma/client";
 import { generateAllOdu } from "../src/lib/odu/combine";
+import { ORIGINAL_INTERPRETATIONS } from "../src/lib/odu/interpretations";
+import { hashPassword } from "../src/lib/auth/password";
 
 const prisma = new PrismaClient();
+
+// Reference sources used for FACTUAL grounding (see docs/IFA_RESEARCH.md).
+// These exercise the permission flow: CC BY-SA is GRANTED with attribution;
+// copyrighted academic works stay PENDING and cannot back published verse text.
+const REFERENCE_SOURCES = [
+  {
+    id: "src-wikipedia-ifa",
+    title: "Wikipedia — Ifá / Odu Ifa",
+    author: "Wikipedia contributors",
+    sourceType: SourceType.ACADEMIC,
+    licenceType: LicenceType.CC_BY_SA,
+    permissionStatus: PermissionStatus.GRANTED,
+    permissionDocUrl: "https://creativecommons.org/licenses/by-sa/4.0/",
+    attributionText:
+      "Factual structure adapted from Wikipedia (CC BY-SA 4.0). No interpretation text copied.",
+  },
+  {
+    id: "src-unesco-ich",
+    title: "UNESCO — Ifa divination system (Intangible Cultural Heritage, 00146)",
+    author: "UNESCO",
+    sourceType: SourceType.ACADEMIC,
+    licenceType: LicenceType.ALL_RIGHTS_RESERVED,
+    permissionStatus: PermissionStatus.PENDING,
+    attributionText: "Heritage context referenced; text not stored.",
+  },
+  {
+    id: "src-abimbola-corpus",
+    title: "Abimbola — Ifá: An Exposition of Ifá Literary Corpus (1976)",
+    author: "Wande Abimbola",
+    year: 1976,
+    sourceType: SourceType.ACADEMIC,
+    licenceType: LicenceType.ALL_RIGHTS_RESERVED,
+    permissionStatus: PermissionStatus.PENDING,
+    attributionText: "Cited for facts/attribution only; no text copied.",
+  },
+];
 
 const THEMES = [
   { slug: "beginnings", label: "Beginnings", category: "life-stage" },
@@ -37,6 +75,12 @@ const THEMES = [
   { slug: "abundance", label: "Abundance", category: "fortune" },
   { slug: "caution", label: "Caution", category: "challenge" },
   { slug: "community", label: "Community", category: "relationship" },
+  { slug: "clarity", label: "Clarity", category: "virtue" },
+  { slug: "foundation", label: "Foundation", category: "life-stage" },
+  { slug: "protection", label: "Protection", category: "fortune" },
+  { slug: "ancestry", label: "Ancestry", category: "relationship" },
+  { slug: "communication", label: "Communication", category: "virtue" },
+  { slug: "spiritual", label: "Spiritual", category: "life-stage" },
 ];
 
 const SAFETY_RESOURCES = [
@@ -151,21 +195,20 @@ async function main() {
     });
   }
 
-  // --- Attach a few themes to the principal Odù (illustrative facts) -------
-  const sampleThemeMap: Record<string, string[]> = {
-    "ogbe-meji": ["beginnings", "leadership"],
-    "oyeku-meji": ["transformation", "caution"],
-    "iwori-meji": ["perseverance"],
-    "odi-meji": ["family", "community"],
-    "irosun-meji": ["abundance"],
-    "owonrin-meji": ["conflict", "caution"],
-    "obara-meji": ["abundance", "patience"],
-    "okanran-meji": ["conflict"],
-  };
-  for (const [slug, themes] of Object.entries(sampleThemeMap)) {
-    const oduId = idBySlug.get(slug);
+  // --- Reference sources (exercise the permission flow) --------------------
+  for (const s of REFERENCE_SOURCES) {
+    await prisma.source.upsert({ where: { id: s.id }, update: s, create: s });
+  }
+
+  // --- Original APPROVED interpretations for the 16 principal Odù ----------
+  // Drives theme links + reflection questions from the content module. All are
+  // ORIGINAL_APP content (permission NOT_REQUIRED) — original, not copied.
+  for (const entry of ORIGINAL_INTERPRETATIONS) {
+    const oduId = idBySlug.get(entry.oduSlug);
     if (!oduId) continue;
-    for (const themeSlug of themes) {
+
+    // Link themes (facts) for this Odù.
+    for (const themeSlug of entry.themes) {
       const themeId = themeBySlug.get(themeSlug);
       if (!themeId) continue;
       await prisma.oduTheme.upsert({
@@ -174,29 +217,21 @@ async function main() {
         create: { oduId, themeId },
       });
     }
-  }
 
-  // --- One example APPROVED original interpretation (Èjì Ogbè) -------------
-  const ogbeId = idBySlug.get("ogbe-meji")!;
-  const existing = await prisma.interpretation.findFirst({
-    where: { oduId: ogbeId, sourceId: originalSource.id },
-  });
-  if (!existing) {
+    // Idempotent: skip if an original interpretation already exists for this Odù.
+    const existing = await prisma.interpretation.findFirst({
+      where: { oduId, sourceId: originalSource.id },
+    });
+    if (existing) continue;
+
     const interp = await prisma.interpretation.create({
       data: {
-        oduId: ogbeId,
+        oduId,
         language: "en",
-        tradition: "General (educational summary)",
-        title: "An introduction to Èjì Ogbè",
-        contentMd:
-          "## Èjì Ogbè\n\n" +
-          "Èjì Ogbè is the most senior of the sixteen principal Odù. Its signature shows " +
-          "four single marks on each leg.\n\n" +
-          "*This is original, educational content written for Online Ifá. It is a general " +
-          "summary intended for learning and reflection, not a substitute for divination " +
-          "by a trained Babalawo.*\n\n" +
-          "**Reflection:** Where in your life are you being invited to begin something new?",
-        notes: "Seed example of approved original content.",
+        tradition: "General (original educational summary)",
+        title: entry.title,
+        contentMd: entry.contentMd,
+        notes: "Original educational content seeded for the principal Odù.",
         sourceType: SourceType.ORIGINAL_APP,
         sourceId: originalSource.id,
         reviewStatus: ReviewStatus.APPROVED,
@@ -213,32 +248,35 @@ async function main() {
       },
     });
     await prisma.reflectionQuestion.createMany({
-      data: [
-        { interpretationId: interp.id, prompt: "What new beginning is asking for your attention?" },
-        { interpretationId: interp.id, prompt: "What would acting with integrity look like here?" },
-      ],
+      data: entry.reflectionQuestions.map((prompt) => ({ interpretationId: interp.id, prompt })),
     });
   }
 
   // --- Sample admin + contributor accounts ---------------------------------
+  // Dev passwords (override via env for anything shared). Hashed with scrypt.
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD || "changeme-admin-123";
+  const contributorPassword = process.env.SEED_CONTRIBUTOR_PASSWORD || "changeme-baba-123";
+
   const admin = await prisma.user.upsert({
     where: { email: "admin@online-ifa.local" },
-    update: {},
+    update: { passwordHash: await hashPassword(adminPassword) },
     create: {
       email: "admin@online-ifa.local",
       name: "Seed Admin",
       role: UserRole.ADMIN,
+      passwordHash: await hashPassword(adminPassword),
       disclaimerAcceptedAt: new Date(),
     },
   });
 
   const contributorUser = await prisma.user.upsert({
     where: { email: "babalawo@online-ifa.local" },
-    update: {},
+    update: { passwordHash: await hashPassword(contributorPassword) },
     create: {
       email: "babalawo@online-ifa.local",
       name: "Seed Babalawo",
       role: UserRole.CONTRIBUTOR,
+      passwordHash: await hashPassword(contributorPassword),
       disclaimerAcceptedAt: new Date(),
     },
   });

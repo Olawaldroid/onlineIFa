@@ -105,6 +105,8 @@ retrieval, so unapproved or copyright-unclear content can never leak.
 
 ## Documentation
 
+- [`docs/CORE_KNOWLEDGE.md`](docs/CORE_KNOWLEDGE.md) — **living knowledge base** (facts, themes, open questions; update as we research)
+- [`docs/IFA_RESEARCH.md`](docs/IFA_RESEARCH.md) — research notes + open-source registry
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — folder structure, data model, design
 - [`docs/ROUTE_MAP.md`](docs/ROUTE_MAP.md) — page + API route maps
 - [`docs/CONSULTATION_STATE_MACHINE.md`](docs/CONSULTATION_STATE_MACHINE.md)
