@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 import Link from "next/link";
+import { ReviewActions } from "@/components/ReviewActions";
 
 // Admin review queue. Lists submitted/in-review interpretations with their
 // source permission status so an admin can approve only publishable content.
@@ -44,11 +45,7 @@ export default async function AdminInterpretationsPage() {
               <span className="rounded-full bg-ifa-rust/30 px-3 py-1 text-xs">{i.reviewStatus}</span>
             </div>
             <p className="mt-2 line-clamp-3 text-sm text-ifa-cream/70">{i.contentMd}</p>
-            <form action={`/api/interpretations/${i.id}/review`} method="post" className="mt-3 flex gap-2 text-sm text-ifa-sage">
-              {/* Real approve/reject buttons call PATCH via client JS; this is the
-                  documented endpoint. See README for the admin workflow. */}
-              <span>PATCH /api/interpretations/{i.id}/review</span>
-            </form>
+            <ReviewActions interpretationId={i.id} />
           </div>
         ))}
       </div>
