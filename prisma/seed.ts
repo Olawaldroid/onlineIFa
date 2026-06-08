@@ -24,6 +24,7 @@ import {
 } from "@prisma/client";
 import { generateAllOdu } from "../src/lib/odu/combine";
 import { ORIGINAL_INTERPRETATIONS } from "../src/lib/odu/interpretations";
+import { PUBLIC_DOMAIN_BOOKS } from "../src/lib/sources/publicDomain";
 import { hashPassword } from "../src/lib/auth/password";
 
 const prisma = new PrismaClient();
@@ -198,6 +199,24 @@ async function main() {
   // --- Reference sources (exercise the permission flow) --------------------
   for (const s of REFERENCE_SOURCES) {
     await prisma.source.upsert({ where: { id: s.id }, update: s, create: s });
+  }
+
+  // --- Public-domain books (permission NOT_REQUIRED) -----------------------
+  // Bibliographic facts + links; contributors extract cited passages later.
+  for (const b of PUBLIC_DOMAIN_BOOKS) {
+    const data = {
+      id: b.id,
+      title: b.title,
+      author: b.author,
+      year: b.year,
+      sourceType: SourceType.PUBLIC_DOMAIN,
+      licenceType: LicenceType.PUBLIC_DOMAIN,
+      permissionStatus: PermissionStatus.NOT_REQUIRED,
+      permissionDocUrl: b.archiveUrl,
+      attributionText: `${b.author}, ${b.title} (${b.year}). Public domain.`,
+      notes: b.note,
+    };
+    await prisma.source.upsert({ where: { id: b.id }, update: data, create: data });
   }
 
   // --- Original APPROVED interpretations for the 16 principal Odù ----------

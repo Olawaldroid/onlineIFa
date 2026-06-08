@@ -3,18 +3,35 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { ReviewStatus } from "@prisma/client";
 import { sourceIsPublishable } from "@/lib/interpretation/gate";
+import { getSession, authEnforced } from "@/lib/auth/session";
 
 const Body = z.object({
-  reviewerUserId: z.string(),
   decision: z.enum(["APPROVED", "REJECTED", "CHANGES_REQUESTED"]),
   comment: z.string().optional(),
 });
+
+/** Resolve the reviewing admin: the session user if enforced; otherwise fall
+ *  back to the first ADMIN in the DB (dev convenience). */
+async function resolveReviewer(): Promise<string | null> {
+  const session = getSession();
+  if (session && session.role === "ADMIN" && session.userId !== "dev") {
+    return session.userId;
+  }
+  if (authEnforced()) return null; // must be a real admin session
+  const admin = await prisma.user.findFirst({ where: { role: "ADMIN" } });
+  return admin?.id ?? null;
+}
 
 // PATCH /api/interpretations/:id/review — admin reviews a submission.
 // Approval is BLOCKED if the linked source is not publishable (permission gate).
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const body = Body.parse(await req.json());
+    const reviewerUserId = await resolveReviewer();
+    if (!reviewerUserId) {
+      return NextResponse.json({ error: "Admin session required" }, { status: 403 });
+    }
+
     const interp = await prisma.interpretation.findUnique({
       where: { id: params.id },
       include: { source: true, versions: true },
@@ -41,7 +58,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       prisma.review.create({
         data: {
           interpretationId: params.id,
-          reviewerUserId: body.reviewerUserId,
+          reviewerUserId: reviewerUserId,
           decision: body.decision as ReviewStatus,
           comment: body.comment,
         },
@@ -52,13 +69,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
           version: nextVersion,
           contentMd: interp.contentMd,
           reviewStatus: body.decision as ReviewStatus,
-          editedByUserId: body.reviewerUserId,
+          editedByUserId: reviewerUserId,
           changeNote: `Review decision: ${body.decision}`,
         },
       }),
       prisma.auditLog.create({
         data: {
-          actorUserId: body.reviewerUserId,
+          actorUserId: reviewerUserId,
           action:
             body.decision === "APPROVED"
               ? "APPROVE"
