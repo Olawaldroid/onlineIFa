@@ -1,0 +1,76 @@
+/* IFA LAB — page-scoped keyframes and odds and ends that don't map to
+   Tailwind utilities. Class names are prefixed `om-`/`lab-` to stay global-safe. */
+
+@keyframes omSpin {
+  from { transform: rotate(0); }
+  to { transform: rotate(360deg); }
+}
+@keyframes omFloat {
+  0%, 100% { transform: translateY(0); opacity: 0.25; }
+  50% { transform: translateY(-26px); opacity: 0.9; }
+}
+@keyframes omFadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes omPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 162, 39, 0.35); }
+  50% { box-shadow: 0 0 0 14px rgba(201, 162, 39, 0); }
+}
+@keyframes omGlow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+@keyframes omSwing {
+  0%, 100% { transform: rotate(7deg); }
+  50% { transform: rotate(-7deg); }
+}
+@keyframes omFlipIn {
+  from { transform: rotateX(85deg) translateY(-20px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes omInk {
+  from { transform: scaleY(0); opacity: 0; }
+  to { transform: scaleY(1); opacity: 1; }
+}
+@keyframes omJitter {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(2px, -2px); }
+  75% { transform: translate(-2px, 2px); }
+}
+@keyframes omSweep {
+  0%, 100% { transform: translateX(0); }
+  45%, 55% { transform: translateX(-152px); }
+}
+@keyframes omFinger {
+  0% { transform: translate(-50%, -32px); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translate(-50%, 32px); opacity: 0; }
+}
+
+/* Carved tray rim: repeating notch ring, hollowed with a radial mask. */
+.lab-tray-rim {
+  background: repeating-conic-gradient(#54381f 0deg 5deg, #2e2012 5deg 10deg);
+  -webkit-mask: radial-gradient(circle, transparent 61.5%, #000 62%);
+  mask: radial-gradient(circle, transparent 61.5%, #000 62%);
+}
+.lab-tray-rays {
+  background: repeating-conic-gradient(rgba(201, 162, 39, 0.18) 0deg 2deg, transparent 2deg 12deg);
+  -webkit-mask: radial-gradient(circle, transparent 74%, #000 75%);
+  mask: radial-gradient(circle, transparent 74%, #000 75%);
+}
+
+/* Pressed mark in the ìyẹ̀rọ̀sùn sand. */
+.lab-sand-mark {
+  width: 9px;
+  height: 34px;
+  border-radius: 5px;
+  background: linear-gradient(#3f2917, #5a3d24 60%, #6b4426);
+  box-shadow:
+    inset 0 4px 7px rgba(0, 0, 0, 0.55),
+    0 0 0 2px rgba(255, 248, 224, 0.45),
+    0 0 8px rgba(236, 217, 168, 0.5);
+  transform-origin: top;
+  animation: omInk 0.5s ease both;
+}

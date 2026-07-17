@@ -200,6 +200,18 @@ our **own** translations; never from the copyrighted collections above.
 - [ ] Have a Yorùbá-language reviewer verify diacritics/orthography of all names.
 
 ## 8. Changelog
+- **2026-07-17 (IFA LAB interactive platform)** — Implemented the full-bleed
+  `/lab` experience from the Claude Design handoff (`IFA LAB.dc.html`):
+  animated ọ̀pẹ̀lẹ̀/ìkín consultation simulator with a step-by-step "show your
+  working" log, a 0–255 binary explorer, a searchable 256-Odù grid, a clickable
+  knowledge graph, a horizontal history timeline, Ifá ↔ CS comparison cards,
+  learning games with badges, museum image slots, and an "Ifàgrìthm" field-notes
+  section pairing claims from the Adégbọlá conversation (Waa Sere interview)
+  with what independent research shows — each claim carries its caveat and a
+  source link (Lóngẹ́ 1983 lecture framing, Ulm ọpọn Ifá ~1650, Miller 1956,
+  Abímbọ́lá's verse structure). All lab copy is original; structure facts reuse
+  `src/lib/odu/*`. Existing pages moved under the `(site)` route group so the
+  lab page owns its own chrome; URLs unchanged.
 - **2026-06-08 (public-domain library)** — Verified and registered four
   public-domain books on archive.org (Johnson 1921, Ellis 1894, Dennett 1910,
   Frobenius 1913) in `src/lib/sources/publicDomain.ts`; seeded them as
