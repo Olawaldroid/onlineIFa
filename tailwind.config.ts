@@ -17,11 +17,18 @@ const config: Config = {
           rust: "#a8431f",
           cream: "#f3e9d9",
           sage: "#7c8a5a",
+          // IFA LAB additions
+          deep: "#15100b", // darkest section background
+          ink: "#241b14", // text on light sections (same hue as surface)
+          paper: "#f5eee1", // light section background
+          parchment: "#fdf9f0", // light card background
+          peri: "#9aa6f2", // field-notes accent
         },
       },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
         serif: ["var(--font-serif)", "Georgia", "serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
     },
   },
