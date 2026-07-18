@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { ReviewStatus } from "@prisma/client";
 import { sourceIsPublishable } from "@/lib/interpretation/gate";
 import { getSession, authEnforced } from "@/lib/auth/session";
+import { reviewSubmission } from "@/lib/contributions/store";
 
 const Body = z.object({
   decision: z.enum(["APPROVED", "REJECTED", "CHANGES_REQUESTED"]),
@@ -24,9 +25,24 @@ async function resolveReviewer(): Promise<string | null> {
 
 // PATCH /api/interpretations/:id/review — admin reviews a submission.
 // Approval is BLOCKED if the linked source is not publishable (permission gate).
+// Ids prefixed "sub_" live in the file-backed contribution store (no database
+// needed); they have no external source, so the permission gate passes by
+// construction (contributor-original content = permission NOT_REQUIRED).
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const body = Body.parse(await req.json());
+
+    if (params.id.startsWith("sub_")) {
+      const session = getSession();
+      const isAdmin = session?.role === "ADMIN";
+      if (authEnforced() && !isAdmin) {
+        return NextResponse.json({ error: "Admin session required" }, { status: 403 });
+      }
+      const updated = await reviewSubmission(params.id, body.decision, body.comment);
+      if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.json({ interpretation: updated, store: "file" });
+    }
+
     const reviewerUserId = await resolveReviewer();
     if (!reviewerUserId) {
       return NextResponse.json({ error: "Admin session required" }, { status: 403 });

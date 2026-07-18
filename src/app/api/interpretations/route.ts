@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { ReviewStatus } from "@prisma/client";
+import { oduFactBySlug } from "@/lib/odu/facts";
+import { addSubmission } from "@/lib/contributions/store";
 
 const Body = z.object({
   oduSlug: z.string(),
@@ -20,10 +22,36 @@ const Body = z.object({
 
 // POST /api/interpretations — contributor submits an interpretation (DRAFT →
 // SUBMITTED). Visibility requires admin approval AND a publishable source.
+// Without a database the submission lands in the file-backed contribution
+// store instead (src/lib/contributions/store.ts) — same review flow, no setup.
 export async function POST(req: NextRequest) {
   try {
     const body = Body.parse(await req.json());
-    const odu = await prisma.odu.findUnique({ where: { slug: body.oduSlug } });
+
+    let odu: { id: string } | null = null;
+    let dbAvailable = true;
+    try {
+      odu = await prisma.odu.findUnique({ where: { slug: body.oduSlug } });
+    } catch {
+      dbAvailable = false;
+    }
+
+    if (!dbAvailable) {
+      const fact = oduFactBySlug(body.oduSlug);
+      if (!fact) return NextResponse.json({ error: "Unknown Odù" }, { status: 404 });
+      const submission = await addSubmission({
+        oduSlug: body.oduSlug,
+        oduName: fact.name,
+        language: body.language,
+        tradition: body.tradition,
+        title: body.title,
+        contentMd: body.contentMd,
+        notes: body.notes,
+        sourceType: body.sourceType,
+      });
+      return NextResponse.json({ interpretation: submission, store: "file" }, { status: 201 });
+    }
+
     if (!odu) return NextResponse.json({ error: "Unknown Odù" }, { status: 404 });
 
     const interp = await prisma.interpretation.create({

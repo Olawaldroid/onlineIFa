@@ -200,6 +200,19 @@ our **own** translations; never from the copyrighted collections above.
 - [ ] Have a Yorùbá-language reviewer verify diacritics/orthography of all names.
 
 ## 8. Changelog
+- **2026-07-18 (contributions work without a database)** — Added a file-backed
+  contribution store (`src/lib/contributions/store.ts`, JSON at
+  `data/contributions.json`, temp-dir fallback on read-only filesystems). When
+  Postgres is unreachable: `/contribute` submissions land in the file store,
+  `/admin` + `/admin/interpretations` show live counts and a working review
+  queue from it (approve / request changes / reject via the existing
+  `ReviewActions` → `PATCH /api/interpretations/sub_…/review`), and approved
+  submissions publish on the Odù detail page through `getOduDetail`. Review
+  gates preserved: only APPROVED + unflagged content is shown; file
+  submissions have no external source (permission NOT_REQUIRED by
+  construction); admin sessions still required when `AUTH_ENFORCED=true`;
+  every transition appends to the submission's `events` audit list. Documented
+  in `docs/ADMIN_WORKFLOW.md`.
 - **2026-07-18 (nav cleanup, ọpọn hero, museum expansion, guest-only gate)** —
   Grouped the 12-link nav into Learn/Explore dropdowns + three standalone links
   (the flat "Consultation" link was redundant with the CTA). Rebuilt the
