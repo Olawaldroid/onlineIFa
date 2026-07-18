@@ -1,11 +1,14 @@
 import Link from "next/link";
 
 const LINKS = [
-  { href: "/lab", label: "IFA Lab" },
   { href: "/learn", label: "Learn Ifá" },
   { href: "/odu", label: "Odù Library" },
-  { href: "/library", label: "Books" },
+  { href: "/library", label: "Library" },
   { href: "/consult", label: "Consultation" },
+  { href: "/graph", label: "Graph" },
+  { href: "/history", label: "History" },
+  { href: "/games", label: "Learn to play" },
+  { href: "/museum", label: "Museum" },
   { href: "/search", label: "Search" },
   { href: "/assistant", label: "Assistant" },
   { href: "/contribute", label: "Contribute" },

@@ -1,7 +1,10 @@
 import { Nav } from "@/components/Nav";
 
-// Site chrome (nav + centered container + footer) for the main app pages.
-// The /lab route lives outside this group and renders full-bleed.
+// Site chrome (nav + centered container + footer) for utility pages
+// (search, assistant, contribute, pricing, saved, auth, admin) that don't
+// need the full-bleed IFA LAB section treatment. See src/app/(full)/layout
+// for the primary pages (home, learn, odu, consult, library, graph,
+// history, games, museum).
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <>

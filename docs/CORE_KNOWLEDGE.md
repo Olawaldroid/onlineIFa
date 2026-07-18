@@ -200,6 +200,27 @@ our **own** translations; never from the copyrighted collections above.
 - [ ] Have a Yorùbá-language reviewer verify diacritics/orthography of all names.
 
 ## 8. Changelog
+- **2026-07-18 (IFA LAB becomes the site design)** — Retired the standalone
+  `/lab` showcase (redirects to `/`, `next.config.mjs`) and adopted its
+  visual language as the real site's design everywhere: home, `/learn`,
+  `/odu`, `/odu/[slug]`, `/consult`, `/library`, plus four new real routes —
+  `/graph`, `/history`, `/games`, `/museum` — carrying the sections that
+  previously only existed inside the demo. Two route groups now split the
+  app: `(full)` for the full-bleed IFA LAB-styled pages, `(site)` for
+  utility pages (search, admin, auth) that keep the plain centered layout.
+  The consultation flow's SIMULATED/LEARNING casting modes now replay the
+  **real, server-decided signature** through the chain-swing / nut-striking
+  animation (`src/components/CastingStage.tsx`) instead of a separate
+  client-side random draw — the state machine, safety screening,
+  interpretation gating, and every API route are unchanged; only the "cast"
+  step's presentation and pacing changed. Lab's static editorial content
+  (facets, math topics, CS comparisons, timeline eras, graph nodes, museum
+  items, glossary, IFÀGRÌTHM field notes) moved into `src/lib/content/*` as
+  shared, reusable modules; `src/lib/odu/glyph.ts` centralises the
+  signature-to-mark-glyph helpers used across `/odu`, `/learn` and `/games`.
+  IFÀGRÌTHM field notes (§ below) are original paraphrase with credited
+  sources — no verbatim transcript — carried over unchanged from the /lab
+  implementation; flagging here per this file's sourcing-log convention.
 - **2026-07-17 (IFA LAB interactive platform)** — Implemented the full-bleed
   `/lab` experience from the Claude Design handoff (`IFA LAB.dc.html`):
   animated ọ̀pẹ̀lẹ̀/ìkín consultation simulator with a step-by-step "show your
