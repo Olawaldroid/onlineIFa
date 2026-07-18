@@ -2,8 +2,9 @@ import Link from "next/link";
 import { CONSULTATION_DISCLAIMER } from "@/lib/safety/guardrails";
 
 // Onboarding step: cultural & educational disclaimer.
-// The user must accept before continuing. After accepting they choose to
-// create an account or continue as a guest. `next` carries the destination.
+// The user must accept before continuing on as a guest. `next` carries the
+// destination. (Accounts are not part of onboarding — sign-up lives at /signup
+// for those who want to save history later.)
 export default function DisclaimerPage({
   searchParams,
 }: {
@@ -42,14 +43,9 @@ export default function DisclaimerPage({
           </span>
         </label>
 
-        <div className="flex flex-wrap gap-3">
-          <button type="submit" name="mode" value="guest" className="btn-secondary">
-            Continue as guest
-          </button>
-          <button type="submit" name="mode" value="account" className="btn-primary">
-            Create an account
-          </button>
-        </div>
+        <button type="submit" className="btn-primary">
+          Accept &amp; continue
+        </button>
       </form>
 
       <p className="text-xs text-ifa-sage">

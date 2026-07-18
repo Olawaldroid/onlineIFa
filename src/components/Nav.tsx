@@ -1,15 +1,38 @@
 import Link from "next/link";
 
-const LINKS = [
-  { href: "/learn", label: "Learn Ifá" },
-  { href: "/odu", label: "Odù Library" },
-  { href: "/library", label: "Library" },
-  { href: "/consult", label: "Consultation" },
-  { href: "/graph", label: "Graph" },
-  { href: "/history", label: "History" },
-  { href: "/games", label: "Learn to play" },
-  { href: "/museum", label: "Museum" },
-  { href: "/search", label: "Search" },
+// Top navigation. The dozen destinations are grouped into two dropdown
+// clusters (Learn / Explore) plus the three standalone links people reach for
+// most, so the bar stays uncrowded. Dropdowns are CSS-only (hover +
+// focus-within) so this stays a server component and works without JS.
+
+interface NavLink {
+  href: string;
+  label: string;
+  sub: string;
+}
+
+const GROUPS: { label: string; links: NavLink[] }[] = [
+  {
+    label: "Learn",
+    links: [
+      { href: "/learn", label: "Learn Ifá", sub: "Foundations, structure, mathematics" },
+      { href: "/games", label: "Learn to play", sub: "Practice reading the instruments" },
+      { href: "/history", label: "History", sub: "A timeline of the tradition" },
+      { href: "/library", label: "Library", sub: "Sources you can read today" },
+    ],
+  },
+  {
+    label: "Explore",
+    links: [
+      { href: "/odu", label: "Odù Library", sub: "All 256 figures" },
+      { href: "/graph", label: "Graph", sub: "The 256 as a network" },
+      { href: "/museum", label: "Museum", sub: "Instruments & artefacts" },
+      { href: "/search", label: "Search", sub: "Find anything" },
+    ],
+  },
+];
+
+const SINGLES = [
   { href: "/assistant", label: "Assistant" },
   { href: "/contribute", label: "Contribute" },
   { href: "/admin", label: "Admin" },
@@ -22,8 +45,33 @@ export function Nav() {
         <Link href="/" className="font-serif text-lg font-semibold tracking-[0.08em] text-ifa-gold hover:text-ifa-gold">
           Online Ifá
         </Link>
-        <div className="flex flex-1 flex-wrap gap-x-4 gap-y-1 text-[13px] tracking-[0.01em]">
-          {LINKS.map((l) => (
+        <div className="flex flex-1 flex-wrap items-center gap-x-5 gap-y-1 text-[13px] tracking-[0.01em]">
+          {GROUPS.map((g) => (
+            <div key={g.label} className="group relative">
+              <button
+                type="button"
+                className="flex cursor-pointer items-center gap-1 border-none bg-transparent p-0 text-[13px] tracking-[0.01em] text-ifa-cream/85 group-hover:text-ifa-gold group-focus-within:text-ifa-gold"
+              >
+                {g.label}
+                <span aria-hidden className="text-[9px] text-ifa-cream/50">▾</span>
+              </button>
+              <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 pt-3 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                <div className="w-[236px] rounded-2xl border border-ifa-border bg-ifa-deep p-2 shadow-[0_24px_50px_rgba(0,0,0,0.5)]">
+                  {g.links.map((l) => (
+                    <Link
+                      key={l.href}
+                      href={l.href}
+                      className="block rounded-xl px-3.5 py-2.5 text-ifa-cream/90 transition-colors hover:bg-ifa-gold/[0.08] hover:text-ifa-gold"
+                    >
+                      <span className="block text-[13.5px] font-medium">{l.label}</span>
+                      <span className="mt-0.5 block text-[11px] leading-snug text-ifa-cream/45">{l.sub}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+          {SINGLES.map((l) => (
             <Link key={l.href} href={l.href} className="text-ifa-cream/85 hover:text-ifa-gold">
               {l.label}
             </Link>
