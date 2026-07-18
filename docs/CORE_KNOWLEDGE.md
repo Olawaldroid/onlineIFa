@@ -183,6 +183,18 @@ users at `/library`.
 - Owomoyela, *Yoruba Proverbs* (2005), *A Kì í* (1988).
 - Lucas, *The Religion of the Yorubas* (1948).
 - UNESCO ICH page (facts referenced; text not stored). `permission PENDING`.
+- **Reference shelf (2026-07-18, digital copies held privately in the owner's
+  Drive — NOT in the repo, NOT served by the site):** registered in
+  `src/lib/sources/references.ts` and listed at `/library`. Highlights:
+  **Bascom, *Ifa Divination* (1969)** — now our primary fact-checking
+  reference (procedure, ordering conventions, 186 verses); **Abraham,
+  *Dictionary of Modern Yoruba* (1958)** — orthography/tone-mark authority;
+  Gleason (1973); Emanuel, *Ọdun Ifá* (2000); Ibie, *Ifism* vols 1 & 8–9;
+  Fatunmbi (*Orí*, *Èṣù-Ẹlẹ́gbà*); Karade (EN + PT eds.); Nei Lopes, *Ifá
+  Lucumí* (2020, PT — bears on the open Lukumí-ordering question); Aderonmu
+  (PT); Matias; Silva (popular intro — never a sole fact source); and an
+  Isale-Ọyọ divination-trays article (museum iconography). All
+  `permission PENDING`, facts + attribution only.
 
 **Proverbs / ese Ifá:** only from public-domain or oral-tradition sources, in
 our **own** translations; never from the copyrighted collections above.
@@ -200,6 +212,19 @@ our **own** translations; never from the copyrighted collections above.
 - [ ] Have a Yorùbá-language reviewer verify diacritics/orthography of all names.
 
 ## 8. Changelog
+- **2026-07-18 (reference shelf: 14 copyrighted works registered)** — The
+  project owner supplied digital copies (private Drive; folder shared with the
+  agent session) of 14 in-copyright works incl. **Bascom 1969** (the landmark
+  study), **Abraham 1958** (Yorùbá dictionary), Gleason 1973, Emanuel 2000,
+  Ibie's *Ifism* vols 1/8–9, Fatunmbi's *Orí* and *Èṣù* monographs, Karade
+  (EN/PT), Nei Lopes 2020 (Lukumí), Aderonmu, Matias, Silva, and an Isale-Ọyọ
+  tray-corpus article. Registered as facts-only references in
+  `src/lib/sources/references.ts`, surfaced at `/library` under
+  `REFERENCE · FACTS ONLY`, added to §6. Copies are NOT committed or served —
+  copyright. Text extraction verified (both born-digital and scanned copies
+  are readable), so these can now back fact-checking of §§1–5 and the open
+  questions in §7 (Bascom for ordering/ìkín-rule verification; Abraham for
+  the diacritics audit; Lopes for the Lukumí ordering).
 - **2026-07-18 (contributions work without a database)** — Added a file-backed
   contribution store (`src/lib/contributions/store.ts`, JSON at
   `data/contributions.json`, temp-dir fallback on read-only filesystems). When

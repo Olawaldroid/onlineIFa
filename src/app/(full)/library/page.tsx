@@ -48,7 +48,9 @@ export default function LibraryPage() {
           their time — we use them for factual and historical grounding and read their
           interpretation critically, preferring Yorùbá-authored and contemporary scholarship for
           meaning. Any passage quoted in the app is added by a contributor with an exact page
-          citation and reviewed before publishing.
+          citation and reviewed before publishing. Titles marked <em>REFERENCE · FACTS ONLY</em> are
+          in copyright: we hold copies privately, use them to verify facts and inform original
+          writing, and never reproduce their text here.
         </p>
       </div>
 
