@@ -17,10 +17,10 @@ export default async function OduDetailPage({ params }: { params: { slug: string
     <div className="space-y-8">
       <header className="flex flex-wrap items-start justify-between gap-6">
         <div>
-          <p className="text-sm text-ifa-sage">
+          <p className="eyebrow">
             Rank {fact.rank} · {fact.isPrimary ? "Principal Odù" : "Combined Odù"}
           </p>
-          <h1 className="font-serif text-4xl font-bold text-ifa-gold">{fact.name}</h1>
+          <h1 className="section-title mt-2 text-4xl text-ifa-gold">{fact.name}</h1>
           <p className="mt-1 font-mono text-sm text-ifa-cream/60">/{fact.slug}</p>
           {fact.altNames.length > 0 && (
             <p className="mt-1 text-sm text-ifa-cream/60">

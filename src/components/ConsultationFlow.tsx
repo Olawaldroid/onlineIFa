@@ -103,7 +103,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
 
       {step === "mode" && (
         <div className="card space-y-4">
-          <h2 className="text-lg font-semibold text-ifa-gold">Choose a casting mode</h2>
+          <h2 className="font-serif text-xl text-ifa-gold">Choose a casting mode</h2>
           <p className="text-sm text-ifa-cream/70">
             Casting modes are honest about what they are. A simulation is a learning tool,
             not spiritual authority.
@@ -111,7 +111,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
           <div className="space-y-2">
             {CASTING_MODES.map((m) => (
               <label key={m.value} className="flex items-center gap-3">
-                <input type="radio" name="mode" value={m.value} checked={mode === m.value} onChange={() => setMode(m.value)} />
+                <input type="radio" name="mode" value={m.value} checked={mode === m.value} onChange={() => setMode(m.value)} className="accent-ifa-gold" />
                 {m.label}
               </label>
             ))}
@@ -122,7 +122,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
 
       {step === "area" && (
         <div className="card space-y-4">
-          <h2 className="text-lg font-semibold text-ifa-gold">Area of concern</h2>
+          <h2 className="font-serif text-xl text-ifa-gold">Area of concern</h2>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {AREAS.map((a) => (
               <button key={a} onClick={() => setArea(a)} className={`btn ${area === a ? "btn-primary" : "btn-secondary"}`}>
@@ -136,7 +136,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
 
       {step === "question" && (
         <div className="card space-y-4">
-          <h2 className="text-lg font-semibold text-ifa-gold">Your question</h2>
+          <h2 className="font-serif text-xl text-ifa-gold">Your question</h2>
           <p className="text-sm text-ifa-rust">
             Emergencies and medical, legal, or financial matters need a qualified professional —
             this app cannot advise on them.
@@ -145,7 +145,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             rows={4}
-            className="w-full rounded-lg border border-ifa-border bg-ifa-bg p-3 text-sm"
+            className="w-full rounded-lg border border-ifa-border bg-ifa-surface p-3 text-sm text-ifa-cream outline-none placeholder:text-ifa-cream/40"
             placeholder="What would you like to reflect on?"
           />
           <button className="btn-primary" disabled={busy || !question.trim()} onClick={submitQuestion}>Continue</button>
@@ -154,7 +154,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
 
       {step === "safety" && (
         <div className="card space-y-4">
-          <h2 className="text-lg font-semibold text-ifa-gold">A moment of care</h2>
+          <h2 className="font-serif text-xl text-ifa-gold">A moment of care</h2>
           {safety && safety.messages.length > 0 ? (
             <ul className="space-y-2 text-sm text-ifa-cream">
               {safety.messages.map((m, i) => (
@@ -180,14 +180,14 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
 
       {step === "cast" && (
         <div className="card space-y-4">
-          <h2 className="text-lg font-semibold text-ifa-gold">Casting</h2>
+          <h2 className="font-serif text-xl text-ifa-gold">Casting</h2>
           {(mode === "USER_SELECTED" || mode === "MANUAL_BABALAWO") && (
             <label className="block text-sm">
               Signature (rightLeg|leftLeg, e.g. 1111|2222)
               <input
                 value={signature}
                 onChange={(e) => setSignature(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-ifa-border bg-ifa-bg p-2 font-mono"
+                className="mt-1 w-full rounded-lg border border-ifa-border bg-ifa-surface p-2 font-mono text-ifa-cream outline-none"
               />
             </label>
           )}
@@ -221,7 +221,7 @@ function Result({ result }: { result: any }) {
       </div>
 
       <div className="card">
-        <h3 className="mb-2 text-lg font-semibold text-ifa-gold">
+        <h3 className="mb-2 font-serif text-xl text-ifa-gold">
           {display?.isPlaceholder ? "Interpretation (awaiting review)" : "Interpretation"}
         </h3>
         <div className="prose-ifa">
@@ -233,7 +233,7 @@ function Result({ result }: { result: any }) {
       </div>
 
       <div className="card">
-        <h3 className="mb-2 text-lg font-semibold text-ifa-gold">Reflection questions</h3>
+        <h3 className="mb-2 font-serif text-xl text-ifa-gold">Reflection questions</h3>
         <ul className="list-disc space-y-1 pl-5 text-sm text-ifa-cream/80">
           <li>What in this resonates with your situation, and what does not?</li>
           <li>What small, wise next step is within your control?</li>
