@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { SignatureDisplay } from "./SignatureDisplay";
+import { CastingStage, Instrument, IkinStage, WorkingStep } from "./CastingStage";
+import { markProgressFlag } from "@/lib/progress";
 
 const AREAS = [
   "GENERAL", "HEALTH", "FAMILY", "MARRIAGE", "MONEY",
@@ -18,6 +20,8 @@ const CASTING_MODES = [
 
 type Step = "mode" | "area" | "question" | "safety" | "cast" | "result";
 
+const posName = (i: number) => `${i < 4 ? "right" : "left"} leg, position ${(i % 4) + 1}`;
+
 export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) {
   const [step, setStep] = useState<Step>("mode");
   const [id, setId] = useState<string | null>(null);
@@ -29,6 +33,29 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
   const [result, setResult] = useState<any>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Casting-stage animation state. The signature is always decided by the
+  // server (POST .../cast) BEFORE any of this runs — these fields only
+  // control the pacing of revealing that already-decided result.
+  const [instrument, setInstrument] = useState<Instrument>("opele");
+  const [working, setWorking] = useState(true);
+  const [animating, setAnimating] = useState(false);
+  const [marks, setMarks] = useState<number[]>([]);
+  const [workingSteps, setWorkingSteps] = useState<WorkingStep[]>([]);
+  const [shaking, setShaking] = useState(false);
+  const [chainLanded, setChainLanded] = useState(false);
+  const [ikinStage, setIkinStage] = useState<IkinStage | null>(null);
+  const [seedsLeft, setSeedsLeft] = useState(16);
+
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const after = useCallback((ms: number, fn: () => void) => {
+    timers.current.push(setTimeout(fn, ms));
+  }, []);
+  const clearTimers = useCallback(() => {
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+  }, []);
+  useEffect(() => clearTimers, [clearTimers]);
 
   async function call(url: string, body: unknown, method = "PATCH") {
     setBusy(true);
@@ -79,22 +106,144 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
     if (json) setStep("cast");
   }
 
-  async function doCast() {
+  // USER_SELECTED / MANUAL_BABALAWO: the Odù is already known (typed in), so
+  // there's nothing to animate revealing — cast, interpret, done.
+  async function submitKnownOdu() {
     if (!id) return;
-    const needsSig = mode === "USER_SELECTED" || mode === "MANUAL_BABALAWO";
-    const json = await call(
-      `/api/consultation/${id}/cast`,
-      needsSig ? { signature } : {},
-      "POST",
-    );
-    if (json) {
-      const interp = await call(`/api/consultation/${id}`, { action: "interpret" });
-      if (interp) {
-        setResult({ consultation: json.consultation, ...interp });
-        setStep("result");
-      }
+    const json = await call(`/api/consultation/${id}/cast`, { signature }, "POST");
+    if (!json) return;
+    markProgressFlag("cast");
+    const interp = await call(`/api/consultation/${id}`, { action: "interpret" });
+    if (interp) {
+      setResult({ consultation: json.consultation, ...interp });
+      setStep("result");
     }
   }
+
+  const finishAnimation = useCallback(
+    (all: number[]) => {
+      const sig = all.slice(0, 4).join("") + "|" + all.slice(4).join("");
+      setMarks(all);
+      setIkinStage(null);
+      setWorkingSteps((st) => [
+        ...st,
+        { n: "★", text: `The figure is complete: ${sig}. Read right leg first.` },
+      ]);
+      after(600, async () => {
+        const interp = await call(`/api/consultation/${id}`, { action: "interpret" });
+        setAnimating(false);
+        if (interp) {
+          setResult(interp);
+          setStep("result");
+        }
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [after, id],
+  );
+
+  const animateOpele = useCallback(
+    (realMarks: number[]) => {
+      setShaking(true);
+      setChainLanded(false);
+      setWorkingSteps([
+        {
+          n: "·",
+          text: "The ọ̀pẹ̀lẹ̀ — a chain of eight half-pods in two strands of four — is held at the middle and swung. One throw yields a complete figure.",
+        },
+      ]);
+      after(1700, () => {
+        setShaking(false);
+        setChainLanded(true);
+        if (working) {
+          realMarks.forEach((m, i) => {
+            after((i + 1) * 850, () => {
+              setMarks((ms) => [...ms, m]);
+              setWorkingSteps((st) => [
+                ...st,
+                {
+                  n: String(i + 1),
+                  text: `Pod ${i + 1} (${posName(i)}) lands ${m === 1 ? "concave face up → a SINGLE mark ǀ" : "convex face up → a DOUBLE mark ǁ"}. (Which face maps to which mark varies by lineage — this is our stated convention.)`,
+                },
+              ]);
+            });
+          });
+          after(8 * 850 + 400, () => finishAnimation(realMarks));
+        } else {
+          setMarks(realMarks);
+          setWorkingSteps((st) => [
+            ...st,
+            { n: "✓", text: "All eight pods read at once, right leg first, top to bottom." },
+          ]);
+          after(500, () => finishAnimation(realMarks));
+        }
+      });
+    },
+    [after, working, finishAnimation],
+  );
+
+  const animateIkin = useCallback(
+    (realMarks: number[]) => {
+      setWorkingSteps([
+        {
+          n: "·",
+          text: "Sixteen ìkín (sacred palm nuts) are held. In each of 8 rounds the diviner strikes at the nuts with one hand; the remainder left behind — one or two — writes one mark.",
+        },
+      ]);
+      const round = (i: number) => {
+        if (i === 8) {
+          after(500, () => finishAnimation(realMarks));
+          return;
+        }
+        setIkinStage({ round: i, phase: "beating" });
+        setSeedsLeft(16);
+        after(900, () => {
+          const m = realMarks[i];
+          const remainder = m === 1 ? 2 : 1;
+          setIkinStage({ round: i, phase: "result", remainder });
+          setSeedsLeft(remainder);
+          setMarks((ms) => [...ms, m]);
+          if (working) {
+            setWorkingSteps((st) => [
+              ...st,
+              {
+                n: String(i + 1),
+                text: `Round ${i + 1}: ${remainder} nut${remainder > 1 ? "s" : ""} remain${remainder > 1 ? "" : "s"} → ${m === 1 ? "a SINGLE mark ǀ" : "a DOUBLE mark ǁ"} traced in the ìyẹ̀rọ̀sùn powder (${posName(i)}). One left → two marks; two left → one mark, in many lineages.`,
+              },
+            ]);
+          }
+          after(750, () => round(i + 1));
+        });
+      };
+      round(0);
+    },
+    [after, working, finishAnimation],
+  );
+
+  async function startAnimatedCast() {
+    if (!id || animating) return;
+    clearTimers();
+    setError(null);
+    setMarks([]);
+    setWorkingSteps([]);
+    setShaking(false);
+    setChainLanded(false);
+    setIkinStage(null);
+    setSeedsLeft(16);
+    setAnimating(true);
+    const json = await call(`/api/consultation/${id}/cast`, {}, "POST");
+    if (!json) {
+      setAnimating(false);
+      return;
+    }
+    markProgressFlag("cast");
+    const sig: string = json.consultation.castingDetail.signature;
+    const realMarks = sig.replace("|", "").split("").map(Number);
+    if (instrument === "opele") animateOpele(realMarks);
+    else animateIkin(realMarks);
+  }
+
+  const animatedModes = mode === "SIMULATED" || mode === "LEARNING";
 
   return (
     <div className="space-y-6">
@@ -102,7 +251,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
       {error && <p className="rounded-lg bg-ifa-rust/30 px-4 py-2 text-sm">{error}</p>}
 
       {step === "mode" && (
-        <div className="card space-y-4">
+        <div className="card mx-auto max-w-2xl space-y-4">
           <h2 className="font-serif text-xl text-ifa-gold">Choose a casting mode</h2>
           <p className="text-sm text-ifa-cream/70">
             Casting modes are honest about what they are. A simulation is a learning tool,
@@ -121,7 +270,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
       )}
 
       {step === "area" && (
-        <div className="card space-y-4">
+        <div className="card mx-auto max-w-2xl space-y-4">
           <h2 className="font-serif text-xl text-ifa-gold">Area of concern</h2>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {AREAS.map((a) => (
@@ -135,7 +284,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
       )}
 
       {step === "question" && (
-        <div className="card space-y-4">
+        <div className="card mx-auto max-w-2xl space-y-4">
           <h2 className="font-serif text-xl text-ifa-gold">Your question</h2>
           <p className="text-sm text-ifa-rust">
             Emergencies and medical, legal, or financial matters need a qualified professional —
@@ -153,7 +302,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
       )}
 
       {step === "safety" && (
-        <div className="card space-y-4">
+        <div className="card mx-auto max-w-2xl space-y-4">
           <h2 className="font-serif text-xl text-ifa-gold">A moment of care</h2>
           {safety && safety.messages.length > 0 ? (
             <ul className="space-y-2 text-sm text-ifa-cream">
@@ -178,26 +327,52 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
         </div>
       )}
 
-      {step === "cast" && (
-        <div className="card space-y-4">
+      {step === "cast" && animatedModes && (
+        <div className="space-y-4">
+          <div className="mx-auto max-w-2xl rounded-[10px] border border-ifa-rust/40 bg-ifa-rust/[0.16] px-4 py-[9px] text-[13px] text-ifa-cream">
+            ⚠ Every draw is genuinely random, performed by the server, and clearly labelled. This
+            replays the real result — it isn&rsquo;t a separate simulation.
+          </div>
+          <CastingStage
+            instrument={instrument}
+            onPickInstrument={setInstrument}
+            working={working}
+            onToggleWorking={() => setWorking((w) => !w)}
+            onCast={startAnimatedCast}
+            busy={busy}
+            animating={animating}
+            marks={marks}
+            workingSteps={workingSteps}
+            shaking={shaking}
+            chainLanded={chainLanded}
+            ikinStage={ikinStage}
+            seedsLeft={seedsLeft}
+          />
+        </div>
+      )}
+
+      {step === "cast" && !animatedModes && (
+        <div className="card mx-auto max-w-2xl space-y-4">
           <h2 className="font-serif text-xl text-ifa-gold">Casting</h2>
-          {(mode === "USER_SELECTED" || mode === "MANUAL_BABALAWO") && (
-            <label className="block text-sm">
-              Signature (rightLeg|leftLeg, e.g. 1111|2222)
-              <input
-                value={signature}
-                onChange={(e) => setSignature(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-ifa-border bg-ifa-surface p-2 font-mono text-ifa-cream outline-none"
-              />
-            </label>
-          )}
-          <button className="btn-primary" disabled={busy} onClick={doCast}>
-            {mode === "SIMULATED" || mode === "LEARNING" ? "Cast" : "Submit Odù"}
+          <label className="block text-sm">
+            Signature (rightLeg|leftLeg, e.g. 1111|2222)
+            <input
+              value={signature}
+              onChange={(e) => setSignature(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-ifa-border bg-ifa-surface p-2 font-mono text-ifa-cream outline-none"
+            />
+          </label>
+          <button className="btn-primary" disabled={busy} onClick={submitKnownOdu}>
+            Submit Odù
           </button>
         </div>
       )}
 
-      {step === "result" && result && <Result result={result} />}
+      {step === "result" && result && (
+        <div className="mx-auto max-w-2xl">
+          <Result result={result} />
+        </div>
+      )}
     </div>
   );
 }
@@ -264,7 +439,7 @@ function Progress({ step }: { step: Step }) {
   const steps: Step[] = ["mode", "area", "question", "safety", "cast", "result"];
   const idx = steps.indexOf(step);
   return (
-    <div className="flex gap-1">
+    <div className="mx-auto flex max-w-2xl gap-1">
       {steps.map((s, i) => (
         <div key={s} className={`h-1 flex-1 rounded ${i <= idx ? "bg-ifa-gold" : "bg-ifa-border"}`} />
       ))}
