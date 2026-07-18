@@ -28,6 +28,9 @@ yarn-error.log*
 /prisma/*.db
 /prisma/migrations/dev.db*
 
+# file-backed contribution store (no-database mode)
+/data/contributions.json
+
 # typescript
 *.tsbuildinfo
 

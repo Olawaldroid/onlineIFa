@@ -2,7 +2,8 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 
 // Admin flow hub. Each card links to a management area. Counts load from the
-// DB when available and degrade gracefully when it is not.
+// DB when available; without one they come from the file-backed contribution
+// store, so the review workflow needs no database setup.
 async function counts() {
   try {
     const { prisma } = await import("@/lib/db");
@@ -14,9 +15,22 @@ async function counts() {
       prisma.contributor.count(),
       prisma.interpretation.count({ where: { flagged: true } }),
     ]);
-    return { odu, submitted, sources, pendingPerms, contributors, flagged, ok: true };
+    return { mode: "db" as const, odu, submitted, sources, pendingPerms, contributors, flagged };
   } catch {
-    return { ok: false } as const;
+    const [{ allOduFacts }, { countsByStatus, storeLocation }] = await Promise.all([
+      import("@/lib/odu/facts"),
+      import("@/lib/contributions/store"),
+    ]);
+    const c = await countsByStatus();
+    return {
+      mode: "file" as const,
+      odu: allOduFacts().length,
+      submitted: c.SUBMITTED + c.CHANGES_REQUESTED,
+      approved: c.APPROVED,
+      rejected: c.REJECTED,
+      total: c.total,
+      store: await storeLocation(),
+    };
   }
 }
 
@@ -34,7 +48,7 @@ export default async function AdminPage() {
     <div className="space-y-8">
       <h1 className="font-serif text-3xl font-bold text-ifa-gold">Admin</h1>
 
-      {c.ok ? (
+      {c.mode === "db" ? (
         <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
           <Stat label="Odù" value={c.odu} />
           <Stat label="Awaiting review" value={c.submitted} accent />
@@ -44,9 +58,20 @@ export default async function AdminPage() {
           <Stat label="Flagged" value={c.flagged} accent />
         </div>
       ) : (
-        <p className="rounded-lg border border-ifa-border bg-ifa-surface px-4 py-2 text-sm text-ifa-sage">
-          Database not connected. Run migrations and seed to see live counts.
-        </p>
+        <>
+          <p className="rounded-lg border border-ifa-border bg-ifa-surface px-4 py-2 text-sm text-ifa-sage">
+            No database connected — contributions run on the file store
+            {c.store.ephemeral ? " (temp dir: data resets when the server restarts)" : ""}:{" "}
+            <code className="text-ifa-cream/70">{c.store.file}</code>. Submissions and reviews work
+            normally; connect Postgres later for sources, contributors and full versioning.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Stat label="Odù" value={c.odu} />
+            <Stat label="Awaiting review" value={c.submitted} accent />
+            <Stat label="Approved" value={c.approved} />
+            <Stat label="Rejected" value={c.rejected} accent />
+          </div>
+        </>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
