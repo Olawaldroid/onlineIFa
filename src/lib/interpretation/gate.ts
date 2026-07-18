@@ -6,9 +6,9 @@
 // ===========================================================================
 
 import { Interpretation, PermissionStatus, ReviewStatus, Source } from "@prisma/client";
+import { PLACEHOLDER_INTERPRETATION } from "./placeholder";
 
-export const PLACEHOLDER_INTERPRETATION =
-  "This Odù has not yet been reviewed by a contributor.";
+export { PLACEHOLDER_INTERPRETATION };
 
 export interface DisplayableInterpretation {
   isPlaceholder: boolean;

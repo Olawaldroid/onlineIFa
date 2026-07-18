@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Nav } from "@/components/Nav";
 
 export const metadata: Metadata = {
   title: "Online Ifá — Learn & Consult",
@@ -11,15 +10,17 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        <Nav />
-        <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
-        <footer className="mt-12 border-t border-ifa-border px-4 py-6 text-center text-xs text-ifa-sage">
-          Online Ifá is an educational and cultural tool. It does not replace a
-          trained Babalawo or professional advice. Interpretations are original,
-          public-domain, licensed, or contributor-submitted — never copied.
-        </footer>
-      </body>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font -- site-wide
+            display fonts loaded as a stylesheet (not next/font) so builds never
+            depend on fetching font binaries at compile time; see src/app/lab. */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..500&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body>{children}</body>
     </html>
   );
 }

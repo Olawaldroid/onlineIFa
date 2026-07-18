@@ -11,10 +11,17 @@ import { generateAllOdu, CombinedOduFact } from "./combine";
 import { PRIMARY_ODU } from "./primary";
 
 let cache: CombinedOduFact[] | null = null;
+let sigCache: Map<string, CombinedOduFact> | null = null;
 
 export function allOduFacts(): CombinedOduFact[] {
   if (!cache) cache = generateAllOdu();
   return cache;
+}
+
+/** Lookup by exact "rightLeg|leftLeg" signature, e.g. "1111|2222". */
+export function oduFactBySignature(signature: string): CombinedOduFact | undefined {
+  if (!sigCache) sigCache = new Map(allOduFacts().map((o) => [o.signature, o]));
+  return sigCache.get(signature);
 }
 
 export function primaryOduFacts(): CombinedOduFact[] {

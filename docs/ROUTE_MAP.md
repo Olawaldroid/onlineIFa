@@ -1,27 +1,40 @@
 # Route map
 
+Two route groups share the app: **`(full)`** renders the IFA LAB-styled pages
+full-bleed (no shared `<main>` container — each page composes its own
+`PageSection`s); **`(site)`** wraps utility pages in a centered container.
+Both share the same URL space — the grouping is invisible in the URL.
+
 ## Page routes (App Router)
 
-| Path | Flow | Notes |
-| --- | --- | --- |
-| `/` | Onboarding | Land → Learn or Start Consultation |
-| `/disclaimer?next=` | Onboarding | Accept cultural/educational disclaimer |
-| `/signup?next=` | Onboarding | Account creation (auth phase) |
-| `/learn` | Learn Ifá | 16 primary, 256 total, how combinations work |
-| `/odu` | Library | All 256, filter by name/signature/type |
-| `/odu/[slug]` | Library detail | Facts + gated interpretation + verses |
-| `/consult?odu=` | Consultation | Full state-machine flow |
-| `/search` | Search | Odù, variants, keyword, signature, proverb, … |
-| `/assistant` | AI | Approved content only, cited |
-| `/contribute` | Contributor | Submit original interpretation |
-| `/pricing` | Payments | Tiers (Stripe later) |
-| `/saved` | Saved | Revisit, notes, export, delete |
-| `/admin` | Admin | Dashboard + counts |
-| `/admin/interpretations` | Admin | Review queue |
-| `/admin/sources` | Admin | Sources & permission status |
-| `/admin/contributors` | Admin | Verify roles |
-| `/admin/odu` | Admin | Odù & verses |
-| `/admin/audit` | Admin | Audit log |
+| Path | Group | Flow | Notes |
+| --- | --- | --- | --- |
+| `/` | `(full)` | Onboarding | Animated hero → Learn or Start Consultation |
+| `/disclaimer?next=` | `(site)` | Onboarding | Accept cultural/educational disclaimer |
+| `/signup?next=` | `(site)` | Onboarding | Account creation (auth phase) |
+| `/learn` | `(full)` | Learn Ifá | What is Ifá, 16 primary + combinations, mathematics (binary explorer), Ifá & CS comparisons, IFÀGRÌTHM field notes |
+| `/odu` | `(full)` | Library | All 256, searchable glyph-tile grid |
+| `/odu/[slug]` | `(full)` | Library detail | Facts + gated interpretation + verses |
+| `/consult?odu=` | `(full)` | Consultation | Runs entirely client-side by default — no account or database needed (mode → area → question → safety → cast → interpret → result all computed in the browser from the real `src/lib/{casting,safety,odu}/*` modules; SIMULATED/LEARNING modes get the chain-swing / nut-striking animation, `src/components/CastingStage.tsx`). "Save consultation" is the only step that touches the database — it replays the same inputs through the full audited API/state machine. |
+| `/graph` | `(full)` | Knowledge graph | Clickable concept map — Odù, òrìṣà, concepts, mathematics, history, instruments, virtues |
+| `/history` | `(full)` | Timeline | Six eras, horizontal scroll |
+| `/games` | `(full)` | Learning games | Two quick-fire games; cross-page badges (localStorage, `src/lib/progress.ts`) |
+| `/museum` | `(full)` | Instruments | The five instruments, credited photos where openly licensed |
+| `/library` | `(full)` | Library | Public-domain/openly-licensed sources + glossary |
+| `/search` | `(site)` | Search | Odù, variants, keyword, signature, proverb, … |
+| `/assistant` | `(site)` | AI | Approved content only, cited |
+| `/contribute` | `(site)` | Contributor | Submit original interpretation |
+| `/pricing` | `(site)` | Payments | Tiers (Stripe later) |
+| `/saved` | `(site)` | Saved | Revisit, notes, export, delete |
+| `/admin` | `(site)` | Admin | Dashboard + counts |
+| `/admin/interpretations` | `(site)` | Admin | Review queue |
+| `/admin/sources` | `(site)` | Admin | Sources & permission status |
+| `/admin/contributors` | `(site)` | Admin | Verify roles |
+| `/admin/odu` | `(site)` | Admin | Odù & verses |
+| `/admin/audit` | `(site)` | Admin | Audit log |
+
+`/lab` (the standalone Claude Design showcase) is retired and permanently
+redirects to `/` (`next.config.mjs`) — its design is now the site itself.
 
 ## API routes
 

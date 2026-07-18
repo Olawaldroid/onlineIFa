@@ -7,7 +7,9 @@
 // reproducible and auditable — transparency over mystique.
 // ===========================================================================
 
-import { CastingMode } from "@prisma/client";
+// Type-only import: erased at compile time, so this module (pure functions,
+// no I/O) stays safe to import from client components for guest-mode casting.
+import type { CastingMode } from "@prisma/client";
 import { PRIMARY_ODU } from "../odu/primary";
 
 export interface CastResult {

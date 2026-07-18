@@ -1,8 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { SignatureDisplay } from "./SignatureDisplay";
+import { CastingStage, Instrument, IkinStage, WorkingStep } from "./CastingStage";
+import { markProgressFlag } from "@/lib/progress";
+import { screenQuestion, SafetyScreenResult } from "@/lib/safety/guardrails";
+import { simulatedCast, learningCast, userSelectedCast, manualCast } from "@/lib/casting/cast";
+import { oduFactBySignature } from "@/lib/odu/facts";
+import { resolveLocalDisplay, LocalDisplay } from "@/lib/interpretation/localDisplay";
 
 const AREAS = [
   "GENERAL", "HEALTH", "FAMILY", "MARRIAGE", "MONEY",
@@ -17,112 +23,276 @@ const CASTING_MODES = [
 ] as const;
 
 type Step = "mode" | "area" | "question" | "safety" | "cast" | "result";
+type SaveState = "idle" | "saving" | "saved" | "error";
 
+interface ResultShape {
+  odu: { name: string; signature: string; factualSummary: string; slug: string } | null;
+  display: LocalDisplay;
+}
+
+const posName = (i: number) => `${i < 4 ? "right" : "left"} leg, position ${(i % 4) + 1}`;
+
+// Everything up to and including the cast result is computed entirely in the
+// browser — no account, no database round-trip — using the same real facts,
+// casting logic, and safety screening the server uses (src/lib/{casting,
+// safety,odu}/*). Only the optional "Save consultation" action touches the
+// database, replaying the same inputs (and, for animated modes, the same
+// seed) through the real API so a saved record goes through the full
+// audited state machine.
 export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) {
   const [step, setStep] = useState<Step>("mode");
-  const [id, setId] = useState<string | null>(null);
   const [mode, setMode] = useState<string>(presetOduSlug ? "USER_SELECTED" : "SIMULATED");
   const [area, setArea] = useState<string>("GENERAL");
   const [question, setQuestion] = useState("");
   const [signature, setSignature] = useState("1111|1111");
-  const [safety, setSafety] = useState<{ messages: string[]; blocking: boolean } | null>(null);
-  const [result, setResult] = useState<any>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [seed, setSeed] = useState<string | null>(null);
+  const [safety, setSafety] = useState<SafetyScreenResult | null>(null);
+  const [result, setResult] = useState<ResultShape | null>(null);
+  const [saveState, setSaveState] = useState<SaveState>("idle");
 
-  async function call(url: string, body: unknown, method = "PATCH") {
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+  // Casting-stage animation state. Purely presentational pacing over an
+  // already-decided (locally computed) signature.
+  const [instrument, setInstrument] = useState<Instrument>("opele");
+  const [working, setWorking] = useState(true);
+  const [animating, setAnimating] = useState(false);
+  const [marks, setMarks] = useState<number[]>([]);
+  const [workingSteps, setWorkingSteps] = useState<WorkingStep[]>([]);
+  const [shaking, setShaking] = useState(false);
+  const [chainLanded, setChainLanded] = useState(false);
+  const [ikinStage, setIkinStage] = useState<IkinStage | null>(null);
+  const [seedsLeft, setSeedsLeft] = useState(16);
+
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const after = useCallback((ms: number, fn: () => void) => {
+    timers.current.push(setTimeout(fn, ms));
+  }, []);
+  const clearTimers = useCallback(() => {
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+  }, []);
+  useEffect(() => clearTimers, [clearTimers]);
+
+  function buildResult(sig: string): ResultShape {
+    const fact = oduFactBySignature(sig);
+    return {
+      odu: fact
+        ? { name: fact.name, signature: fact.signature, factualSummary: fact.factualSummary, slug: fact.slug }
+        : null,
+      display: resolveLocalDisplay(fact?.slug ?? null),
+    };
+  }
+
+  function start() {
+    setStep("area");
+  }
+
+  function submitArea() {
+    setStep("question");
+  }
+
+  function submitQuestion() {
+    const s = screenQuestion(question);
+    setSafety(s);
+    setStep("safety");
+  }
+
+  function acknowledge() {
+    setStep("cast");
+  }
+
+  // USER_SELECTED / MANUAL_BABALAWO: the Odù is already known (typed in) —
+  // resolve it straight to a result, no animation needed.
+  function submitKnownOdu() {
+    const cast = mode === "MANUAL_BABALAWO" ? manualCast(signature, "") : userSelectedCast(signature);
+    markProgressFlag("cast");
+    setResult(buildResult(cast.signature));
+    setStep("result");
+  }
+
+  const finishAnimation = useCallback((all: number[], sig: string) => {
+    setMarks(all);
+    setIkinStage(null);
+    setWorkingSteps((st) => [
+      ...st,
+      { n: "★", text: `The figure is complete: ${sig}. Read right leg first.` },
+    ]);
+    after(600, () => {
+      setAnimating(false);
+      setResult(buildResult(sig));
+      setStep("result");
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [after]);
+
+  const animateOpele = useCallback(
+    (realMarks: number[], sig: string) => {
+      setShaking(true);
+      setChainLanded(false);
+      setWorkingSteps([
+        {
+          n: "·",
+          text: "The ọ̀pẹ̀lẹ̀ — a chain of eight half-pods in two strands of four — is held at the middle and swung. One throw yields a complete figure.",
+        },
+      ]);
+      after(1700, () => {
+        setShaking(false);
+        setChainLanded(true);
+        if (working) {
+          realMarks.forEach((m, i) => {
+            after((i + 1) * 850, () => {
+              setMarks((ms) => [...ms, m]);
+              setWorkingSteps((st) => [
+                ...st,
+                {
+                  n: String(i + 1),
+                  text: `Pod ${i + 1} (${posName(i)}) lands ${m === 1 ? "concave face up → a SINGLE mark ǀ" : "convex face up → a DOUBLE mark ǁ"}. (Which face maps to which mark varies by lineage — this is our stated convention.)`,
+                },
+              ]);
+            });
+          });
+          after(8 * 850 + 400, () => finishAnimation(realMarks, sig));
+        } else {
+          setMarks(realMarks);
+          setWorkingSteps((st) => [
+            ...st,
+            { n: "✓", text: "All eight pods read at once, right leg first, top to bottom." },
+          ]);
+          after(500, () => finishAnimation(realMarks, sig));
+        }
       });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? "Request failed");
-      return json;
-    } catch (e: any) {
-      setError(e.message ?? "Something went wrong. Is the database running?");
-      return null;
-    } finally {
-      setBusy(false);
+    },
+    [after, working, finishAnimation],
+  );
+
+  const animateIkin = useCallback(
+    (realMarks: number[], sig: string) => {
+      setWorkingSteps([
+        {
+          n: "·",
+          text: "Sixteen ìkín (sacred palm nuts) are held. In each of 8 rounds the diviner strikes at the nuts with one hand; the remainder left behind — one or two — writes one mark.",
+        },
+      ]);
+      const round = (i: number) => {
+        if (i === 8) {
+          after(500, () => finishAnimation(realMarks, sig));
+          return;
+        }
+        setIkinStage({ round: i, phase: "beating" });
+        setSeedsLeft(16);
+        after(900, () => {
+          const m = realMarks[i];
+          const remainder = m === 1 ? 2 : 1;
+          setIkinStage({ round: i, phase: "result", remainder });
+          setSeedsLeft(remainder);
+          setMarks((ms) => [...ms, m]);
+          if (working) {
+            setWorkingSteps((st) => [
+              ...st,
+              {
+                n: String(i + 1),
+                text: `Round ${i + 1}: ${remainder} nut${remainder > 1 ? "s" : ""} remain${remainder > 1 ? "" : "s"} → ${m === 1 ? "a SINGLE mark ǀ" : "a DOUBLE mark ǁ"} traced in the ìyẹ̀rọ̀sùn powder (${posName(i)}). One left → two marks; two left → one mark, in many lineages.`,
+              },
+            ]);
+          }
+          after(750, () => round(i + 1));
+        });
+      };
+      round(0);
+    },
+    [after, working, finishAnimation],
+  );
+
+  function startAnimatedCast() {
+    if (animating) return;
+    clearTimers();
+    setMarks([]);
+    setWorkingSteps([]);
+    setShaking(false);
+    setChainLanded(false);
+    setIkinStage(null);
+    setSeedsLeft(16);
+    setAnimating(true);
+    const newSeed = `${Date.now()}-${Math.random()}`;
+    setSeed(newSeed);
+    const cast = mode === "LEARNING" ? learningCast(newSeed) : simulatedCast(newSeed);
+    markProgressFlag("cast");
+    const realMarks = cast.signature.replace("|", "").split("").map(Number);
+    if (instrument === "opele") animateOpele(realMarks, cast.signature);
+    else animateIkin(realMarks, cast.signature);
+  }
+
+  // The result is already known locally; this only persists it to the
+  // database, replaying the same inputs through the real, audited API.
+  async function saveConsultation() {
+    if (!result || saveState === "saving" || saveState === "saved") return;
+    setSaveState("saving");
+    try {
+      const startRes = await fetch("/api/consultation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ castingMode: mode }),
+      });
+      const startJson = await startRes.json();
+      if (!startRes.ok) throw new Error("save failed");
+      const newId: string = startJson.consultation.id;
+
+      const patch = async (body: unknown) => {
+        const res = await fetch(`/api/consultation/${newId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error("save failed");
+        return res.json();
+      };
+
+      await patch({ action: "select-area", area });
+      await patch({ action: "enter-question", question });
+      await patch({ action: "acknowledge-safety" });
+
+      const castRes = await fetch(`/api/consultation/${newId}/cast`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(animatedModes ? { seed } : { signature }),
+      });
+      if (!castRes.ok) throw new Error("save failed");
+
+      await patch({ action: "interpret" });
+      await patch({ action: "save" });
+      setSaveState("saved");
+    } catch {
+      setSaveState("error");
     }
   }
 
-  async function start() {
-    const json = await call("/api/consultation", { castingMode: mode }, "POST");
-    if (json) {
-      setId(json.consultation.id);
-      setStep("area");
-    }
-  }
-
-  async function submitArea() {
-    if (!id) return;
-    const json = await call(`/api/consultation/${id}`, { action: "select-area", area });
-    if (json) setStep("question");
-  }
-
-  async function submitQuestion() {
-    if (!id) return;
-    const json = await call(`/api/consultation/${id}`, { action: "enter-question", question });
-    if (json) {
-      setSafety(json.safety);
-      setStep("safety");
-    }
-  }
-
-  async function acknowledge() {
-    if (!id) return;
-    const json = await call(`/api/consultation/${id}`, { action: "acknowledge-safety" });
-    if (json) setStep("cast");
-  }
-
-  async function doCast() {
-    if (!id) return;
-    const needsSig = mode === "USER_SELECTED" || mode === "MANUAL_BABALAWO";
-    const json = await call(
-      `/api/consultation/${id}/cast`,
-      needsSig ? { signature } : {},
-      "POST",
-    );
-    if (json) {
-      const interp = await call(`/api/consultation/${id}`, { action: "interpret" });
-      if (interp) {
-        setResult({ consultation: json.consultation, ...interp });
-        setStep("result");
-      }
-    }
-  }
+  const animatedModes = mode === "SIMULATED" || mode === "LEARNING";
 
   return (
     <div className="space-y-6">
       <Progress step={step} />
-      {error && <p className="rounded-lg bg-ifa-rust/30 px-4 py-2 text-sm">{error}</p>}
 
       {step === "mode" && (
-        <div className="card space-y-4">
-          <h2 className="text-lg font-semibold text-ifa-gold">Choose a casting mode</h2>
+        <div className="card mx-auto max-w-2xl space-y-4">
+          <h2 className="font-serif text-xl text-ifa-gold">Choose a casting mode</h2>
           <p className="text-sm text-ifa-cream/70">
             Casting modes are honest about what they are. A simulation is a learning tool,
-            not spiritual authority.
+            not spiritual authority. No account or database is needed to try it as a guest.
           </p>
           <div className="space-y-2">
             {CASTING_MODES.map((m) => (
               <label key={m.value} className="flex items-center gap-3">
-                <input type="radio" name="mode" value={m.value} checked={mode === m.value} onChange={() => setMode(m.value)} />
+                <input type="radio" name="mode" value={m.value} checked={mode === m.value} onChange={() => setMode(m.value)} className="accent-ifa-gold" />
                 {m.label}
               </label>
             ))}
           </div>
-          <button className="btn-primary" disabled={busy} onClick={start}>Begin</button>
+          <button className="btn-primary" onClick={start}>Begin</button>
         </div>
       )}
 
       {step === "area" && (
-        <div className="card space-y-4">
-          <h2 className="text-lg font-semibold text-ifa-gold">Area of concern</h2>
+        <div className="card mx-auto max-w-2xl space-y-4">
+          <h2 className="font-serif text-xl text-ifa-gold">Area of concern</h2>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {AREAS.map((a) => (
               <button key={a} onClick={() => setArea(a)} className={`btn ${area === a ? "btn-primary" : "btn-secondary"}`}>
@@ -130,13 +300,13 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
               </button>
             ))}
           </div>
-          <button className="btn-primary" disabled={busy} onClick={submitArea}>Continue</button>
+          <button className="btn-primary" onClick={submitArea}>Continue</button>
         </div>
       )}
 
       {step === "question" && (
-        <div className="card space-y-4">
-          <h2 className="text-lg font-semibold text-ifa-gold">Your question</h2>
+        <div className="card mx-auto max-w-2xl space-y-4">
+          <h2 className="font-serif text-xl text-ifa-gold">Your question</h2>
           <p className="text-sm text-ifa-rust">
             Emergencies and medical, legal, or financial matters need a qualified professional —
             this app cannot advise on them.
@@ -145,16 +315,16 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             rows={4}
-            className="w-full rounded-lg border border-ifa-border bg-ifa-bg p-3 text-sm"
+            className="w-full rounded-lg border border-ifa-border bg-ifa-surface p-3 text-sm text-ifa-cream outline-none placeholder:text-ifa-cream/40"
             placeholder="What would you like to reflect on?"
           />
-          <button className="btn-primary" disabled={busy || !question.trim()} onClick={submitQuestion}>Continue</button>
+          <button className="btn-primary" disabled={!question.trim()} onClick={submitQuestion}>Continue</button>
         </div>
       )}
 
       {step === "safety" && (
-        <div className="card space-y-4">
-          <h2 className="text-lg font-semibold text-ifa-gold">A moment of care</h2>
+        <div className="card mx-auto max-w-2xl space-y-4">
+          <h2 className="font-serif text-xl text-ifa-gold">A moment of care</h2>
           {safety && safety.messages.length > 0 ? (
             <ul className="space-y-2 text-sm text-ifa-cream">
               {safety.messages.map((m, i) => (
@@ -171,90 +341,117 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
               Please seek appropriate professional help before continuing.
             </p>
           ) : (
-            <button className="btn-primary" disabled={busy} onClick={acknowledge}>
+            <button className="btn-primary" onClick={acknowledge}>
               I understand, continue
             </button>
           )}
         </div>
       )}
 
-      {step === "cast" && (
-        <div className="card space-y-4">
-          <h2 className="text-lg font-semibold text-ifa-gold">Casting</h2>
-          {(mode === "USER_SELECTED" || mode === "MANUAL_BABALAWO") && (
-            <label className="block text-sm">
-              Signature (rightLeg|leftLeg, e.g. 1111|2222)
-              <input
-                value={signature}
-                onChange={(e) => setSignature(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-ifa-border bg-ifa-bg p-2 font-mono"
-              />
-            </label>
-          )}
-          <button className="btn-primary" disabled={busy} onClick={doCast}>
-            {mode === "SIMULATED" || mode === "LEARNING" ? "Cast" : "Submit Odù"}
+      {step === "cast" && animatedModes && (
+        <div className="space-y-4">
+          <div className="mx-auto max-w-2xl rounded-[10px] border border-ifa-rust/40 bg-ifa-rust/[0.16] px-4 py-[9px] text-[13px] text-ifa-cream">
+            ⚠ Every draw is genuinely random, generated on your device, and clearly labelled. This
+            is a learning tool, not spiritual authority.
+          </div>
+          <CastingStage
+            instrument={instrument}
+            onPickInstrument={setInstrument}
+            working={working}
+            onToggleWorking={() => setWorking((w) => !w)}
+            onCast={startAnimatedCast}
+            busy={false}
+            animating={animating}
+            marks={marks}
+            workingSteps={workingSteps}
+            shaking={shaking}
+            chainLanded={chainLanded}
+            ikinStage={ikinStage}
+            seedsLeft={seedsLeft}
+          />
+        </div>
+      )}
+
+      {step === "cast" && !animatedModes && (
+        <div className="card mx-auto max-w-2xl space-y-4">
+          <h2 className="font-serif text-xl text-ifa-gold">Casting</h2>
+          <label className="block text-sm">
+            Signature (rightLeg|leftLeg, e.g. 1111|2222)
+            <input
+              value={signature}
+              onChange={(e) => setSignature(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-ifa-border bg-ifa-surface p-2 font-mono text-ifa-cream outline-none"
+            />
+          </label>
+          <button className="btn-primary" onClick={submitKnownOdu}>
+            Submit Odù
           </button>
         </div>
       )}
 
-      {step === "result" && result && <Result result={result} />}
+      {step === "result" && result && (
+        <div className="mx-auto max-w-2xl">
+          <Result result={result} saveState={saveState} onSave={saveConsultation} />
+        </div>
+      )}
     </div>
   );
 }
 
-function Result({ result }: { result: any }) {
-  const c = result.consultation;
+function Result({ result, saveState, onSave }: { result: ResultShape; saveState: SaveState; onSave: () => void }) {
+  const odu = result.odu;
   const display = result.display;
   return (
     <div className="space-y-6">
       <div className="card text-center">
         <p className="text-sm text-ifa-sage">Selected Odù</p>
-        <h2 className="font-serif text-3xl text-ifa-gold">{c.odu?.name ?? "—"}</h2>
-        {c.odu?.signature && (
+        <h2 className="font-serif text-3xl text-ifa-gold">{odu?.name ?? "—"}</h2>
+        {odu?.signature && (
           <div className="mt-3 flex justify-center">
-            <SignatureDisplay signature={c.odu.signature} />
+            <SignatureDisplay signature={odu.signature} />
           </div>
         )}
-        {c.odu?.factualSummary && (
-          <p className="mt-3 text-sm text-ifa-cream/70">{c.odu.factualSummary}</p>
+        {odu?.factualSummary && (
+          <p className="mt-3 text-sm text-ifa-cream/70">{odu.factualSummary}</p>
         )}
       </div>
 
       <div className="card">
-        <h3 className="mb-2 text-lg font-semibold text-ifa-gold">
-          {display?.isPlaceholder ? "Interpretation (awaiting review)" : "Interpretation"}
+        <h3 className="mb-2 font-serif text-xl text-ifa-gold">
+          {display.isPlaceholder ? "Interpretation (awaiting review)" : "Interpretation"}
         </h3>
         <div className="prose-ifa">
-          <ReactMarkdown>{display?.contentMd ?? "This Odù has not yet been reviewed by a contributor."}</ReactMarkdown>
+          <ReactMarkdown>{display.contentMd}</ReactMarkdown>
         </div>
-        {display?.sourceTitle && (
+        {display.sourceTitle && (
           <p className="mt-3 text-xs text-ifa-sage">Source: {display.sourceTitle} · Licence: {display.licence}</p>
         )}
       </div>
 
       <div className="card">
-        <h3 className="mb-2 text-lg font-semibold text-ifa-gold">Reflection questions</h3>
+        <h3 className="mb-2 font-serif text-xl text-ifa-gold">Reflection questions</h3>
         <ul className="list-disc space-y-1 pl-5 text-sm text-ifa-cream/80">
-          <li>What in this resonates with your situation, and what does not?</li>
-          <li>What small, wise next step is within your control?</li>
-          <li>Who could you talk to for grounded, practical support?</li>
+          {(display.reflectionQuestions.length
+            ? display.reflectionQuestions
+            : [
+                "What in this resonates with your situation, and what does not?",
+                "What small, wise next step is within your control?",
+                "Who could you talk to for grounded, practical support?",
+              ]
+          ).map((q, i) => (
+            <li key={i}>{q}</li>
+          ))}
         </ul>
       </div>
 
-      <div className="flex gap-3">
-        <a href={`/odu/${c.odu?.slug}`} className="btn-secondary">View this Odù</a>
-        <button
-          className="btn-primary"
-          onClick={() =>
-            fetch(`/api/consultation/${c.id}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ action: "save" }),
-            })
-          }
-        >
-          Save consultation
+      <div className="flex flex-wrap items-center gap-3">
+        {odu?.slug && <a href={`/odu/${odu.slug}`} className="btn-secondary">View this Odù</a>}
+        <button className="btn-primary" disabled={saveState === "saving" || saveState === "saved"} onClick={onSave}>
+          {saveState === "saved" ? "Saved ✓" : saveState === "saving" ? "Saving…" : "Save consultation"}
         </button>
+        {saveState === "error" && (
+          <span className="text-xs text-ifa-rust">Couldn&rsquo;t save — this reading above is still yours to keep.</span>
+        )}
       </div>
     </div>
   );
@@ -264,7 +461,7 @@ function Progress({ step }: { step: Step }) {
   const steps: Step[] = ["mode", "area", "question", "safety", "cast", "result"];
   const idx = steps.indexOf(step);
   return (
-    <div className="flex gap-1">
+    <div className="mx-auto flex max-w-2xl gap-1">
       {steps.map((s, i) => (
         <div key={s} className={`h-1 flex-1 rounded ${i <= idx ? "bg-ifa-gold" : "bg-ifa-border"}`} />
       ))}

@@ -6,7 +6,9 @@
 // or crisis advice, and never instructs harmful rituals. It redirects.
 // ===========================================================================
 
-import { SafetyCategory } from "@prisma/client";
+// Type-only import: erased at compile time, so this module (pure regex
+// screening, no I/O) stays safe to import from client components.
+import type { SafetyCategory } from "@prisma/client";
 
 interface SafetyRule {
   category: SafetyCategory;

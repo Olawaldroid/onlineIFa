@@ -200,6 +200,58 @@ our **own** translations; never from the copyrighted collections above.
 - [ ] Have a Yorùbá-language reviewer verify diacritics/orthography of all names.
 
 ## 8. Changelog
+- **2026-07-18 (consultation flow works without a database)** — Fixed: the
+  animated cast (Ọ̀pẹ̀lẹ̀/Ìkín) silently failed anywhere the app ran without
+  Postgres, because every step of `/consult` (mode → area → question →
+  safety → cast → interpret) round-tripped through a DB-backed `Consultation`
+  row before anything could render. Rewrote `ConsultationFlow.tsx` to run
+  that whole walkthrough client-side by default — same real logic
+  (`src/lib/casting/cast.ts`, `src/lib/safety/guardrails.ts`,
+  `src/lib/odu/facts.ts`), same original interpretation text
+  (`src/lib/odu/interpretations.ts`, surfaced via the new
+  `src/lib/interpretation/localDisplay.ts`), just executed in the browser
+  instead of via `fetch`. No account or database is needed to take a full
+  guest reading. **"Save consultation" is now the only step that touches the
+  database** — it lazily creates a `Consultation` and replays the same
+  inputs (same seed for SIMULATED/LEARNING, so the signature matches
+  exactly) through the real, audited state-machine API, and fails
+  gracefully in place if the database is unavailable without losing the
+  reading already on screen. `cast.ts` and `guardrails.ts` switched their
+  `@prisma/client` enum imports to `import type` so they stay safe to bundle
+  for the client.
+- **2026-07-18 (IFA LAB becomes the site design)** — Retired the standalone
+  `/lab` showcase (redirects to `/`, `next.config.mjs`) and adopted its
+  visual language as the real site's design everywhere: home, `/learn`,
+  `/odu`, `/odu/[slug]`, `/consult`, `/library`, plus four new real routes —
+  `/graph`, `/history`, `/games`, `/museum` — carrying the sections that
+  previously only existed inside the demo. Two route groups now split the
+  app: `(full)` for the full-bleed IFA LAB-styled pages, `(site)` for
+  utility pages (search, admin, auth) that keep the plain centered layout.
+  The consultation flow's SIMULATED/LEARNING casting modes now replay the
+  **real, server-decided signature** through the chain-swing / nut-striking
+  animation (`src/components/CastingStage.tsx`) instead of a separate
+  client-side random draw — the state machine, safety screening,
+  interpretation gating, and every API route are unchanged; only the "cast"
+  step's presentation and pacing changed. Lab's static editorial content
+  (facets, math topics, CS comparisons, timeline eras, graph nodes, museum
+  items, glossary, IFÀGRÌTHM field notes) moved into `src/lib/content/*` as
+  shared, reusable modules; `src/lib/odu/glyph.ts` centralises the
+  signature-to-mark-glyph helpers used across `/odu`, `/learn` and `/games`.
+  IFÀGRÌTHM field notes (§ below) are original paraphrase with credited
+  sources — no verbatim transcript — carried over unchanged from the /lab
+  implementation; flagging here per this file's sourcing-log convention.
+- **2026-07-17 (IFA LAB interactive platform)** — Implemented the full-bleed
+  `/lab` experience from the Claude Design handoff (`IFA LAB.dc.html`):
+  animated ọ̀pẹ̀lẹ̀/ìkín consultation simulator with a step-by-step "show your
+  working" log, a 0–255 binary explorer, a searchable 256-Odù grid, a clickable
+  knowledge graph, a horizontal history timeline, Ifá ↔ CS comparison cards,
+  learning games with badges, museum image slots, and an "Ifàgrìthm" field-notes
+  section pairing claims from the Adégbọlá conversation (Waa Sere interview)
+  with what independent research shows — each claim carries its caveat and a
+  source link (Lóngẹ́ 1983 lecture framing, Ulm ọpọn Ifá ~1650, Miller 1956,
+  Abímbọ́lá's verse structure). All lab copy is original; structure facts reuse
+  `src/lib/odu/*`. Existing pages moved under the `(site)` route group so the
+  lab page owns its own chrome; URLs unchanged.
 - **2026-06-08 (public-domain library)** — Verified and registered four
   public-domain books on archive.org (Johnson 1921, Ellis 1894, Dennett 1910,
   Frobenius 1913) in `src/lib/sources/publicDomain.ts`; seeded them as

@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { getOduDetail } from "@/lib/odu/detail";
 import { SignatureDisplay } from "@/components/SignatureDisplay";
+import { PageSection } from "@/components/PageSection";
+import { MarkOduVisited } from "@/components/MarkOduVisited";
 
 // Odù library detail flow — shows name, slug, signature, rank, legs, type,
 // themes, related Odù, verses, interpretations by source, contributor notes,
@@ -14,13 +16,14 @@ export default async function OduDetailPage({ params }: { params: { slug: string
   const { fact, legs, meaning, themes, proverbs, verseCount } = detail;
 
   return (
-    <div className="space-y-8">
+    <PageSection tone="dark" innerClassName="space-y-8">
+      <MarkOduVisited />
       <header className="flex flex-wrap items-start justify-between gap-6">
         <div>
-          <p className="text-sm text-ifa-sage">
+          <p className="eyebrow">
             Rank {fact.rank} · {fact.isPrimary ? "Principal Odù" : "Combined Odù"}
           </p>
-          <h1 className="font-serif text-4xl font-bold text-ifa-gold">{fact.name}</h1>
+          <h1 className="section-title mt-2 text-4xl text-ifa-gold">{fact.name}</h1>
           <p className="mt-1 font-mono text-sm text-ifa-cream/60">/{fact.slug}</p>
           {fact.altNames.length > 0 && (
             <p className="mt-1 text-sm text-ifa-cream/60">
@@ -110,7 +113,7 @@ export default async function OduDetailPage({ params }: { params: { slug: string
           Use this Odù in a consultation
         </Link>
       </section>
-    </div>
+    </PageSection>
   );
 }
 
