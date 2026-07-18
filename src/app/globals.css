@@ -4,8 +4,8 @@
 
 :root {
   --font-sans: "Inter", system-ui, sans-serif;
-  --font-serif: "Georgia", serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-serif: "Newsreader", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 html {
@@ -14,44 +14,77 @@ html {
 
 body {
   @apply bg-ifa-bg text-ifa-cream antialiased;
+  background-image: radial-gradient(1200px 600px at 50% -10%, #2b2016 0%, #1a140f 60%);
+  background-repeat: no-repeat;
 }
 
 a {
   @apply text-ifa-gold hover:text-ifa-cream transition-colors;
 }
 
-.card {
-  @apply rounded-xl border border-ifa-border bg-ifa-surface p-5;
+/* Layered as components so page-level utility classes (text-4xl, text-ifa-gold, …)
+   reliably override these defaults regardless of source order. */
+@layer components {
+  .card {
+    @apply rounded-xl border border-ifa-border bg-ifa-surface p-5 shadow-[0_16px_34px_rgba(0,0,0,0.18)] transition-colors;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold transition-colors;
+  }
+
+  .btn-primary {
+    @apply btn bg-ifa-gold text-ifa-bg hover:bg-ifa-cream;
+  }
+
+  .btn-secondary {
+    @apply btn border border-ifa-border bg-transparent text-ifa-cream hover:border-ifa-gold;
+  }
+
+  .signature-mark {
+    @apply font-mono tracking-widest;
+  }
+
+  .eyebrow {
+    @apply font-mono text-xs uppercase tracking-[0.3em] text-ifa-sage;
+  }
+
+  .section-title {
+    @apply font-serif text-3xl font-medium text-ifa-cream sm:text-4xl;
+  }
+
+  .prose-ifa {
+    @apply max-w-none leading-relaxed;
+  }
+  .prose-ifa h2 {
+    @apply mt-4 mb-2 text-xl font-semibold text-ifa-gold;
+  }
+  .prose-ifa p {
+    @apply mb-3;
+  }
+  .prose-ifa strong {
+    @apply text-ifa-cream;
+  }
+  .prose-ifa em {
+    @apply text-ifa-sage;
+  }
 }
 
-.btn {
-  @apply inline-flex items-center justify-center rounded-lg px-4 py-2 font-medium transition-colors;
+/* Shared with src/app/lab/lab.css — small, harmless duplication so the
+   homepage hero's emblem/particles can animate outside the /lab bundle. */
+@keyframes omSpin {
+  from { transform: rotate(0); }
+  to { transform: rotate(360deg); }
 }
-
-.btn-primary {
-  @apply btn bg-ifa-gold text-ifa-bg hover:bg-ifa-cream;
+@keyframes omFloat {
+  0%, 100% { transform: translateY(0); opacity: 0.25; }
+  50% { transform: translateY(-26px); opacity: 0.9; }
 }
-
-.btn-secondary {
-  @apply btn border border-ifa-border bg-transparent text-ifa-cream hover:border-ifa-gold;
+@keyframes omFadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-
-.signature-mark {
-  @apply font-mono tracking-widest;
-}
-
-.prose-ifa {
-  @apply max-w-none leading-relaxed;
-}
-.prose-ifa h2 {
-  @apply mt-4 mb-2 text-xl font-semibold text-ifa-gold;
-}
-.prose-ifa p {
-  @apply mb-3;
-}
-.prose-ifa strong {
-  @apply text-ifa-cream;
-}
-.prose-ifa em {
-  @apply text-ifa-sage;
+@keyframes omGlow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }

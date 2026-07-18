@@ -5,8 +5,9 @@ export default function ConsultPage({ searchParams }: { searchParams: { odu?: st
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <header>
-        <h1 className="font-serif text-3xl font-bold text-ifa-gold">Consultation</h1>
-        <p className="mt-1 text-sm text-ifa-cream/70">
+        <p className="eyebrow">Consultation</p>
+        <h1 className="section-title mt-2 text-4xl text-ifa-gold">Consultation</h1>
+        <p className="mt-2 text-sm text-ifa-cream/70">
           An educational reflection tool. Not a substitute for a trained Babalawo
           or professional advice.
         </p>

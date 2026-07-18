@@ -11,7 +11,8 @@ export default function LibraryPage() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="font-serif text-3xl font-bold text-ifa-gold">
+        <p className="eyebrow">Library</p>
+        <h1 className="section-title mt-2 text-4xl text-ifa-gold">
           Public-domain library
         </h1>
         <p className="mt-2 max-w-2xl text-ifa-cream/80">
@@ -44,7 +45,7 @@ export default function LibraryPage() {
       </div>
 
       <section className="card text-sm text-ifa-cream/75">
-        <h2 className="font-semibold text-ifa-gold">About these sources</h2>
+        <h2 className="font-serif text-lg text-ifa-gold">About these sources</h2>
         <p className="mt-2">
           These titles were published before 1929 and are in the public domain in
           the United States. The colonial-era ethnographies (Ellis, Dennett,
