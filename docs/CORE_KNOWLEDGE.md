@@ -200,6 +200,20 @@ our **own** translations; never from the copyrighted collections above.
 - [ ] Have a Yorùbá-language reviewer verify diacritics/orthography of all names.
 
 ## 8. Changelog
+- **2026-07-18 (nav cleanup, ọpọn hero, museum expansion, guest-only gate)** —
+  Grouped the 12-link nav into Learn/Explore dropdowns + three standalone links
+  (the flat "Consultation" link was redundant with the CTA). Rebuilt the
+  homepage hero emblem as a carved ọpọn Ifá (notched rim, Èṣù face at the head,
+  ìyẹ̀rọ̀sùn sand centre with pressed marks) sharing the CastingStage tray
+  language; animations unchanged. Expanded `/museum` from 5 cards to three
+  sections: the five instruments (ìkín + agéré slots now filled — Jogo de Ikin
+  Orossi photo; MET 1991.17.127 Àgéré Ifá, CC0), a worldwide-collections
+  gallery (Brooklyn, Cologne, Munich, Nigerian collections) and a
+  living-tradition section (babaláwo at work, Osun-Osogbo grove — UNESCO WHS).
+  All images are openly-licensed Wikimedia Commons files, credited and linked;
+  `<Photo>` still degrades to a placeholder if a URL fails. Onboarding
+  disclaimer now has a single "Accept & continue" (guest) action — account
+  creation removed from the gate (sign-up still exists at `/signup`).
 - **2026-07-18 (consultation flow works without a database)** — Fixed: the
   animated cast (Ọ̀pẹ̀lẹ̀/Ìkín) silently failed anywhere the app ran without
   Postgres, because every step of `/consult` (mode → area → question →
