@@ -15,7 +15,7 @@ Both share the same URL space — the grouping is invisible in the URL.
 | `/learn` | `(full)` | Learn Ifá | What is Ifá, 16 primary + combinations, mathematics (binary explorer), Ifá & CS comparisons, IFÀGRÌTHM field notes |
 | `/odu` | `(full)` | Library | All 256, searchable glyph-tile grid |
 | `/odu/[slug]` | `(full)` | Library detail | Facts + gated interpretation + verses |
-| `/consult?odu=` | `(full)` | Consultation | Full state-machine flow; SIMULATED/LEARNING modes replay the real cast (chain-swing / nut-striking animation over the server-decided signature — see `src/components/CastingStage.tsx`) |
+| `/consult?odu=` | `(full)` | Consultation | Runs entirely client-side by default — no account or database needed (mode → area → question → safety → cast → interpret → result all computed in the browser from the real `src/lib/{casting,safety,odu}/*` modules; SIMULATED/LEARNING modes get the chain-swing / nut-striking animation, `src/components/CastingStage.tsx`). "Save consultation" is the only step that touches the database — it replays the same inputs through the full audited API/state machine. |
 | `/graph` | `(full)` | Knowledge graph | Clickable concept map — Odù, òrìṣà, concepts, mathematics, history, instruments, virtues |
 | `/history` | `(full)` | Timeline | Six eras, horizontal scroll |
 | `/games` | `(full)` | Learning games | Two quick-fire games; cross-page badges (localStorage, `src/lib/progress.ts`) |

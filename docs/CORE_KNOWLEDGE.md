@@ -200,6 +200,25 @@ our **own** translations; never from the copyrighted collections above.
 - [ ] Have a Yorùbá-language reviewer verify diacritics/orthography of all names.
 
 ## 8. Changelog
+- **2026-07-18 (consultation flow works without a database)** — Fixed: the
+  animated cast (Ọ̀pẹ̀lẹ̀/Ìkín) silently failed anywhere the app ran without
+  Postgres, because every step of `/consult` (mode → area → question →
+  safety → cast → interpret) round-tripped through a DB-backed `Consultation`
+  row before anything could render. Rewrote `ConsultationFlow.tsx` to run
+  that whole walkthrough client-side by default — same real logic
+  (`src/lib/casting/cast.ts`, `src/lib/safety/guardrails.ts`,
+  `src/lib/odu/facts.ts`), same original interpretation text
+  (`src/lib/odu/interpretations.ts`, surfaced via the new
+  `src/lib/interpretation/localDisplay.ts`), just executed in the browser
+  instead of via `fetch`. No account or database is needed to take a full
+  guest reading. **"Save consultation" is now the only step that touches the
+  database** — it lazily creates a `Consultation` and replays the same
+  inputs (same seed for SIMULATED/LEARNING, so the signature matches
+  exactly) through the real, audited state-machine API, and fails
+  gracefully in place if the database is unavailable without losing the
+  reading already on screen. `cast.ts` and `guardrails.ts` switched their
+  `@prisma/client` enum imports to `import type` so they stay safe to bundle
+  for the client.
 - **2026-07-18 (IFA LAB becomes the site design)** — Retired the standalone
   `/lab` showcase (redirects to `/`, `next.config.mjs`) and adopted its
   visual language as the real site's design everywhere: home, `/learn`,

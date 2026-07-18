@@ -3,9 +3,10 @@
 // The visual casting stage for the real consultation flow — chain-swing /
 // nut-striking animation, the carved ọpọn tray with ìyẹ̀rọ̀sùn sand marks,
 // and the "show your working" log. Purely presentational: it reveals marks
-// it's given, it never invents them. The real Odù signature is decided by
-// the server (POST /api/consultation/:id/cast) before any animation starts;
-// ConsultationFlow only controls the pacing of the reveal.
+// it's given, it never invents them. The real Odù signature is decided
+// before any animation starts (src/lib/casting/cast.ts, run client-side so
+// the whole flow works for guests with no database); this component only
+// controls the pacing of the reveal.
 
 export type Instrument = "opele" | "ikin";
 export interface WorkingStep {
