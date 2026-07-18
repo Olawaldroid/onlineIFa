@@ -32,7 +32,7 @@ export const MUSEUM_ITEMS: MuseumItem[] = [
     src: filePath("Brooklyn Museum 75.147.1 Divination Tray Opon Ifa.jpg"),
     credit: "Brooklyn Museum — open licence, via Wikimedia Commons",
     creditHref: fileHref("Brooklyn Museum 75.147.1 Divination Tray Opon Ifa.jpg"),
-    desc: "The carved wooden tray — often round, its border carved with faces and figures, the face of Èṣù at its head. The diviner traces marks in powder across its surface.",
+    desc: "The carved wooden tray. Its border divides into nine named sections: the ojú ọpọn (\"face of the tray\") at the head always bears Èṣù's face, and the ẹsẹ̀ ọpọn (\"foot\") sits nearest the diviner, who traces the marks in powder across the open centre.",
   },
   {
     slot: "mus-opele",
@@ -136,7 +136,7 @@ export const GALLERY_ITEMS: GalleryItem[] = [
     slot: "gal-opon-brooklyn2",
     name: "The tray's carved border",
     origin: "BROOKLYN MUSEUM",
-    desc: "Border carvings are a language of their own: faces, cowries, animals and knots arranged around the field of the marks.",
+    desc: "Border carvings are a language of their own — snakes, birds and bush rats each trace back to a specific Odù story, and regional styles (Ijebu, Osogbo, Ọ̀yọ́) render Èṣù's face differently.",
     src: filePath("Brooklyn Museum 75.147.1 Divination Tray Opon Ifa.jpg", 1200),
     credit: "Brooklyn Museum — open licence, via Wikimedia Commons",
     creditHref: fileHref("Brooklyn Museum 75.147.1 Divination Tray Opon Ifa.jpg"),
