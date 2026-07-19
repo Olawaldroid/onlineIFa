@@ -17,7 +17,7 @@ async function counts() {
     ]);
     return { mode: "db" as const, odu, submitted, sources, pendingPerms, contributors, flagged };
   } catch {
-    const [{ allOduFacts }, { countsByStatus, storeLocation }] = await Promise.all([
+    const [{ allOduFacts }, { countsByStatus }] = await Promise.all([
       import("@/lib/odu/facts"),
       import("@/lib/contributions/store"),
     ]);
@@ -29,7 +29,6 @@ async function counts() {
       approved: c.APPROVED,
       rejected: c.REJECTED,
       total: c.total,
-      store: await storeLocation(),
     };
   }
 }
@@ -59,12 +58,12 @@ export default async function AdminPage() {
           <Stat label="Flagged" value={c.flagged} accent />
         </div>
       ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Stat label="Odù" value={c.odu} />
-            <Stat label="Awaiting review" value={c.submitted} accent />
-            <Stat label="Approved" value={c.approved} />
-            <Stat label="Rejected" value={c.rejected} accent />
-          </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Stat label="Odù" value={c.odu} />
+          <Stat label="Awaiting review" value={c.submitted} accent />
+          <Stat label="Approved" value={c.approved} />
+          <Stat label="Rejected" value={c.rejected} accent />
+        </div>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">

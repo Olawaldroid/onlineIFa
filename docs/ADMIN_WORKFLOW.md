@@ -29,20 +29,30 @@ Every transition writes an **InterpretationVersion** (immutable history) and an
 is not `GRANTED`/`NOT_REQUIRED` — see
 [`/api/interpretations/[id]/review`](../src/app/api/interpretations/[id]/review/route.ts).
 
-## No-database mode (file-backed contribution store)
+## No-database mode (durable contribution store)
 
 The full submit → review → publish loop also works **without Postgres**. When
-the database is unreachable, `/api/interpretations` writes submissions to a
-JSON file store ([`src/lib/contributions/store.ts`](../src/lib/contributions/store.ts),
-default `data/contributions.json`, override with `CONTRIBUTIONS_FILE`), the
-`/admin/interpretations` queue reads from it, review decisions (ids prefixed
-`sub_`) update it, and approved submissions surface on the Odù detail page.
+the database is unreachable, `/api/interpretations` writes submissions to the
+contribution store ([`src/lib/contributions/store.ts`](../src/lib/contributions/store.ts)),
+the `/admin/interpretations` queue reads from it, review decisions (ids
+prefixed `sub_`) update it, and approved submissions surface on the Odù detail
+page and in consultation results (via `GET /api/interpretations?odu=…`).
+
+Storage backends, chosen automatically:
+1. **Vercel Blob** — when `BLOB_READ_WRITE_TOKEN` is present (add a Blob store
+   to the Vercel project; the token is injected automatically). **Durable
+   across deploys and instances** — submissions and admin review decisions
+   stay permanently. Note: the blob is public-read at an unguessable URL;
+   contributions are intended for publication, so nothing sensitive belongs in
+   them.
+2. **Local JSON file** — `data/contributions.json` (override with
+   `CONTRIBUTIONS_FILE`); temp-dir fallback on read-only filesystems
+   (per-instance, ephemeral — previews/dev only).
+
 The same gates apply: only `APPROVED`, unflagged submissions are shown, and
 file submissions carry no external source (permission `NOT_REQUIRED` by
-construction). Each submission keeps an `events` list as its audit trail.
-Intended for local and single-server setups; on read-only filesystems it falls
-back to the OS temp dir (per-instance, ephemeral). Use Postgres for
-production-scale review, sources and contributor accounts.
+construction). Each submission keeps an `events` list as its audit trail. Use
+Postgres when you need sources, contributor accounts and full versioning.
 
 ## Permission gate (source & permission flow)
 

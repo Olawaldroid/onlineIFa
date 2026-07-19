@@ -31,6 +31,9 @@ const CONTRACTED_NAMES: Record<string, string> = {
   "ogbe-iwori": "Ogbè Wèyín",
   "ogbe-odi": "Ogbè Dí",
   "oyeku-ogbe": "Ọ̀yẹ̀kú Lógbè",
+  // Documented by Nei Lopes (2020): Idigbe = Odi Ogbe; Ogbe Yonu = Ogbe Ogunda.
+  "odi-ogbe": "Ìdígbè",
+  "ogbe-ogunda": "Ogbè Yọ́nú",
 };
 
 function buildName(right: PrimaryOduFact, left: PrimaryOduFact): string {
