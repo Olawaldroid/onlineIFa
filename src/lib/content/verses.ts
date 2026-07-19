@@ -27,7 +27,7 @@ export interface EseVerse {
 }
 
 const SOURCE =
-  "Recorded in Pogoson & Akande (2011), “Ifa Divination Trays from Isale-Oyo”, Cadernos de Estudos Africanos 21 — open access";
+  "Recorded in Pogoson & Akande (2011), “Ifa Divination Trays from Isale-Oyo”, Cadernos de Estudos Africanos 21, open access";
 const SOURCE_HREF = "https://journals.openedition.org/cea/196";
 
 export const ESE_VERSES: EseVerse[] = [
@@ -35,7 +35,7 @@ export const ESE_VERSES: EseVerse[] = [
     oduSlug: "oyeku-meji",
     recordedFrom: "Ojebode Fabiyi, diviner, Isale-Ọyọ (2011)",
     context:
-      "A verse of Ọ̀yẹ̀kú Méjì recalling the killing of a great leopard and the sharing of its body between kings — recited to explain why big cats appear on carved divination trays.",
+      "A verse of Ọ̀yẹ̀kú Méjì about the killing of a great leopard and the sharing of its body between kings. Diviners recite it to explain the big cats carved on divination trays.",
     yoruba: [
       "Oni ni won roko leti opon",
       "Ola ni won sakaa lagbe …",
@@ -70,7 +70,7 @@ export const ESE_VERSES: EseVerse[] = [
     oduSlug: "ogbe-ofun",
     recordedFrom: "Fatokun Morakinyo, Oba Edu (Ifá chief) of Isale-Ọyọ (2011)",
     context:
-      "The opening of the Ogbè Òfún narrative of Èṣù testing Ọ̀rúnmìlà with a borrowed monkey — the story told to explain why Èṣù's face watches from the head of every divination tray.",
+      "The opening of the Ogbè Òfún story, where Èṣù tests Ọ̀rúnmìlà with a borrowed monkey. This story explains why Èṣù's face watches from the head of every divination tray.",
     yoruba: [
       "Ogbefohun folohun",
       "Nko fohun folohun",
@@ -91,7 +91,7 @@ export const ESE_VERSES: EseVerse[] = [
     oduSlug: "okanran-osa",
     recordedFrom: "Fasakin, diviner, Isale-Ọyọ (2009)",
     context:
-      "The verse of the Snake: harmless at creation and used for tying firewood, the snake sacrifices and receives its venom — recited to explain the snakes carved on tray borders.",
+      "The verse of the Snake: harmless at creation and used for tying firewood, the snake sacrifices and receives its venom. Diviners recite it to explain the snakes carved on tray borders.",
     yoruba: [
       "Okaran Osa, awo Ejo",
       "Adia fun ejo",
@@ -134,7 +134,7 @@ export const ESE_VERSES: EseVerse[] = [
     oduSlug: "ogunda-owonrin",
     recordedFrom: "Ojebode Fabiyi, diviner, Isale-Ọyọ (2011)",
     context:
-      "From Ògúndá Ọ̀wọ́nrín (also called Ogundanlare): a pilgrim's plea to Ifá for the prosperity given to others, ending with the honour of a horse — the verse behind horsemen carved in Ifá art.",
+      "From Ògúndá Ọ̀wọ́nrín (also called Ogundanlare): a pilgrim's plea to Ifá for the prosperity given to others, ending with the honour of a horse. This is the verse behind the horsemen carved in Ifá art.",
     yoruba: [
       "Emi ko ri eni ti nrele Alara",
       "Ko ba mi ki gbogbo omo won nile Alara",

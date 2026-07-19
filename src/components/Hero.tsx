@@ -140,8 +140,8 @@ export function Hero() {
           Online <span className="text-ifa-gold">Ifá</span>
         </h1>
         <p className="mx-auto mt-[26px] max-w-[560px] text-[19px] leading-relaxed text-ifa-cream/75">
-          A respectful, educational space to explore one of humanity&rsquo;s oldest knowledge systems —
-          philosophy, poetry, memory and mathematics, inscribed by UNESCO as intangible cultural heritage.
+          A respectful home for one of humanity&rsquo;s oldest knowledge systems: philosophy, poetry,
+          memory and mathematics, recognised by UNESCO as cultural heritage.
         </p>
       </div>
       <div className="mt-10 flex flex-wrap justify-center gap-3.5" style={{ animation: "omFadeUp 1s ease .3s both" }}>
