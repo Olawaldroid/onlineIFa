@@ -11,6 +11,7 @@ import { oduFactBySignature } from "@/lib/odu/facts";
 import { resolveLocalDisplay, LocalDisplay } from "@/lib/interpretation/localDisplay";
 import { EseVerses } from "./EseVerses";
 import { versesForOdu } from "@/lib/content/verses";
+import { IboRefinement } from "./IboRefinement";
 
 const AREAS = [
   "GENERAL", "HEALTH", "FAMILY", "MARRIAGE", "MONEY",
@@ -449,6 +450,8 @@ function Result({ result, saveState, onSave }: { result: ResultShape; saveState:
       </div>
 
       {odu?.slug && <EseVerses verses={versesForOdu(odu.slug)} heading="Ifá speaks — a recorded ẹsẹ for this Odù" />}
+
+      <IboRefinement />
 
       <div className="card">
         <h3 className="mb-2 font-serif text-xl text-ifa-gold">Reflection questions</h3>

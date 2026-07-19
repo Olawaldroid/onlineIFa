@@ -12,6 +12,21 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Respect users who prefer reduced motion: freeze the ambient animations
+   (hero spin/glow/particles, casting choreography) and smooth scrolling. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 body {
   @apply bg-ifa-bg text-ifa-cream antialiased;
   background-image: radial-gradient(1200px 600px at 50% -10%, #2b2016 0%, #1a140f 60%);
