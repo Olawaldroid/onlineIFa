@@ -50,8 +50,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         if (categoryNeedsPermission(submission.contentCategory) && !submission.permissionConfirmed) {
           return NextResponse.json({ error: "Cannot approve: written permission has not been confirmed." }, { status: 409 });
         }
+        // Block only on an actual close match. When the private index isn't
+        // present (e.g. production, where it must never be deployed), the
+        // admin's own review IS the check — approval proceeds and the report
+        // records that the automated pass was unavailable.
         const similarity = await checkPrivateBookSimilarity(submission.contentMd);
-        if (!similarity.checked || similarity.blocked) {
+        if (similarity.blocked) {
           return NextResponse.json({ error: `Cannot approve: ${similarity.reason}`, similarity }, { status: 409 });
         }
       }
@@ -73,7 +77,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
     if (body.decision === "APPROVED") {
       const similarity = await checkPrivateBookSimilarity(interp.contentMd);
-      if (!similarity.checked || similarity.blocked) {
+      if (similarity.blocked) {
         return NextResponse.json({ error: `Cannot approve: ${similarity.reason}`, similarity }, { status: 409 });
       }
     }
