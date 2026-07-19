@@ -84,10 +84,8 @@ function composedDisplay(slug: string): LocalDisplay {
     `approached through ${essenceOf(left.title)}. Themes to sit with: ` +
     themes.map((t) => `**${t}**`).join(", ") +
     ".\n\n" +
-    "*This is an original structural reading composed from this Odù's two legs. A fuller " +
-    "reviewed interpretation for this specific Odù has not yet been published — you can " +
-    "help write one on the contribute page. This is educational content, not a substitute " +
-    "for divination by a trained Babalawo.*";
+    "*An original structural reading from this Odù's two legs — a fuller reviewed " +
+    "interpretation is still to come.*";
 
   return {
     isPlaceholder: false,

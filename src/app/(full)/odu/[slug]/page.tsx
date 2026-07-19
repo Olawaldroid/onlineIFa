@@ -74,7 +74,7 @@ export default async function OduDetailPage({ params }: { params: { slug: string
             </span>
           ) : (
             <span className="rounded-full bg-ifa-sage/30 px-3 py-1 text-xs text-ifa-cream">
-              Approved · {meaning.sourceTitle}
+              Approved
             </span>
           )}
         </div>
@@ -88,14 +88,12 @@ export default async function OduDetailPage({ params }: { params: { slug: string
             <Link href="/contribute">Contribute an original interpretation →</Link>
           </p>
         )}
-        {meaning.licence && (
-          <p className="mt-4 text-xs text-ifa-sage">
-            Source: {meaning.sourceTitle} · Category: {meaning.contentCategory.replaceAll("_", " ")} · Licence: {meaning.licence}
-          </p>
+        {meaning.licence && meaning.licence !== "ORIGINAL_APP_LICENCE" && (
+          <p className="mt-4 text-xs text-ifa-sage">Source: {meaning.sourceTitle}</p>
         )}
         {meaning.citation && <p className="mt-1 text-xs text-ifa-sage">Citation: {meaning.citation}</p>}
         <p className="mt-3 text-xs text-ifa-cream/55">
-          <Link href="/library">Sources and further reading</Link> · Private research books are never reproduced here.
+          <Link href="/library">Sources and further reading</Link>
         </p>
       </section>
 
@@ -115,8 +113,8 @@ export default async function OduDetailPage({ params }: { params: { slug: string
         </section>
       )}
 
-      <section className="flex flex-wrap gap-4 text-sm text-ifa-cream/70">
-        <span>Available verses: {verseCount}</span>
+      <section className="flex flex-wrap items-center gap-4 text-sm text-ifa-cream/70">
+        {verseCount > 0 && <span>Recorded verses: {verseCount}</span>}
         <Link href={`/consult?odu=${fact.slug}`} className="btn-secondary">
           Use this Odù in a consultation
         </Link>
