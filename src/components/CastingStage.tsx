@@ -62,8 +62,8 @@ export function CastingStage({
     <div className="grid gap-[26px] lg:grid-cols-[1fr_380px]">
       <div className="rounded-[18px] border border-ifa-border bg-ifa-surface p-[30px]">
         <div className="flex gap-3">
-          <InstrumentButton active={isOpele} onClick={() => onPickInstrument("opele")} title="Ọ̀pẹ̀lẹ̀" sub="divining chain — one throw" disabled={animating} />
-          <InstrumentButton active={!isOpele} onClick={() => onPickInstrument("ikin")} title="Ìkín" sub="16 sacred palm nuts — 8 rounds" disabled={animating} />
+          <InstrumentButton active={isOpele} onClick={() => onPickInstrument("opele")} title="Ọ̀pẹ̀lẹ̀" sub="one throw" disabled={animating} />
+          <InstrumentButton active={!isOpele} onClick={() => onPickInstrument("ikin")} title="Ìkín" sub="16 palm nuts, 8 rounds" disabled={animating} />
         </div>
 
         <div className="mt-[22px] flex flex-wrap items-center justify-between gap-3">
@@ -78,7 +78,7 @@ export function CastingStage({
               <span className="absolute top-[3px] h-[18px] w-[18px] rounded-full bg-ifa-cream transition-[left] duration-200" style={{ left: working ? 21 : 3 }} />
             </button>
             <span>
-              <strong className="text-ifa-gold">Show your working</strong> — explain each mark
+              <strong className="text-ifa-gold">Show your working</strong>
             </span>
           </label>
           <button
@@ -145,7 +145,7 @@ export function CastingStage({
               <div className="mt-3 min-h-[22px] text-sm text-ifa-cream/85">
                 {ikinStage
                   ? ikinStage.phase === "beating"
-                    ? `Round ${ikinStage.round + 1} of 8 — striking at the nuts…`
+                    ? `Round ${ikinStage.round + 1} of 8. Striking at the nuts…`
                     : `Round ${ikinStage.round + 1}: ${ikinStage.remainder} remain${ikinStage.remainder! > 1 ? "" : "s"}`
                   : animating
                     ? "Eight rounds complete."
@@ -209,8 +209,7 @@ export function CastingStage({
           </div>
         ) : (
           <p className="m-0 text-[13.5px] leading-relaxed text-ifa-cream/50">
-            Choose an instrument and cast. Each mark will be explained here, step by step — how it
-            was drawn, and why it lands where it does.
+            Choose an instrument and cast. Each mark gets explained here as it lands.
           </p>
         )}
       </div>
@@ -234,6 +233,35 @@ function InstrumentButton({ active, onClick, title, sub, disabled }: { active: b
   );
 }
 
+/** A dark-skinned hand pressing the sand: the fist sits above, with one
+ *  finger extended for a single mark or index + middle for a double. */
+function PressingHand({ fingers }: { fingers: number }) {
+  const skin = "linear-gradient(175deg, #8a5c3d 0%, #6e4429 45%, #53321e 100%)";
+  const shade = "inset -2px 0 4px rgba(0,0,0,.28), inset 1px 1px 3px rgba(255,225,190,.18), 0 4px 9px rgba(0,0,0,.5)";
+  return (
+    <div className="absolute left-1/2 -top-3 z-[3]" style={{ animation: "omFinger .7s ease both" }}>
+      <div className="relative" style={{ width: 44, height: 52 }}>
+        {/* fist / knuckles */}
+        <div
+          className="absolute left-1/2 top-0 -translate-x-1/2"
+          style={{ width: 40, height: 24, borderRadius: "12px 12px 9px 9px", background: skin, boxShadow: shade }}
+        />
+        {/* folded fingers hint on the fist */}
+        <div className="absolute left-1/2 -translate-x-1/2" style={{ top: 16, width: 34, height: 7, borderRadius: 4, background: "rgba(0,0,0,.22)" }} />
+        {/* extended finger(s), tips pressing down into the sand */}
+        <div className="absolute left-1/2 flex -translate-x-1/2 gap-[4px]" style={{ top: 15 }}>
+          {Array.from({ length: fingers }, (_, k) => (
+            <div key={k} className="relative" style={{ width: 13, height: 36, borderRadius: "5px 5px 9px 9px", background: skin, boxShadow: shade }}>
+              {/* fingertip highlight */}
+              <div className="absolute bottom-[2px] left-1/2 -translate-x-1/2" style={{ width: 8, height: 6, borderRadius: "50%", background: "rgba(255,220,185,.25)" }} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function HangingChain({ shaking }: { shaking: boolean }) {
   return (
     <div className="flex flex-col items-center">
@@ -251,7 +279,7 @@ function HangingChain({ shaking }: { shaking: boolean }) {
         ))}
       </div>
       <div className="mt-4 text-[13.5px] text-ifa-cream/60">
-        {shaking ? "The chain is swung…" : "The ọ̀pẹ̀lẹ̀ hangs ready — two strands of four pods, held at the middle."}
+        {shaking ? "The chain is swung…" : "The ọ̀pẹ̀lẹ̀ hangs ready, two strands of four pods."}
       </div>
     </div>
   );
@@ -299,22 +327,7 @@ function SandColumn({ marks, offset, casting }: { marks: number[]; offset: numbe
             {m !== undefined ? <div className="lab-sand-mark" /> : null}
             {m === 2 ? <div className="lab-sand-mark" /> : null}
             {m === undefined ? <div className="h-2 w-2 rounded-full bg-[rgba(120,84,44,.28)]" /> : null}
-            {showFinger ? (
-              // The pressing hand: one dark finger writes a single mark,
-              // two fingers write the double mark.
-              <div className="absolute left-1/2 -top-2 z-[3] flex gap-[7px]" style={{ animation: "omFinger .7s ease both" }}>
-                {Array.from({ length: m }, (_, k) => (
-                  <div
-                    key={k}
-                    className="h-[34px] w-[13px] shadow-[0_3px_8px_rgba(0,0,0,.55)]"
-                    style={{
-                      borderRadius: "7px 7px 11px 11px",
-                      background: "linear-gradient(#2b2016 0%, #17100b 55%, #060403 100%)",
-                    }}
-                  />
-                ))}
-              </div>
-            ) : null}
+            {showFinger ? <PressingHand fingers={m} /> : null}
           </div>
         );
       })}

@@ -24,4 +24,4 @@ export const COMBINED_ODU_NOTES: Record<string, string> = {
  *  "child" of the Odù standing on its right leg — Ogbè Yẹkú is a child of
  *  Ogbè, Ọ̀yẹ̀kú Lógbè a child of Ọ̀yẹ̀kú. */
 export const RIGHT_LEG_CHILD_NOTE =
-  "Tradition calls a combined Odù a “child” of the Odù on its right leg — the family it belongs to.";
+  "Tradition calls a combined Odù a “child” of the Odù on its right leg, the family it belongs to.";

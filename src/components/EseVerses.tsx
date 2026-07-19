@@ -5,7 +5,7 @@ import { EseVerse } from "@/lib/content/verses";
 // the Odù detail page and the consultation result. Every verse carries its
 // recorded source and a link; quotation is verbatim from an open-access
 // scholarly record (see src/lib/content/verses.ts).
-export function EseVerses({ verses, heading = "Ẹsẹ Ifá — a recorded verse" }: { verses: EseVerse[]; heading?: string }) {
+export function EseVerses({ verses, heading = "A recorded ẹsẹ" }: { verses: EseVerse[]; heading?: string }) {
   if (!verses.length) return null;
   return (
     <div className="card">
@@ -31,13 +31,18 @@ export function EseVerses({ verses, heading = "Ẹsẹ Ifá — a recorded verse
               ))}
             </div>
           </div>
-          <p className="mb-0 mt-2.5 text-xs leading-relaxed text-ifa-sage">
-            {v.excerpt ? "Excerpt. " : ""}As recited by {v.recordedFrom}.{" "}
-            <a href={v.sourceHref} target="_blank" rel="noreferrer">
-              {v.source}
-            </a>
-            .
-          </p>
+          <details className="mt-2.5 text-xs text-ifa-sage">
+            <summary className="cursor-pointer select-none opacity-80 hover:text-ifa-gold hover:opacity-100">
+              Show reference
+            </summary>
+            <p className="mb-0 mt-1.5 leading-relaxed">
+              {v.excerpt ? "This is an excerpt. " : ""}Recited by {v.recordedFrom}.{" "}
+              <a href={v.sourceHref} target="_blank" rel="noreferrer">
+                {v.source}
+              </a>
+              .
+            </p>
+          </details>
         </div>
       ))}
     </div>

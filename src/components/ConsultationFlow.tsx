@@ -147,7 +147,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
       setWorkingSteps([
         {
           n: "·",
-          text: "The ọ̀pẹ̀lẹ̀ — a chain of eight half-pods in two strands of four — is held at the middle and swung. One throw yields a complete figure.",
+          text: "The ọ̀pẹ̀lẹ̀ chain carries eight half-pods in two strands of four. It is held at the middle and swung. One throw gives the whole figure.",
         },
       ]);
       after(1700, () => {
@@ -161,7 +161,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
                 ...st,
                 {
                   n: String(i + 1),
-                  text: `Pod ${i + 1} (${posName(i)}) lands ${m === 1 ? "concave face up → a SINGLE mark ǀ" : "convex face up → a DOUBLE mark ǁ"}. (Which face maps to which mark varies by lineage — this is our stated convention.)`,
+                  text: `Pod ${i + 1} (${posName(i)}) lands ${m === 1 ? "concave face up → a SINGLE mark ǀ" : "convex face up → a DOUBLE mark ǁ"}. `,
                 },
               ]);
             });
@@ -185,7 +185,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
       setWorkingSteps([
         {
           n: "·",
-          text: "Sixteen ìkín (sacred palm nuts) are held. In each of 8 rounds the diviner strikes at the nuts with one hand; the remainder left behind — one or two — writes one mark.",
+          text: "Sixteen ìkín rest in the palm. In each of 8 rounds the diviner strikes at the nuts, and the one or two left behind write the mark.",
         },
       ]);
       const round = (i: number) => {
@@ -291,7 +291,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
         <div className="card mx-auto max-w-2xl space-y-4">
           <h2 className="font-serif text-xl text-ifa-gold">Choose a casting mode</h2>
           <p className="text-sm text-ifa-cream/70">
-            Clearly-labelled modes — no account needed.
+            Pick how you want to cast. No account needed.
           </p>
           <div className="space-y-2">
             {CASTING_MODES.map((m) => (
@@ -366,7 +366,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
       {step === "cast" && animatedModes && (
         <div className="space-y-4">
           <p className="mx-auto max-w-2xl text-center text-xs text-ifa-sage">
-            Genuinely random, generated on your device — a learning tool.
+            Every draw is random and happens on your device.
           </p>
           <CastingStage
             instrument={instrument}
@@ -443,7 +443,7 @@ function Result({ result, saveState, onSave }: { result: ResultShape; saveState:
         {display.citation && <p className="mt-1 text-xs text-ifa-sage">Citation: {display.citation}</p>}
       </div>
 
-      {odu?.slug && <EseVerses verses={versesForOdu(odu.slug)} heading="Ifá speaks — a recorded ẹsẹ for this Odù" />}
+      {odu?.slug && <EseVerses verses={versesForOdu(odu.slug)} heading="Ifá speaks" />}
 
       <IboRefinement />
 
@@ -469,7 +469,7 @@ function Result({ result, saveState, onSave }: { result: ResultShape; saveState:
           {saveState === "saved" ? "Saved ✓" : saveState === "saving" ? "Saving…" : "Save consultation"}
         </button>
         {saveState === "error" && (
-          <span className="text-xs text-ifa-rust">Couldn&rsquo;t save — this reading above is still yours to keep.</span>
+          <span className="text-xs text-ifa-rust">Couldn&rsquo;t save. The reading above is still yours to keep.</span>
         )}
       </div>
     </div>

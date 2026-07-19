@@ -54,7 +54,7 @@ function mejiDisplay(found: (typeof ORIGINAL_INTERPRETATIONS)[number]): LocalDis
     isPlaceholder: false,
     contentMd: found.contentMd,
     title: found.title,
-    sourceTitle: "Online Ifá — original editorial content",
+    sourceTitle: "Online Ifá original content",
     licence: "ORIGINAL_APP_LICENCE",
     reflectionQuestions: found.reflectionQuestions,
   };
@@ -78,20 +78,20 @@ function composedDisplay(slug: string): LocalDisplay {
     `and **${leftFact.name}** on the left. The right leg is read first and carries ` +
     `seniority; the left leg colours and qualifies it. ${RIGHT_LEG_CHILD_NOTE}\n\n` +
     (note ? `**What tradition records of this Odù:** ${note}\n\n` : "") +
-    `**From the right leg — ${rightFact.name}:** ${essenceOf(right.title)}.\n\n` +
-    `**From the left leg — ${leftFact.name}:** ${essenceOf(left.title)}.\n\n` +
-    `Read structurally, this pairing sets ${essenceOf(right.title)} in the foreground, ` +
-    `approached through ${essenceOf(left.title)}. Themes to sit with: ` +
+    `**${rightFact.name}, on the right leg, brings** ${essenceOf(right.title)}.\n\n` +
+    `**${leftFact.name}, on the left leg, brings** ${essenceOf(left.title)}.\n\n` +
+    `Read together, ${essenceOf(right.title)} leads, and ${essenceOf(left.title)} ` +
+    `shapes how it arrives. Themes to sit with: ` +
     themes.map((t) => `**${t}**`).join(", ") +
     ".\n\n" +
-    "*An original structural reading from this Odù's two legs — a fuller reviewed " +
-    "interpretation is still to come.*";
+    "*An original reading built from this Odù's two legs. A fuller reviewed " +
+    "interpretation is on its way.*";
 
   return {
     isPlaceholder: false,
     contentMd,
-    title: `${fact.name} — a structural reading`,
-    sourceTitle: "Online Ifá — original structural composition from the two legs",
+    title: `${fact.name}: a reading from its two legs`,
+    sourceTitle: "Online Ifá original content",
     licence: "ORIGINAL_APP_LICENCE",
     reflectionQuestions: [
       right.reflectionQuestions[0],

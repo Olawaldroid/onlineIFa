@@ -60,7 +60,7 @@ export default function HomePage() {
         <div className="grid gap-4 sm:grid-cols-3">
           <Card title="16 + 240 = 256 Odù" body="Browse all principal and combined Odù with their binary-style signatures and combination structure." href="/odu" />
           <Card title="Facts, then meaning" body="Names, ranks, and signatures are facts. Meaning lives in clearly-sourced, reviewed interpretations." href="/learn" />
-          <Card title="Honest casting" body="Simulated, learning, manual, or self-selected modes — clearly labelled, with no false spiritual authority." href="/consult" />
+          <Card title="Honest casting" body="Simulated, learning, manual, or self-selected modes, each labelled for what it is." href="/consult" />
         </div>
 
         <div className="card mt-8">
