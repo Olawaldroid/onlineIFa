@@ -35,6 +35,7 @@ async function counts() {
 }
 
 const SECTIONS = [
+  { href: "/admin/research", title: "Private book research", desc: "Search the local English-only PDF and EPUB index." },
   { href: "/admin/interpretations", title: "Interpretations", desc: "Review submissions, approve / reject / request changes." },
   { href: "/admin/sources", title: "Sources & permissions", desc: "Track licences and permission status." },
   { href: "/admin/contributors", title: "Contributors", desc: "Verify roles and manage accounts." },
@@ -58,20 +59,12 @@ export default async function AdminPage() {
           <Stat label="Flagged" value={c.flagged} accent />
         </div>
       ) : (
-        <>
-          <p className="rounded-lg border border-ifa-border bg-ifa-surface px-4 py-2 text-sm text-ifa-sage">
-            No database connected — contributions run on the file store
-            {c.store.ephemeral ? " (temp dir: data resets when the server restarts)" : ""}:{" "}
-            <code className="text-ifa-cream/70">{c.store.file}</code>. Submissions and reviews work
-            normally; connect Postgres later for sources, contributors and full versioning.
-          </p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Stat label="Odù" value={c.odu} />
             <Stat label="Awaiting review" value={c.submitted} accent />
             <Stat label="Approved" value={c.approved} />
             <Stat label="Rejected" value={c.rejected} accent />
           </div>
-        </>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
