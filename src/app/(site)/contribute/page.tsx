@@ -6,6 +6,13 @@ import { useState } from "react";
 // Required fields mirror the schema: Odù, language, tradition/lineage, author,
 // source type, licence, review status (set by system), content, notes.
 const SOURCE_TYPES = ["ORIGINAL_APP", "CONTRIBUTOR", "PUBLIC_DOMAIN", "LICENSED", "ORAL_TRADITION", "ACADEMIC"];
+const CONTENT_CATEGORIES = [
+  ["CONTRIBUTOR_ORIGINAL", "My original teaching"],
+  ["ORIGINAL_SYNTHESIS", "Original synthesis of research"],
+  ["PUBLIC_DOMAIN_VERSE", "Public-domain verse"],
+  ["LICENSED_VERSE", "Licensed verse"],
+  ["ORAL_TRADITION", "Attributed oral tradition"],
+] as const;
 
 export default function ContributePage() {
   const [form, setForm] = useState({
@@ -16,11 +23,18 @@ export default function ContributePage() {
     contentMd: "",
     notes: "",
     sourceType: "CONTRIBUTOR",
+    contentCategory: "CONTRIBUTOR_ORIGINAL",
+    citation: "",
+    permissionConfirmed: false,
   });
   const [status, setStatus] = useState<string | null>(null);
 
   function set<K extends keyof typeof form>(k: K, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
+  }
+
+  function setPermission(value: boolean) {
+    setForm((current) => ({ ...current, permissionConfirmed: value }));
   }
 
   async function submit(e: React.FormEvent) {
@@ -65,12 +79,30 @@ export default function ContributePage() {
             {SOURCE_TYPES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
         </Field>
+        <Field label="Content category">
+          <select value={form.contentCategory} onChange={(e) => set("contentCategory", e.target.value)} className="input">
+            {CONTENT_CATEGORIES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+          </select>
+        </Field>
+        <Field label="Citation / attribution">
+          <input value={form.citation} onChange={(e) => set("citation", e.target.value)} className="input" placeholder="Title, author or lineage, edition and page/section" />
+        </Field>
+        {form.contentCategory === "LICENSED_VERSE" && (
+          <label className="flex gap-2 text-sm text-ifa-cream/80">
+            <input type="checkbox" checked={form.permissionConfirmed} onChange={(e) => setPermission(e.target.checked)} />
+            I confirm written publication permission is on file and can be shown to an admin.
+          </label>
+        )}
         <Field label="Content (Markdown)">
           <textarea required rows={8} value={form.contentMd} onChange={(e) => set("contentMd", e.target.value)} className="input font-mono" />
         </Field>
         <Field label="Notes (for reviewers)">
           <textarea rows={3} value={form.notes} onChange={(e) => set("notes", e.target.value)} className="input" />
         </Field>
+        <p className="text-xs leading-relaxed text-ifa-cream/60">
+          Research may inform original summaries, but they need a new structure and wording. Public-domain,
+          licensed, and oral material requires precise attribution; licensed text also requires permission.
+        </p>
         <button className="btn-primary">Submit for review</button>
         {status && <p className="text-sm text-ifa-sage">{status}</p>}
       </form>

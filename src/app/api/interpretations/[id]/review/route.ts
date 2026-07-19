@@ -5,6 +5,9 @@ import { ReviewStatus } from "@prisma/client";
 import { sourceIsPublishable } from "@/lib/interpretation/gate";
 import { getSession, authEnforced } from "@/lib/auth/session";
 import { reviewSubmission } from "@/lib/contributions/store";
+import { listSubmissions } from "@/lib/contributions/store";
+import { categoryNeedsCitation, categoryNeedsPermission } from "@/lib/content/provenance";
+import { checkPrivateBookSimilarity } from "@/lib/research/similarity";
 
 const Body = z.object({
   decision: z.enum(["APPROVED", "REJECTED", "CHANGES_REQUESTED"]),
@@ -38,6 +41,24 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       if (authEnforced() && !isAdmin) {
         return NextResponse.json({ error: "Admin session required" }, { status: 403 });
       }
+      if (body.decision === "APPROVED") {
+        const submission = (await listSubmissions()).find((item) => item.id === params.id);
+        if (!submission) return NextResponse.json({ error: "Not found" }, { status: 404 });
+        if (categoryNeedsCitation(submission.contentCategory) && !submission.citation) {
+          return NextResponse.json({ error: "Cannot approve: citation is required for this category." }, { status: 409 });
+        }
+        if (categoryNeedsPermission(submission.contentCategory) && !submission.permissionConfirmed) {
+          return NextResponse.json({ error: "Cannot approve: written permission has not been confirmed." }, { status: 409 });
+        }
+        // Block only on an actual close match. When the private index isn't
+        // present (e.g. production, where it must never be deployed), the
+        // admin's own review IS the check — approval proceeds and the report
+        // records that the automated pass was unavailable.
+        const similarity = await checkPrivateBookSimilarity(submission.contentMd);
+        if (similarity.blocked) {
+          return NextResponse.json({ error: `Cannot approve: ${similarity.reason}`, similarity }, { status: 409 });
+        }
+      }
       const updated = await reviewSubmission(params.id, body.decision, body.comment);
       if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
       return NextResponse.json({ interpretation: updated, store: "file" });
@@ -53,6 +74,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       include: { source: true, versions: true },
     });
     if (!interp) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    if (body.decision === "APPROVED") {
+      const similarity = await checkPrivateBookSimilarity(interp.contentMd);
+      if (similarity.blocked) {
+        return NextResponse.json({ error: `Cannot approve: ${similarity.reason}`, similarity }, { status: 409 });
+      }
+    }
 
     if (body.decision === "APPROVED" && !sourceIsPublishable(interp.source)) {
       return NextResponse.json(

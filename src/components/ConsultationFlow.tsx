@@ -437,8 +437,13 @@ function Result({ result, saveState, onSave }: { result: ResultShape; saveState:
           <ReactMarkdown>{display.contentMd}</ReactMarkdown>
         </div>
         {display.sourceTitle && (
-          <p className="mt-3 text-xs text-ifa-sage">Source: {display.sourceTitle} · Licence: {display.licence}</p>
+          <p className="mt-3 text-xs text-ifa-sage">
+            Source: {display.sourceTitle}
+            {display.contentCategory ? ` · Category: ${display.contentCategory.replaceAll("_", " ")}` : ""}
+            {display.licence ? ` · Licence: ${display.licence}` : ""}
+          </p>
         )}
+        {display.citation && <p className="mt-1 text-xs text-ifa-sage">Citation: {display.citation}</p>}
       </div>
 
       <div className="card">

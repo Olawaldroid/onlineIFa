@@ -12,8 +12,8 @@
 //      deploys and instances: submissions and review decisions stay
 //      permanently, no database needed.
 //   2. Local JSON file — data/contributions.json (override with
-//      CONTRIBUTIONS_FILE); falls back to the OS temp dir when the primary
-//      path isn't writable (per-instance only — for previews/dev).
+//      CONTRIBUTIONS_FILE). If that path isn't writable, submissions fail
+//      clearly instead of pretending that a temporary file is permanent.
 // Server-side only (uses fs / network): import from route handlers and server
 // components, never client components.
 // ===========================================================================
@@ -22,6 +22,8 @@ import { promises as fs } from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
 import { put, list } from "@vercel/blob";
+import type { ContentCategory } from "@/lib/content/provenance";
+import type { SimilarityReport } from "@/lib/research/similarity";
 
 export type SubmissionStatus = "SUBMITTED" | "APPROVED" | "REJECTED" | "CHANGES_REQUESTED";
 
@@ -41,6 +43,10 @@ export interface FileSubmission {
   contentMd: string;
   notes?: string;
   sourceType: string;
+  contentCategory: ContentCategory;
+  citation?: string;
+  permissionConfirmed: boolean;
+  similarity: SimilarityReport;
   status: SubmissionStatus;
   flagged: boolean;
   createdAt: string;
@@ -160,6 +166,10 @@ export async function addSubmission(input: {
   contentMd: string;
   notes?: string;
   sourceType: string;
+  contentCategory: ContentCategory;
+  citation?: string;
+  permissionConfirmed: boolean;
+  similarity: SimilarityReport;
 }): Promise<FileSubmission> {
   return serializedMutation(async () => {
     const now = new Date().toISOString();

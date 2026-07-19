@@ -16,7 +16,8 @@
     "db:reset": "prisma migrate reset --force",
     "books:ocr": "node scripts/ocr-local-books.cjs",
     "books:translate": "C:\\Users\\info\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/translate-local-books.py",
-    "books:index": "node scripts/ocr-local-books.cjs && node scripts/index-local-books.cjs && npm run books:translate && node scripts/build-english-book-index.cjs"
+    "books:index": "node scripts/ocr-local-books.cjs && node scripts/index-local-books.cjs && npm run books:translate && node scripts/build-english-book-index.cjs",
+    "books:notes": "node scripts/build-research-notes.cjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
