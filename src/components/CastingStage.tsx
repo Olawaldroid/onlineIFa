@@ -233,30 +233,30 @@ function InstrumentButton({ active, onClick, title, sub, disabled }: { active: b
   );
 }
 
-/** A dark-skinned hand pressing the sand: the fist sits above, with one
- *  finger extended for a single mark or index + middle for a double. */
+/** A dark-skinned hand at the marks: a fist with fingers raised upward,
+ *  one finger for a single mark, index + middle for a double. */
 function PressingHand({ fingers }: { fingers: number }) {
-  const skin = "linear-gradient(175deg, #8a5c3d 0%, #6e4429 45%, #53321e 100%)";
+  const skin = "linear-gradient(5deg, #53321e 0%, #6e4429 55%, #8a5c3d 100%)";
   const shade = "inset -2px 0 4px rgba(0,0,0,.28), inset 1px 1px 3px rgba(255,225,190,.18), 0 4px 9px rgba(0,0,0,.5)";
   return (
     <div className="absolute left-1/2 -top-3 z-[3]" style={{ animation: "omFinger .7s ease both" }}>
       <div className="relative" style={{ width: 44, height: 52 }}>
-        {/* fist / knuckles */}
-        <div
-          className="absolute left-1/2 top-0 -translate-x-1/2"
-          style={{ width: 40, height: 24, borderRadius: "12px 12px 9px 9px", background: skin, boxShadow: shade }}
-        />
-        {/* folded fingers hint on the fist */}
-        <div className="absolute left-1/2 -translate-x-1/2" style={{ top: 16, width: 34, height: 7, borderRadius: 4, background: "rgba(0,0,0,.22)" }} />
-        {/* extended finger(s), tips pressing down into the sand */}
-        <div className="absolute left-1/2 flex -translate-x-1/2 gap-[4px]" style={{ top: 15 }}>
+        {/* raised finger(s), tips pointing up */}
+        <div className="absolute left-1/2 top-0 flex -translate-x-1/2 gap-[4px]">
           {Array.from({ length: fingers }, (_, k) => (
-            <div key={k} className="relative" style={{ width: 13, height: 36, borderRadius: "5px 5px 9px 9px", background: skin, boxShadow: shade }}>
+            <div key={k} className="relative" style={{ width: 13, height: 36, borderRadius: "9px 9px 5px 5px", background: skin, boxShadow: shade }}>
               {/* fingertip highlight */}
-              <div className="absolute bottom-[2px] left-1/2 -translate-x-1/2" style={{ width: 8, height: 6, borderRadius: "50%", background: "rgba(255,220,185,.25)" }} />
+              <div className="absolute left-1/2 top-[2px] -translate-x-1/2" style={{ width: 8, height: 6, borderRadius: "50%", background: "rgba(255,220,185,.25)" }} />
             </div>
           ))}
         </div>
+        {/* fist / folded fingers below */}
+        <div
+          className="absolute bottom-0 left-1/2 -translate-x-1/2"
+          style={{ width: 40, height: 24, borderRadius: "9px 9px 12px 12px", background: skin, boxShadow: shade }}
+        />
+        {/* knuckle line on the fist */}
+        <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: 15, width: 34, height: 7, borderRadius: 4, background: "rgba(0,0,0,.22)" }} />
       </div>
     </div>
   );
