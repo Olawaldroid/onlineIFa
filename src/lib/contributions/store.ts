@@ -7,16 +7,18 @@
 // the DB path: only APPROVED, unflagged content is ever shown.
 //
 // Storage: data/contributions.json (override with CONTRIBUTIONS_FILE). If that
-// path isn't writable — e.g. a serverless filesystem — it falls back to the OS
-// temp dir, where data persists only per instance. This store is a
-// convenience for local / single-server setups; production-scale review
-// should still use Postgres. Server-side only (uses fs): import it from route
+// path isn't writable, submissions fail clearly instead of pretending that a
+// temporary file is permanent. This store is intended for a local or
+// single-server installation; production-scale review should use persistent
+// mounted storage or Postgres. Server-side only (uses fs): import it from route
 // handlers and server components, never client components.
 // ===========================================================================
 
 import { promises as fs } from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
+import type { ContentCategory } from "@/lib/content/provenance";
+import type { SimilarityReport } from "@/lib/research/similarity";
 
 export type SubmissionStatus = "SUBMITTED" | "APPROVED" | "REJECTED" | "CHANGES_REQUESTED";
 
@@ -36,6 +38,10 @@ export interface FileSubmission {
   contentMd: string;
   notes?: string;
   sourceType: string;
+  contentCategory: ContentCategory;
+  citation?: string;
+  permissionConfirmed: boolean;
+  similarity: SimilarityReport;
   status: SubmissionStatus;
   flagged: boolean;
   createdAt: string;
@@ -119,6 +125,10 @@ export async function addSubmission(input: {
   contentMd: string;
   notes?: string;
   sourceType: string;
+  contentCategory: ContentCategory;
+  citation?: string;
+  permissionConfirmed: boolean;
+  similarity: SimilarityReport;
 }): Promise<FileSubmission> {
   return serializedMutation(async () => {
     const now = new Date().toISOString();

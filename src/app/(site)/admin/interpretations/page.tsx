@@ -95,6 +95,11 @@ function SubmissionCard({ s, withActions }: { s: FileSubmission; withActions?: b
             {s.tradition ? ` · ${s.tradition}` : ""} ·{" "}
             {new Date(s.createdAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}
           </p>
+          <p className="mt-1 text-xs text-ifa-cream/60">
+            Category: {s.contentCategory?.replaceAll("_", " ") ?? "LEGACY SUBMISSION"}
+            {s.citation ? ` · Citation: ${s.citation}` : ""}
+            {s.permissionConfirmed ? " · Permission confirmed" : ""}
+          </p>
         </div>
         <span
           className={`rounded-full px-3 py-1 text-xs ${
@@ -110,6 +115,11 @@ function SubmissionCard({ s, withActions }: { s: FileSubmission; withActions?: b
       </div>
       <p className="mt-2 line-clamp-3 whitespace-pre-line text-sm text-ifa-cream/70">{s.contentMd}</p>
       {s.notes && <p className="mt-1 text-xs text-ifa-sage">Contributor notes: {s.notes}</p>}
+      {s.similarity && (
+        <p className={`mt-2 text-xs ${s.similarity.blocked || !s.similarity.checked ? "text-ifa-rust" : "text-ifa-sage"}`}>
+          Private-shelf similarity: {s.similarity.checked ? `${Math.round(s.similarity.maxScore * 100)}%` : "not checked"} · {s.similarity.reason}
+        </p>
+      )}
       {s.events.length > 0 && (
         <div className="mt-3 border-t border-ifa-border pt-2 text-xs text-ifa-sage">
           <p className="mb-1 font-semibold uppercase tracking-wide text-ifa-cream/70">Review history</p>

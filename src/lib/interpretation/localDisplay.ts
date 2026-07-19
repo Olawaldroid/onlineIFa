@@ -20,6 +20,8 @@ export interface LocalDisplay {
   sourceTitle: string | null;
   licence: string | null;
   reflectionQuestions: string[];
+  citation?: string | null;
+  contentCategory?: string;
 }
 
 export function resolveLocalDisplay(oduSlug: string | null): LocalDisplay {

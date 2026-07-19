@@ -18,6 +18,8 @@ export interface OduDetailView {
     contentMd: string;
     sourceTitle: string | null;
     licence: string | null;
+    citation: string | null;
+    contentCategory: string;
   };
   themes: string[];
   proverbs: { yoruba: string; english: string | null }[];
@@ -36,6 +38,8 @@ export async function getOduDetail(slug: string): Promise<OduDetailView | null> 
     contentMd: PLACEHOLDER_INTERPRETATION,
     sourceTitle: null,
     licence: null,
+    citation: null,
+    contentCategory: "UNAVAILABLE",
   };
   let themes: string[] = [];
   let proverbs: { yoruba: string; english: string | null }[] = [];
@@ -62,6 +66,8 @@ export async function getOduDetail(slug: string): Promise<OduDetailView | null> 
         contentMd: display.contentMd,
         sourceTitle: display.sourceTitle,
         licence: display.licence,
+        citation: display.sourceTitle,
+        contentCategory: display.isPlaceholder ? "UNAVAILABLE" : "APPROVED_DATABASE_CONTENT",
       };
       themes = odu.themes.map((t) => t.theme.label);
       proverbs = odu.proverbs.map((p) => ({ yoruba: p.yoruba, english: p.english }));
@@ -89,6 +95,8 @@ export async function getOduDetail(slug: string): Promise<OduDetailView | null> 
             ? `Contributor submission (${approved.tradition})`
             : "Contributor submission (reviewed)",
           licence: approved.sourceType,
+          citation: approved.citation ?? null,
+          contentCategory: approved.contentCategory ?? "CONTRIBUTOR_ORIGINAL",
         };
       }
     } catch {
@@ -108,6 +116,8 @@ export async function getOduDetail(slug: string): Promise<OduDetailView | null> 
       contentMd: local.contentMd,
       sourceTitle: local.sourceTitle,
       licence: local.licence,
+      citation: null,
+      contentCategory: "ORIGINAL_SYNTHESIS",
     };
     reflectionQuestions = local.reflectionQuestions;
   }
