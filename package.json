@@ -2,7 +2,7 @@
   "name": "online-ifa",
   "version": "0.1.0",
   "private": true,
-  "description": "Online Ifá — an educational Ifá consultation app that separates Odù facts from interpretations.",
+  "description": "Online If\u00e1 \u2014 an educational If\u00e1 consultation app that separates Od\u00f9 facts from interpretations.",
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
@@ -17,7 +17,8 @@
     "books:ocr": "node scripts/ocr-local-books.cjs",
     "books:translate": "C:\\Users\\info\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/translate-local-books.py",
     "books:index": "node scripts/ocr-local-books.cjs && node scripts/index-local-books.cjs && npm run books:translate && node scripts/build-english-book-index.cjs",
-    "books:notes": "node scripts/build-research-notes.cjs"
+    "books:notes": "node scripts/build-research-notes.cjs",
+    "books:ingest": "node scripts/ingest-research-text.cjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { getOduDetail } from "@/lib/odu/detail";
 import { SignatureDisplay } from "@/components/SignatureDisplay";
+import { EseVerses } from "@/components/EseVerses";
+import { versesForOdu } from "@/lib/content/verses";
 import { PageSection } from "@/components/PageSection";
 import { MarkOduVisited } from "@/components/MarkOduVisited";
 
@@ -96,6 +98,8 @@ export default async function OduDetailPage({ params }: { params: { slug: string
           <Link href="/library">Sources and further reading</Link> · Private research books are never reproduced here.
         </p>
       </section>
+
+      <EseVerses verses={versesForOdu(fact.slug)} />
 
       {proverbs.length > 0 && (
         <section className="card">

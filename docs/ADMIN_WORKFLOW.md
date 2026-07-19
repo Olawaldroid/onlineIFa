@@ -54,6 +54,23 @@ file submissions carry no external source (permission `NOT_REQUIRED` by
 construction). Each submission keeps an `events` list as its audit trail. Use
 Postgres when you need sources, contributor accounts and full versioning.
 
+## Bringing texts into the research index
+
+The private research index (`.local-research/book-index.json`, gitignored,
+never deployed) powers the similarity guard and `npm run books:notes`. Add
+texts with `npm run books:ingest` (dependency-free, runs on your machine):
+
+```
+npm run books:ingest -- --url  https://archive.org/stream/<item>/<item>_djvu.txt --id ellis-1894 --title "Ellis 1894"
+npm run books:ingest -- --file path/to/text.txt --id farrow-1926 --title "Farrow 1926"
+npm run books:ingest                       # every .txt in .local-research/incoming/
+```
+
+Only ingest texts you may legally hold. **Public-domain full texts (pre-1929)
+may also be committed to the repo openly** — unlike the copyrighted shelf,
+nothing restricts them; committing them lets remote agent sessions mine them
+for verses and facts with page citations.
+
 ## Permission gate (source & permission flow)
 
 Each `Source` records title, author, publisher, year, source type, licence type,
