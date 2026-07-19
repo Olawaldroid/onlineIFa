@@ -2,6 +2,7 @@ import { LIBRARY_ENTRIES } from "@/lib/content/library";
 import { GLOSSARY } from "@/lib/content/glossary";
 import { PageSection } from "@/components/PageSection";
 import { SectionHeading } from "@/components/SectionHeading";
+import Link from "next/link";
 
 // Library. Surfaces public-domain and openly-licensed sources so users can
 // read the actual works — bibliographic references + links, not reproduced
@@ -17,6 +18,23 @@ export default function LibraryPage() {
       <p className="mb-0 mt-[18px] max-w-[640px] text-base leading-[1.65] text-ifa-ink/[0.72]">
         Public-domain and openly-licensed sources you can read today. Copyrighted scholarship is
         referenced for facts only — never copied.
+      </p>
+
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          ["Original synthesis", "All 256 Odù have English educational summaries written for Online Ifá."],
+          ["Contributor original", "Community teachings appear only after provenance and editorial review."],
+          ["Public domain", "Verses may be shown with an exact source and page citation."],
+          ["Licensed", "Copyrighted verse appears only when written publication permission is recorded."],
+        ].map(([title, description]) => (
+          <div key={title} className="rounded-xl border border-ifa-border/[0.16] bg-ifa-parchment p-5">
+            <h2 className="font-serif text-lg">{title}</h2>
+            <p className="mt-2 text-sm leading-relaxed text-ifa-ink/70">{description}</p>
+          </div>
+        ))}
+      </div>
+      <p className="mt-5 text-sm text-ifa-ink/70">
+        <Link href="/odu" className="font-semibold text-ifa-rust">Browse the complete Odù teaching library →</Link>
       </p>
 
       <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

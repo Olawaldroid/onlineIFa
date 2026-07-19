@@ -88,9 +88,13 @@ export default async function OduDetailPage({ params }: { params: { slug: string
         )}
         {meaning.licence && (
           <p className="mt-4 text-xs text-ifa-sage">
-            Source: {meaning.sourceTitle} · Licence: {meaning.licence}
+            Source: {meaning.sourceTitle} · Category: {meaning.contentCategory.replaceAll("_", " ")} · Licence: {meaning.licence}
           </p>
         )}
+        {meaning.citation && <p className="mt-1 text-xs text-ifa-sage">Citation: {meaning.citation}</p>}
+        <p className="mt-3 text-xs text-ifa-cream/55">
+          <Link href="/library">Sources and further reading</Link> · Private research books are never reproduced here.
+        </p>
       </section>
 
       {proverbs.length > 0 && (
