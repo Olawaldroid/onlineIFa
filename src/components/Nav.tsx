@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MobileNav } from "./MobileNav";
 
 // Top navigation. The dozen destinations are grouped into two dropdown
 // clusters (Learn / Explore) plus the three standalone links people reach for
@@ -41,11 +42,12 @@ const SINGLES = [
 export function Nav() {
   return (
     <header className="sticky top-0 z-50 border-b border-ifa-border bg-ifa-bg/[0.88] backdrop-blur-xl">
-      <nav className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3.5">
-        <Link href="/" className="font-serif text-lg font-semibold tracking-[0.08em] text-ifa-gold hover:text-ifa-gold">
+      <nav className="mx-auto flex max-w-6xl flex-nowrap items-center gap-x-3 px-4 py-3.5 sm:flex-wrap sm:gap-x-5 sm:gap-y-2">
+        <MobileNav links={[...GROUPS.flatMap((g) => g.links.map((l) => ({ href: l.href, label: l.label }))), ...SINGLES]} />
+        <Link href="/" className="whitespace-nowrap font-serif text-lg font-semibold tracking-[0.08em] text-ifa-gold hover:text-ifa-gold">
           Online Ifá
         </Link>
-        <div className="flex flex-1 flex-wrap items-center gap-x-5 gap-y-1 text-[13px] tracking-[0.01em]">
+        <div className="hidden flex-1 flex-wrap items-center gap-x-5 gap-y-1 text-[13px] tracking-[0.01em] sm:flex">
           {GROUPS.map((g) => (
             <div key={g.label} className="group relative">
               <button
@@ -77,9 +79,10 @@ export function Nav() {
             </Link>
           ))}
         </div>
+        <div className="flex-1 sm:hidden" />
         <Link
           href="/disclaimer?next=/consult"
-          className="whitespace-nowrap rounded-full bg-ifa-gold px-4 py-2 text-[12.5px] font-semibold text-ifa-bg transition-colors hover:bg-ifa-cream"
+          className="whitespace-nowrap rounded-full bg-ifa-gold px-3.5 py-2 text-[12px] font-semibold text-ifa-bg transition-colors hover:bg-ifa-cream sm:px-4 sm:text-[12.5px]"
         >
           Start a consultation
         </Link>

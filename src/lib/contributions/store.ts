@@ -75,7 +75,7 @@ async function resolveFile(): Promise<string> {
       resolvedFile = PRIMARY_FILE;
     } catch (error) {
       throw new Error(
-        `Contribution storage is not writable at ${PRIMARY_FILE}. Configure CONTRIBUTIONS_FILE to persistent mounted storage. (${error})`,
+        `Contribution storage is not writable at ${PRIMARY_FILE}. On Vercel, connect a Blob store to the project (injects BLOB_READ_WRITE_TOKEN); elsewhere set CONTRIBUTIONS_FILE to persistent storage. (${error})`,
       );
     }
   }
@@ -132,8 +132,11 @@ async function blobSave(items: FileSubmission[]): Promise<void> {
 
 async function load(): Promise<FileSubmission[]> {
   if (blobEnabled()) return blobLoad();
-  const file = await resolveFile();
+  // Reads NEVER throw: on a read-only filesystem with no Blob store there is
+  // simply nothing stored yet — pages (admin counts, queues, Odù pages) must
+  // render. Writes still fail clearly via save()/resolveFile().
   try {
+    const file = await resolveFile();
     const raw = await fs.readFile(file, "utf8");
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? (parsed as FileSubmission[]) : [];

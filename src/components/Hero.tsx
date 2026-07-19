@@ -41,7 +41,7 @@ export function Hero() {
   return (
     <header
       id="top"
-      className="relative flex min-h-[80vh] flex-col items-center justify-center overflow-hidden px-10 pb-24 pt-16 text-center"
+      className="relative flex min-h-[80vh] flex-col items-center justify-center overflow-hidden px-5 pb-24 pt-16 text-center sm:px-10"
       style={{ background: "radial-gradient(1200px 600px at 50% -10%, #2b2016 0%, #1a140f 60%), #1a140f" }}
     >
       <div
@@ -136,7 +136,7 @@ export function Hero() {
         <div className="mb-[18px] text-xs tracking-[0.42em] text-ifa-sage">
           THE DIGITAL HOUSE OF IFÁ
         </div>
-        <h1 className="m-0 font-serif text-7xl font-medium leading-none tracking-[0.04em] text-ifa-cream sm:text-8xl">
+        <h1 className="m-0 font-serif text-6xl font-medium leading-none tracking-[0.04em] text-ifa-cream sm:text-8xl">
           Online <span className="text-ifa-gold">Ifá</span>
         </h1>
         <p className="mx-auto mt-[26px] max-w-[560px] text-[19px] leading-relaxed text-ifa-cream/75">
