@@ -291,8 +291,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
         <div className="card mx-auto max-w-2xl space-y-4">
           <h2 className="font-serif text-xl text-ifa-gold">Choose a casting mode</h2>
           <p className="text-sm text-ifa-cream/70">
-            Casting modes are honest about what they are. A simulation is a learning tool,
-            not spiritual authority. No account or database is needed to try it as a guest.
+            Clearly-labelled modes — no account needed.
           </p>
           <div className="space-y-2">
             {CASTING_MODES.map((m) => (
@@ -366,10 +365,9 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
 
       {step === "cast" && animatedModes && (
         <div className="space-y-4">
-          <div className="mx-auto max-w-2xl rounded-[10px] border border-ifa-rust/40 bg-ifa-rust/[0.16] px-4 py-[9px] text-[13px] text-ifa-cream">
-            ⚠ Every draw is genuinely random, generated on your device, and clearly labelled. This
-            is a learning tool, not spiritual authority.
-          </div>
+          <p className="mx-auto max-w-2xl text-center text-xs text-ifa-sage">
+            Genuinely random, generated on your device — a learning tool.
+          </p>
           <CastingStage
             instrument={instrument}
             onPickInstrument={setInstrument}
@@ -439,12 +437,8 @@ function Result({ result, saveState, onSave }: { result: ResultShape; saveState:
         <div className="prose-ifa">
           <ReactMarkdown>{display.contentMd}</ReactMarkdown>
         </div>
-        {display.sourceTitle && (
-          <p className="mt-3 text-xs text-ifa-sage">
-            Source: {display.sourceTitle}
-            {display.contentCategory ? ` · Category: ${display.contentCategory.replaceAll("_", " ")}` : ""}
-            {display.licence ? ` · Licence: ${display.licence}` : ""}
-          </p>
+        {display.sourceTitle && display.licence !== "ORIGINAL_APP_LICENCE" && (
+          <p className="mt-3 text-xs text-ifa-sage">Source: {display.sourceTitle}</p>
         )}
         {display.citation && <p className="mt-1 text-xs text-ifa-sage">Citation: {display.citation}</p>}
       </div>

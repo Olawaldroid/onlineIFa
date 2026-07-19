@@ -78,7 +78,7 @@ export function CastingStage({
               <span className="absolute top-[3px] h-[18px] w-[18px] rounded-full bg-ifa-cream transition-[left] duration-200" style={{ left: working ? 21 : 3 }} />
             </button>
             <span>
-              <strong className="text-ifa-gold">Show your working</strong> — replay every step and why each mark forms
+              <strong className="text-ifa-gold">Show your working</strong> — explain each mark
             </span>
           </label>
           <button
@@ -189,8 +189,6 @@ export function CastingStage({
             </div>
           </div>
           <div className="text-center font-mono text-[11px] tracking-[0.14em] text-ifa-sage">
-            MARKS PRESSED THROUGH THE ÌYẸ̀RỌ̀SÙN WITH THE FINGERTIPS
-            <br />
             LEFT LEG&nbsp;&nbsp;·&nbsp;&nbsp;RIGHT LEG (READ FIRST)
           </div>
         </div>
@@ -302,10 +300,20 @@ function SandColumn({ marks, offset, casting }: { marks: number[]; offset: numbe
             {m === 2 ? <div className="lab-sand-mark" /> : null}
             {m === undefined ? <div className="h-2 w-2 rounded-full bg-[rgba(120,84,44,.28)]" /> : null}
             {showFinger ? (
-              <div
-                className="absolute left-1/2 -top-1 z-[3] h-[26px] w-6 shadow-[0_3px_8px_rgba(0,0,0,.4)]"
-                style={{ borderRadius: "50% 50% 46% 54%", background: "radial-gradient(circle at 35% 30%, #a06b3c, #6b4426)", animation: "omFinger .7s ease both" }}
-              />
+              // The pressing hand: one dark finger writes a single mark,
+              // two fingers write the double mark.
+              <div className="absolute left-1/2 -top-2 z-[3] flex gap-[7px]" style={{ animation: "omFinger .7s ease both" }}>
+                {Array.from({ length: m }, (_, k) => (
+                  <div
+                    key={k}
+                    className="h-[34px] w-[13px] shadow-[0_3px_8px_rgba(0,0,0,.55)]"
+                    style={{
+                      borderRadius: "7px 7px 11px 11px",
+                      background: "linear-gradient(#2b2016 0%, #17100b 55%, #060403 100%)",
+                    }}
+                  />
+                ))}
+              </div>
             ) : null}
           </div>
         );

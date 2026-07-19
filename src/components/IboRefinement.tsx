@@ -84,10 +84,9 @@ export function IboRefinement() {
               Cast ibò again
             </button>
             <span className="text-xs text-ifa-sage">
-              Simplified educational rendering of one round — a babaláwo works through successive
-              alternatives.{" "}
+              One simplified round — a babaláwo works through many.{" "}
               <a href="https://journals.openedition.org/cea/196" target="_blank" rel="noreferrer">
-                Mechanics: Pogoson &amp; Akande 2011
+                Mechanics
               </a>
             </span>
           </div>
