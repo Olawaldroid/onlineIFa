@@ -4,6 +4,18 @@ import { prisma } from "@/lib/db";
 import { ReviewStatus } from "@prisma/client";
 import { oduFactBySlug } from "@/lib/odu/facts";
 import { addSubmission } from "@/lib/contributions/store";
+import { getOduDetail } from "@/lib/odu/detail";
+
+// GET /api/interpretations?oduSlug=... — one server-resolved display contract
+// for consultations. It prefers approved DB content, then approved file-backed
+// contributions, then original Online Ifá content covering all 256 Odù.
+export async function GET(req: NextRequest) {
+  const oduSlug = req.nextUrl.searchParams.get("oduSlug")?.trim();
+  if (!oduSlug) return NextResponse.json({ error: "oduSlug is required" }, { status: 400 });
+  const detail = await getOduDetail(oduSlug);
+  if (!detail) return NextResponse.json({ error: "Unknown Odù" }, { status: 404 });
+  return NextResponse.json({ display: { ...detail.meaning, reflectionQuestions: detail.reflectionQuestions } });
+}
 
 const Body = z.object({
   oduSlug: z.string(),

@@ -22,7 +22,6 @@ export default async function AdminAuditPage() {
         <h1 className="font-serif text-3xl font-bold text-ifa-gold">Audit logs</h1>
         <Link href="/admin" className="btn-secondary">← Admin</Link>
       </div>
-      {!ok && <p className="text-sm text-ifa-sage">Database not connected.</p>}
       {ok && items.length === 0 && <p className="text-sm text-ifa-cream/60">No audit entries yet.</p>}
       <ul className="space-y-2 text-sm">
         {items.map((a: any) => (

@@ -21,7 +21,6 @@ export default async function AdminSourcesPage() {
         <h1 className="font-serif text-3xl font-bold text-ifa-gold">Sources & permissions</h1>
         <Link href="/admin" className="btn-secondary">← Admin</Link>
       </div>
-      {!ok && <p className="text-sm text-ifa-sage">Database not connected.</p>}
       <div className="overflow-x-auto rounded-xl border border-ifa-border">
         <table className="w-full text-left text-sm">
           <thead className="bg-ifa-surface text-ifa-sage">

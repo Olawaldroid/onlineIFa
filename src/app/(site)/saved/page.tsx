@@ -26,7 +26,6 @@ export default async function SavedPage() {
   return (
     <div className="space-y-6">
       <h1 className="font-serif text-3xl font-bold text-ifa-gold">Saved consultations</h1>
-      {!ok && <p className="text-sm text-ifa-sage">Database not connected.</p>}
       {ok && items.length === 0 && (
         <p className="text-sm text-ifa-cream/60">
           No saved consultations yet. <Link href="/consult">Start one →</Link>

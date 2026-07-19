@@ -96,6 +96,22 @@ export async function getOduDetail(slug: string): Promise<OduDetailView | null> 
     }
   }
 
+  // Every structurally valid Odù has an original educational fallback. The
+  // 16 principal summaries are hand-authored; combined Odù are composed from
+  // those reviewed summaries without copying private reference-book text.
+  if (meaning.isPlaceholder) {
+    const { resolveLocalDisplay } = await import("@/lib/interpretation/localDisplay");
+    const local = resolveLocalDisplay(slug);
+    meaning = {
+      isPlaceholder: local.isPlaceholder,
+      title: local.title,
+      contentMd: local.contentMd,
+      sourceTitle: local.sourceTitle,
+      licence: local.licence,
+    };
+    reflectionQuestions = local.reflectionQuestions;
+  }
+
   return {
     fact,
     legs: legNames(fact),

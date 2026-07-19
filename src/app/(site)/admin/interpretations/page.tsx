@@ -61,13 +61,6 @@ export default async function AdminInterpretationsPage() {
         </>
       ) : (
         <>
-          <p className="rounded-lg border border-ifa-border bg-ifa-surface px-4 py-2 text-sm text-ifa-sage">
-            No database connected — reviewing from the file store
-            {data.store.ephemeral ? " (temp dir: data resets when the server restarts)" : ""}:{" "}
-            <code className="text-ifa-cream/70">{data.store.file}</code>. Approved submissions appear
-            on their Odù page immediately.
-          </p>
-
           {data.pending.length === 0 && <p className="text-sm text-ifa-cream/60">Nothing awaiting review.</p>}
           <div className="space-y-3">
             {data.pending.map((s) => (
@@ -117,7 +110,18 @@ function SubmissionCard({ s, withActions }: { s: FileSubmission; withActions?: b
       </div>
       <p className="mt-2 line-clamp-3 whitespace-pre-line text-sm text-ifa-cream/70">{s.contentMd}</p>
       {s.notes && <p className="mt-1 text-xs text-ifa-sage">Contributor notes: {s.notes}</p>}
-      {s.reviewComment && <p className="mt-1 text-xs text-ifa-sage">Reviewer: {s.reviewComment}</p>}
+      {s.events.length > 0 && (
+        <div className="mt-3 border-t border-ifa-border pt-2 text-xs text-ifa-sage">
+          <p className="mb-1 font-semibold uppercase tracking-wide text-ifa-cream/70">Review history</p>
+          {s.events.map((event, index) => (
+            <p key={`${event.at}-${index}`}>
+              {new Date(event.at).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}
+              {" · "}{event.action.replace("_", " ")}
+              {event.comment ? ` · ${event.comment}` : ""}
+            </p>
+          ))}
+        </div>
+      )}
       {withActions && <ReviewActions interpretationId={s.id} />}
     </div>
   );

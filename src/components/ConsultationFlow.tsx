@@ -82,6 +82,19 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
     };
   }
 
+  async function buildResolvedResult(sig: string): Promise<ResultShape> {
+    const fallback = buildResult(sig);
+    if (!fallback.odu) return fallback;
+    try {
+      const response = await fetch(`/api/interpretations?oduSlug=${encodeURIComponent(fallback.odu.slug)}`);
+      if (!response.ok) return fallback;
+      const payload = await response.json();
+      return { ...fallback, display: payload.display as LocalDisplay };
+    } catch {
+      return fallback;
+    }
+  }
+
   function start() {
     setStep("area");
   }
@@ -102,10 +115,10 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
 
   // USER_SELECTED / MANUAL_BABALAWO: the Odù is already known (typed in) —
   // resolve it straight to a result, no animation needed.
-  function submitKnownOdu() {
+  async function submitKnownOdu() {
     const cast = mode === "MANUAL_BABALAWO" ? manualCast(signature, "") : userSelectedCast(signature);
     markProgressFlag("cast");
-    setResult(buildResult(cast.signature));
+    setResult(await buildResolvedResult(cast.signature));
     setStep("result");
   }
 
@@ -116,9 +129,9 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
       ...st,
       { n: "★", text: `The figure is complete: ${sig}. Read right leg first.` },
     ]);
-    after(600, () => {
+    after(600, async () => {
       setAnimating(false);
-      setResult(buildResult(sig));
+      setResult(await buildResolvedResult(sig));
       setStep("result");
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

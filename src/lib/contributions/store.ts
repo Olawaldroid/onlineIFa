@@ -16,7 +16,6 @@
 
 import { promises as fs } from "fs";
 import path from "path";
-import os from "os";
 import { randomUUID } from "crypto";
 
 export type SubmissionStatus = "SUBMITTED" | "APPROVED" | "REJECTED" | "CHANGES_REQUESTED";
@@ -47,12 +46,12 @@ export interface FileSubmission {
 
 const PRIMARY_FILE =
   process.env.CONTRIBUTIONS_FILE || path.join(process.cwd(), "data", "contributions.json");
-const FALLBACK_FILE = path.join(os.tmpdir(), "online-ifa-contributions.json");
-
 let resolvedFile: string | null = null;
+let mutationQueue: Promise<void> = Promise.resolve();
 
-/** Pick the storage file once: the primary if it exists or can be created,
- *  else the temp-dir fallback. */
+/** Pick the durable storage file once. We deliberately do not fall back to an
+ * OS temp directory: accepting a contribution without durable storage would
+ * create a false promise that it survives restarts. */
 async function resolveFile(): Promise<string> {
   if (resolvedFile) return resolvedFile;
   try {
@@ -63,8 +62,10 @@ async function resolveFile(): Promise<string> {
       await fs.mkdir(path.dirname(PRIMARY_FILE), { recursive: true });
       await fs.writeFile(PRIMARY_FILE, "[]", { flag: "wx" });
       resolvedFile = PRIMARY_FILE;
-    } catch {
-      resolvedFile = FALLBACK_FILE;
+    } catch (error) {
+      throw new Error(
+        `Contribution storage is not writable at ${PRIMARY_FILE}. Configure CONTRIBUTIONS_FILE to persistent mounted storage. (${error})`,
+      );
     }
   }
   return resolvedFile;
@@ -73,7 +74,15 @@ async function resolveFile(): Promise<string> {
 /** Where submissions are being stored (for display on the admin page). */
 export async function storeLocation(): Promise<{ file: string; ephemeral: boolean }> {
   const file = await resolveFile();
-  return { file, ephemeral: file === FALLBACK_FILE };
+  return { file, ephemeral: false };
+}
+
+async function serializedMutation<T>(operation: () => Promise<T>): Promise<T> {
+  let result!: T;
+  const queued = mutationQueue.then(async () => { result = await operation(); });
+  mutationQueue = queued.catch(() => undefined);
+  await queued;
+  return result;
 }
 
 async function load(): Promise<FileSubmission[]> {
@@ -111,19 +120,21 @@ export async function addSubmission(input: {
   notes?: string;
   sourceType: string;
 }): Promise<FileSubmission> {
-  const now = new Date().toISOString();
-  const submission: FileSubmission = {
-    id: `sub_${randomUUID()}`,
-    ...input,
-    status: "SUBMITTED",
-    flagged: false,
-    createdAt: now,
-    events: [{ at: now, action: "SUBMITTED" }],
-  };
-  const items = await load();
-  items.push(submission);
-  await save(items);
-  return submission;
+  return serializedMutation(async () => {
+    const now = new Date().toISOString();
+    const submission: FileSubmission = {
+      id: `sub_${randomUUID()}`,
+      ...input,
+      status: "SUBMITTED",
+      flagged: false,
+      createdAt: now,
+      events: [{ at: now, action: "SUBMITTED" }],
+    };
+    const items = await load();
+    items.push(submission);
+    await save(items);
+    return submission;
+  });
 }
 
 /** Apply a review decision. Returns the updated submission, or null if the id
@@ -133,16 +144,18 @@ export async function reviewSubmission(
   decision: SubmissionStatus,
   comment?: string,
 ): Promise<FileSubmission | null> {
-  const items = await load();
-  const submission = items.find((s) => s.id === id);
-  if (!submission) return null;
-  const now = new Date().toISOString();
-  submission.status = decision;
-  submission.reviewedAt = now;
-  submission.reviewComment = comment;
-  submission.events.push({ at: now, action: decision, comment });
-  await save(items);
-  return submission;
+  return serializedMutation(async () => {
+    const items = await load();
+    const submission = items.find((s) => s.id === id);
+    if (!submission) return null;
+    const now = new Date().toISOString();
+    submission.status = decision;
+    submission.reviewedAt = now;
+    submission.reviewComment = comment;
+    submission.events.push({ at: now, action: decision, comment });
+    await save(items);
+    return submission;
+  });
 }
 
 /** Approved, unflagged submissions for one Odù, newest decision first — the
