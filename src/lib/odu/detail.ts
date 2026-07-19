@@ -18,6 +18,8 @@ export interface OduDetailView {
     contentMd: string;
     sourceTitle: string | null;
     licence: string | null;
+    citation: string | null;
+    contentCategory: string;
   };
   themes: string[];
   proverbs: { yoruba: string; english: string | null }[];
@@ -36,6 +38,8 @@ export async function getOduDetail(slug: string): Promise<OduDetailView | null> 
     contentMd: PLACEHOLDER_INTERPRETATION,
     sourceTitle: null,
     licence: null,
+    citation: null,
+    contentCategory: "UNAVAILABLE",
   };
   let themes: string[] = [];
   let proverbs: { yoruba: string; english: string | null }[] = [];
@@ -62,6 +66,8 @@ export async function getOduDetail(slug: string): Promise<OduDetailView | null> 
         contentMd: display.contentMd,
         sourceTitle: display.sourceTitle,
         licence: display.licence,
+        citation: display.sourceTitle,
+        contentCategory: display.isPlaceholder ? "UNAVAILABLE" : "APPROVED_DATABASE_CONTENT",
       };
       themes = odu.themes.map((t) => t.theme.label);
       proverbs = odu.proverbs.map((p) => ({ yoruba: p.yoruba, english: p.english }));
@@ -71,6 +77,49 @@ export async function getOduDetail(slug: string): Promise<OduDetailView | null> 
     }
   } catch {
     // DB not available — facts-only mode. Placeholder meaning already set.
+  }
+
+  // No approved DB content? Check the file-backed contribution store, so
+  // reviewed contributions publish even with no database (same gate: only
+  // APPROVED, unflagged submissions are ever returned by approvedForOdu).
+  if (meaning.isPlaceholder) {
+    try {
+      const { approvedForOdu } = await import("@/lib/contributions/store");
+      const approved = (await approvedForOdu(slug))[0];
+      if (approved) {
+        meaning = {
+          isPlaceholder: false,
+          title: approved.title ?? null,
+          contentMd: approved.contentMd,
+          sourceTitle: approved.tradition
+            ? `Contributor submission (${approved.tradition})`
+            : "Contributor submission (reviewed)",
+          licence: approved.sourceType,
+          citation: approved.citation ?? null,
+          contentCategory: approved.contentCategory ?? "CONTRIBUTOR_ORIGINAL",
+        };
+      }
+    } catch {
+      // File store unreadable — keep the placeholder.
+    }
+  }
+
+  // Every structurally valid Odù has an original educational fallback. The
+  // 16 principal summaries are hand-authored; combined Odù are composed from
+  // those reviewed summaries without copying private reference-book text.
+  if (meaning.isPlaceholder) {
+    const { resolveLocalDisplay } = await import("@/lib/interpretation/localDisplay");
+    const local = resolveLocalDisplay(slug);
+    meaning = {
+      isPlaceholder: local.isPlaceholder,
+      title: local.title,
+      contentMd: local.contentMd,
+      sourceTitle: local.sourceTitle,
+      licence: local.licence,
+      citation: null,
+      contentCategory: "ORIGINAL_SYNTHESIS",
+    };
+    reflectionQuestions = local.reflectionQuestions;
   }
 
   return {

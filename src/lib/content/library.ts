@@ -7,6 +7,7 @@
 // ===========================================================================
 
 import { PUBLIC_DOMAIN_BOOKS } from "@/lib/sources/publicDomain";
+import { REFERENCE_WORKS } from "@/lib/sources/references";
 
 export interface LibraryEntry {
   id: string;
@@ -46,4 +47,12 @@ export const LIBRARY_ENTRIES: LibraryEntry[] = [
     note: "The foundational modern study. In copyright — referenced for facts, never copied.",
     href: "https://en.wikipedia.org/wiki/Wande_Abimbola",
   },
+  ...REFERENCE_WORKS.map((r) => ({
+    id: r.id,
+    tag: `REFERENCE · FACTS ONLY · ${r.year}`,
+    title: r.title,
+    author: r.author,
+    note: r.note,
+    href: r.href,
+  })),
 ];

@@ -20,7 +20,6 @@ export default async function AdminContributorsPage() {
         <h1 className="font-serif text-3xl font-bold text-ifa-gold">Contributors</h1>
         <Link href="/admin" className="btn-secondary">← Admin</Link>
       </div>
-      {!ok && <p className="text-sm text-ifa-sage">Database not connected.</p>}
       <div className="grid gap-3 sm:grid-cols-2">
         {items.map((c: any) => (
           <div key={c.id} className="card">

@@ -4,6 +4,10 @@ import { prisma } from "@/lib/db";
 import { ReviewStatus } from "@prisma/client";
 import { sourceIsPublishable } from "@/lib/interpretation/gate";
 import { getSession, authEnforced } from "@/lib/auth/session";
+import { reviewSubmission } from "@/lib/contributions/store";
+import { listSubmissions } from "@/lib/contributions/store";
+import { categoryNeedsCitation, categoryNeedsPermission } from "@/lib/content/provenance";
+import { checkPrivateBookSimilarity } from "@/lib/research/similarity";
 
 const Body = z.object({
   decision: z.enum(["APPROVED", "REJECTED", "CHANGES_REQUESTED"]),
@@ -24,9 +28,38 @@ async function resolveReviewer(): Promise<string | null> {
 
 // PATCH /api/interpretations/:id/review — admin reviews a submission.
 // Approval is BLOCKED if the linked source is not publishable (permission gate).
+// Ids prefixed "sub_" live in the file-backed contribution store (no database
+// needed); they have no external source, so the permission gate passes by
+// construction (contributor-original content = permission NOT_REQUIRED).
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const body = Body.parse(await req.json());
+
+    if (params.id.startsWith("sub_")) {
+      const session = getSession();
+      const isAdmin = session?.role === "ADMIN";
+      if (authEnforced() && !isAdmin) {
+        return NextResponse.json({ error: "Admin session required" }, { status: 403 });
+      }
+      if (body.decision === "APPROVED") {
+        const submission = (await listSubmissions()).find((item) => item.id === params.id);
+        if (!submission) return NextResponse.json({ error: "Not found" }, { status: 404 });
+        if (categoryNeedsCitation(submission.contentCategory) && !submission.citation) {
+          return NextResponse.json({ error: "Cannot approve: citation is required for this category." }, { status: 409 });
+        }
+        if (categoryNeedsPermission(submission.contentCategory) && !submission.permissionConfirmed) {
+          return NextResponse.json({ error: "Cannot approve: written permission has not been confirmed." }, { status: 409 });
+        }
+        const similarity = await checkPrivateBookSimilarity(submission.contentMd);
+        if (!similarity.checked || similarity.blocked) {
+          return NextResponse.json({ error: `Cannot approve: ${similarity.reason}`, similarity }, { status: 409 });
+        }
+      }
+      const updated = await reviewSubmission(params.id, body.decision, body.comment);
+      if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.json({ interpretation: updated, store: "file" });
+    }
+
     const reviewerUserId = await resolveReviewer();
     if (!reviewerUserId) {
       return NextResponse.json({ error: "Admin session required" }, { status: 403 });
@@ -37,6 +70,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       include: { source: true, versions: true },
     });
     if (!interp) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    if (body.decision === "APPROVED") {
+      const similarity = await checkPrivateBookSimilarity(interp.contentMd);
+      if (!similarity.checked || similarity.blocked) {
+        return NextResponse.json({ error: `Cannot approve: ${similarity.reason}`, similarity }, { status: 409 });
+      }
+    }
 
     if (body.decision === "APPROVED" && !sourceIsPublishable(interp.source)) {
       return NextResponse.json(

@@ -24,9 +24,17 @@ yarn-error.log*
 .env
 .env*.local
 
+# Private books, OCR/translation caches, and local data never enter Git.
+/docs/originals/
+/.local-research/
+/data/
+
 # prisma
 /prisma/*.db
 /prisma/migrations/dev.db*
+
+# file-backed contribution store (no-database mode)
+/data/contributions.json
 
 # typescript
 *.tsbuildinfo

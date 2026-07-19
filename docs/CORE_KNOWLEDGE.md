@@ -68,13 +68,23 @@ transparent binary draws (`src/lib/casting/cast.ts`).
 
 - **Ìkín** — 16 sacred palm nuts. The diviner manipulates them by hand across
   **8 rounds**; the remainder (one or two) in each round marks a single/double,
-  building the figure position by position. (Which remainder yields which mark
-  varies by lineage.) `[verified: 16 ikin, 8 rounds] / [working: remainder→mark
-  rule]`
+  building the figure position by position. **Remainder→mark rule `[verified]`
+  (Bascom 1969, ch. I, corroborating the descriptions he reviews): if TWO nuts
+  remain, ONE mark (ǀ); if ONE nut remains, TWO marks (ǁ)** — exactly as
+  implemented in our consultation flow. `[verified: 16 ikin, 8 rounds,
+  remainder rule]`
 - **Ọ̀pẹ̀lẹ̀** — a divining chain of **8 half-seeds/pods** in two sets of four;
-  **one throw** yields a complete Odù (each pod shows its concave or convex
-  face). Faster than ìkín. `[verified]`
-- **Ọpọn Ifá** — the (often round) carved divination tray. `[verified]`
+  **one throw** yields a complete Odù. Convention `[verified]` (Bascom 1969,
+  ch. I): concave face UP = single mark; convex UP = double mark — as our
+  casting stage shows. Faster than ìkín. `[verified]`
+- **Ọpọn Ifá** — the (often round) carved divination tray. Its border divides
+  into **nine named sections**: the **ojú ọpọn** ("face of the tray", opposite
+  the diviner) always bears the face of Èṣù; **ẹsẹ̀ ọpọn** ("foot") is nearest
+  the diviner; **ọ̀nà ọ̀gánrán** and **ọ̀nà múnú** flank the sides (Pogoson &
+  Akande 2011, open access, after Drewal/Pemberton/Abiodun 1989). Regional
+  styles differ (Ijebu: Èṣù's face protrudes into the centre; Osogbo: contained
+  in the border; Ọ̀yọ́ combines both). Ìyẹ̀rọ̀sùn comes from the irosun tree or
+  termite-powdered bamboo. `[verified]`
 - **Ìyẹ̀rọ̀sùn** — fine divining powder spread on the tray; the diviner traces
   the marks in it. `[verified]`
 - **Ìrókè** — the tapper used to invoke Ọ̀rúnmìlà at the start of divination.
@@ -183,13 +193,39 @@ users at `/library`.
 - Owomoyela, *Yoruba Proverbs* (2005), *A Kì í* (1988).
 - Lucas, *The Religion of the Yorubas* (1948).
 - UNESCO ICH page (facts referenced; text not stored). `permission PENDING`.
+- **Reference shelf (2026-07-18, digital copies held privately in the owner's
+  Drive — NOT in the repo, NOT served by the site):** registered in
+  `src/lib/sources/references.ts` and listed at `/library`. Highlights:
+  **Bascom, *Ifa Divination* (1969)** — now our primary fact-checking
+  reference (procedure, ordering conventions, 186 verses); **Abraham,
+  *Dictionary of Modern Yoruba* (1958)** — orthography/tone-mark authority;
+  Gleason (1973); Emanuel, *Ọdun Ifá* (2000); Ibie, *Ifism* vols 1 & 8–9;
+  Fatunmbi (*Orí*, *Èṣù-Ẹlẹ́gbà*); Karade (EN + PT eds.); Nei Lopes, *Ifá
+  Lucumí* (2020, PT — bears on the open Lukumí-ordering question); Aderonmu
+  (PT); Matias; Silva (popular intro — never a sole fact source); and an
+  Isale-Ọyọ divination-trays article (museum iconography). All
+  `permission PENDING`, facts + attribution only.
 
 **Proverbs / ese Ifá:** only from public-domain or oral-tradition sources, in
 our **own** translations; never from the copyrighted collections above.
 
 ## 7. Open questions / to research next
-- [ ] Resolve the **Lukumí vs West African ordering** question with authoritative
-      sources; document differences explicitly (esp. position 6 Owonrin/Ojuani).
+- [x] **Lukumí vs West African ordering — RESOLVED (2026-07-18).** Bascom's
+      survey of 86 recorded lists found **one predominant order** (ours) across
+      Yorubaland **and in 5 of 6 Cuban lists** (Bascom 1969, ch. XI); Nei Lopes
+      (2020) likewise lists the Lucumí méjì names (Eyiogbe, Oyekun, Iwori, Odi,
+      Iroso, Ojuani, Obara, Okana, Ogunda, Osa, Iká, Otrupon, Otura, Irete,
+      Oche, Ofún) in the same seniority order — all already present in our
+      `altNames`. Local variants exist and are documented, e.g. **Ilorin**
+      places Ọbàrà 5th instead of 7th (Lopes 2020). Related practice note
+      `[working]`: Lopes records that the name of the Odù combining the 14th
+      and 15th figures is traditionally never spoken aloud.
+- [x] **Ìkín remainder→mark rule — VERIFIED (2026-07-18)** against Bascom 1969:
+      two nuts remain → single mark; one remains → double mark. Matches our
+      implementation (`ConsultationFlow`). Seniority itself is explained as
+      birth order — "the order in which they were born and came into the
+      world" (diviner quoted in Bascom 1969, ch. XI); Gleason (1973) records
+      the first four méjì as "roots" symbolising cosmic organization.
 - [ ] Promote `[working]` theme rows (Òtúrúpọ̀n) to `[verified]`; capture
       tradition-specific nuance.
 - [ ] Confirm/curate **associated òrìṣà** per Odù from authoritative sources.
@@ -200,6 +236,63 @@ our **own** translations; never from the copyrighted collections above.
 - [ ] Have a Yorùbá-language reviewer verify diacritics/orthography of all names.
 
 ## 8. Changelog
+- **2026-07-18 (research pass over the full "Ifá brain" corpus — 20 files, 19
+  unique works)** — Extracted and indexed text for 15 works (EPUBs unpacked in
+  full; scanned PDFs via OCR extraction, partial for the longest). New to the
+  shelf since the morning registration: **Olupona & Abiodun (eds.) 2016**,
+  **Abímbọ́lá, *Ifá Divination Poetry* 1977**, Frisvold, Plöger (PT). Not yet
+  extractable: Abraham 1958 (57 MB scan, extractor returns empty), Plöger &
+  Matias EPUBs (>10 MB download cap), Karade PT (repeated API session errors).
+  **Findings applied:** (1) ìkín remainder rule verified and §3 promoted;
+  (2) ọ̀pẹ̀lẹ̀ concave/convex convention verified (Bascom); (3) Lukumí-ordering
+  question RESOLVED (§7) via Bascom's 86-list survey + Lopes 2020, with the
+  Ilorin variant documented; (4) our 16-Odù order independently confirmed by
+  Gleason 1973's structure; (5) tray iconography facts added to §3 and the
+  museum copy from **Pogoson & Akande 2011**, which turned out to be OPEN
+  ACCESS (journals.openedition.org/cea/196) — registry entry upgraded with the
+  full citation; (6) the Fatunmbi "Èṣù" file identified as *Warrior Spirit*
+  (Ifá Theology vol. 3) and its registry entry corrected. Extracted texts live
+  only in the session scratchpad — never committed.
+- **2026-07-18 (reference shelf: 14 copyrighted works registered)** — The
+  project owner supplied digital copies (private Drive; folder shared with the
+  agent session) of 14 in-copyright works incl. **Bascom 1969** (the landmark
+  study), **Abraham 1958** (Yorùbá dictionary), Gleason 1973, Emanuel 2000,
+  Ibie's *Ifism* vols 1/8–9, Fatunmbi's *Orí* and *Èṣù* monographs, Karade
+  (EN/PT), Nei Lopes 2020 (Lukumí), Aderonmu, Matias, Silva, and an Isale-Ọyọ
+  tray-corpus article. Registered as facts-only references in
+  `src/lib/sources/references.ts`, surfaced at `/library` under
+  `REFERENCE · FACTS ONLY`, added to §6. Copies are NOT committed or served —
+  copyright. Text extraction verified (both born-digital and scanned copies
+  are readable), so these can now back fact-checking of §§1–5 and the open
+  questions in §7 (Bascom for ordering/ìkín-rule verification; Abraham for
+  the diacritics audit; Lopes for the Lukumí ordering).
+- **2026-07-18 (contributions work without a database)** — Added a file-backed
+  contribution store (`src/lib/contributions/store.ts`, JSON at
+  `data/contributions.json`, temp-dir fallback on read-only filesystems). When
+  Postgres is unreachable: `/contribute` submissions land in the file store,
+  `/admin` + `/admin/interpretations` show live counts and a working review
+  queue from it (approve / request changes / reject via the existing
+  `ReviewActions` → `PATCH /api/interpretations/sub_…/review`), and approved
+  submissions publish on the Odù detail page through `getOduDetail`. Review
+  gates preserved: only APPROVED + unflagged content is shown; file
+  submissions have no external source (permission NOT_REQUIRED by
+  construction); admin sessions still required when `AUTH_ENFORCED=true`;
+  every transition appends to the submission's `events` audit list. Documented
+  in `docs/ADMIN_WORKFLOW.md`.
+- **2026-07-18 (nav cleanup, ọpọn hero, museum expansion, guest-only gate)** —
+  Grouped the 12-link nav into Learn/Explore dropdowns + three standalone links
+  (the flat "Consultation" link was redundant with the CTA). Rebuilt the
+  homepage hero emblem as a carved ọpọn Ifá (notched rim, Èṣù face at the head,
+  ìyẹ̀rọ̀sùn sand centre with pressed marks) sharing the CastingStage tray
+  language; animations unchanged. Expanded `/museum` from 5 cards to three
+  sections: the five instruments (ìkín + agéré slots now filled — Jogo de Ikin
+  Orossi photo; MET 1991.17.127 Àgéré Ifá, CC0), a worldwide-collections
+  gallery (Brooklyn, Cologne, Munich, Nigerian collections) and a
+  living-tradition section (babaláwo at work, Osun-Osogbo grove — UNESCO WHS).
+  All images are openly-licensed Wikimedia Commons files, credited and linked;
+  `<Photo>` still degrades to a placeholder if a URL fails. Onboarding
+  disclaimer now has a single "Accept & continue" (guest) action — account
+  creation removed from the gate (sign-up still exists at `/signup`).
 - **2026-07-18 (consultation flow works without a database)** — Fixed: the
   animated cast (Ọ̀pẹ̀lẹ̀/Ìkín) silently failed anywhere the app ran without
   Postgres, because every step of `/consult` (mode → area → question →
