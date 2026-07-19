@@ -236,6 +236,21 @@ our **own** translations; never from the copyrighted collections above.
 - [ ] Have a Yorùbá-language reviewer verify diacritics/orthography of all names.
 
 ## 8. Changelog
+- **2026-07-19 (ẹsẹ Ifá verses on the site + public-domain scrub)** — First
+  REAL verse layer: `src/lib/content/verses.ts` quotes four ẹsẹ verbatim
+  (Yorùbá + English) from the OPEN-ACCESS Pogoson & Akande 2011 article, which
+  records them from named Isale-Ọyọ diviners — Ọ̀yẹ̀kú Méjì (leopard), Ogbè
+  Òfún (Èṣù tests Ọ̀rúnmìlà — why Èṣù heads every tray), Ọ̀kànràn Ọ̀sá (the
+  Snake's venom), Ògúndá Ọ̀wọ́nrín (the horses verse) — plus the traditional
+  closing chant. Shown bilingually (Yorùbá | English) on consultation results
+  and Odù pages via `EseVerses`, each with reciter credit + source link. No
+  verse text from the private copyrighted shelf. Also: online scrub added four
+  VERIFIED public-domain works to the registry/library — Farrow 1926 (Ifá
+  chapter, full text online), Wyndham 1921 (*Myths of Ífè*), Dennett 1906
+  (incl. Bishop James Johnson's 1899 "Yoruba Heathenism" extracts — early
+  Yorùbá-clergy account), Talbot 1926. All with working archive.org links;
+  colonial-era caveats stated. These are now fair game for contributor
+  extraction with page citations.
 - **2026-07-18 (every Odù readable; contributions durable and everywhere)** —
   (1) `resolveLocalDisplay` now returns content for all 256 Odù with no DB:
   the 16 reviewed méjì originals as before, plus an **original structural

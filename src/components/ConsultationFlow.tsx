@@ -9,6 +9,8 @@ import { screenQuestion, SafetyScreenResult } from "@/lib/safety/guardrails";
 import { simulatedCast, learningCast, userSelectedCast, manualCast } from "@/lib/casting/cast";
 import { oduFactBySignature } from "@/lib/odu/facts";
 import { resolveLocalDisplay, LocalDisplay } from "@/lib/interpretation/localDisplay";
+import { EseVerses } from "./EseVerses";
+import { versesForOdu } from "@/lib/content/verses";
 
 const AREAS = [
   "GENERAL", "HEALTH", "FAMILY", "MARRIAGE", "MONEY",
@@ -445,6 +447,8 @@ function Result({ result, saveState, onSave }: { result: ResultShape; saveState:
         )}
         {display.citation && <p className="mt-1 text-xs text-ifa-sage">Citation: {display.citation}</p>}
       </div>
+
+      {odu?.slug && <EseVerses verses={versesForOdu(odu.slug)} heading="Ifá speaks — a recorded ẹsẹ for this Odù" />}
 
       <div className="card">
         <h3 className="mb-2 font-serif text-xl text-ifa-gold">Reflection questions</h3>

@@ -64,4 +64,38 @@ export const PUBLIC_DOMAIN_BOOKS: PublicDomainBook[] = [
     archiveUrl: "https://archive.org/details/voiceofafricabei01frob",
     note: "Travel/ethnography incl. Yorùbá (Ifè) material. Colonial-era framing — read critically.",
   },
+  // --- Added 2026-07-19 (online scrub; identifiers verified via archive.org) ---
+  {
+    id: "src-farrow-1926",
+    title: "Faith, Fancies and Fetich: or, Yoruba Paganism",
+    author: "Stephen S. Farrow",
+    year: 1926,
+    archiveUrl: "https://archive.org/details/in.ernet.dli.2015.506397",
+    fullTextUrl: "https://archive.org/stream/dli.ministry.02052/20775.155.E.397._djvu.txt",
+    note: "A missionary-scholar study with a substantial chapter on Ifá divination. Colonial/missionary framing — read critically.",
+  },
+  {
+    id: "src-wyndham-1921",
+    title: "Myths of Ífè",
+    author: "John Wyndham",
+    year: 1921,
+    archiveUrl: "https://archive.org/details/mythsofife00wynd",
+    note: "Blank-verse renderings of Ifè creation narratives, with Ifá figures throughout. A literary retelling, not a transcription.",
+  },
+  {
+    id: "src-dennett-1906",
+    title: "At the Back of the Black Man's Mind",
+    author: "R. E. Dennett",
+    year: 1906,
+    archiveUrl: "https://archive.org/details/atbackofblackman00denn",
+    note: "Includes an appendix with extracts from Bishop James Johnson's 'Yoruba Heathenism' (1899) — one of the earliest Yorùbá-clergy accounts of Ifá. Read critically.",
+  },
+  {
+    id: "src-talbot-1926",
+    title: "The Peoples of Southern Nigeria",
+    author: "P. Amaury Talbot",
+    year: 1926,
+    archiveUrl: "https://archive.org/details/peoplesofsouther0000perc",
+    note: "Colonial survey of Southern Nigeria with chapters on religion and divination. Colonial-era framing — read critically.",
+  },
 ];
