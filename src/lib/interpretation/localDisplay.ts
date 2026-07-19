@@ -2,16 +2,26 @@
 // Guest-mode interpretation display — zero DB dependency.
 // ---------------------------------------------------------------------------
 // Mirrors src/lib/interpretation/gate.ts's resolveDisplay(), but sources the
-// meaning layer from the static ORIGINAL_INTERPRETATIONS module instead of a
-// Prisma query, so consultations can be cast and read entirely client-side
-// (no account, no database) — the same original, reviewed content, just not
-// round-tripped through the server. DB-backed contributor interpretations
-// (beyond the 16 principal Odù) still only ever show up via the DB-gated path.
+// meaning layer from static modules instead of a Prisma query, so
+// consultations can be cast and read entirely client-side (no account, no
+// database).
+//
+// Resolution for a cast Odù:
+//   1. One of the 16 méjì → its reviewed ORIGINAL_INTERPRETATIONS summary.
+//   2. A combined Odù → an original STRUCTURAL reading composed from its two
+//      legs' reviewed summaries. This is honest derivation, not invention:
+//      the right leg is senior and read first (a verified structural fact —
+//      docs/CORE_KNOWLEDGE.md §3), and the composition says plainly that a
+//      fuller reviewed interpretation is still to come.
+//   3. Unknown slug → the safe placeholder.
+// Contributor/DB interpretations still take precedence when available — the
+// consultation flow asks the server first and only falls back to this.
 // ===========================================================================
 
 import { ORIGINAL_INTERPRETATIONS } from "@/lib/odu/interpretations";
-import { oduFactBySlug } from "@/lib/odu/facts";
 import { PLACEHOLDER_INTERPRETATION } from "@/lib/interpretation/placeholder";
+import { oduFactBySlug } from "@/lib/odu/facts";
+import { COMBINED_ODU_NOTES, RIGHT_LEG_CHILD_NOTE } from "@/lib/odu/combinedNotes";
 
 export interface LocalDisplay {
   isPlaceholder: boolean;
@@ -22,59 +32,22 @@ export interface LocalDisplay {
   reflectionQuestions: string[];
 }
 
-export function resolveLocalDisplay(oduSlug: string | null): LocalDisplay {
-  const found = oduSlug
-    ? ORIGINAL_INTERPRETATIONS.find((i) => i.oduSlug === oduSlug)
-    : undefined;
+const PLACEHOLDER: LocalDisplay = {
+  isPlaceholder: true,
+  contentMd: PLACEHOLDER_INTERPRETATION,
+  title: null,
+  sourceTitle: null,
+  licence: null,
+  reflectionQuestions: [],
+};
 
-  if (!found && oduSlug) {
-    const fact = oduFactBySlug(oduSlug);
-    if (fact && !fact.isPrimary) {
-      const right = ORIGINAL_INTERPRETATIONS.find((item) => item.oduSlug === fact.rightSlug);
-      const left = ORIGINAL_INTERPRETATIONS.find((item) => item.oduSlug === fact.leftSlug);
-      if (right && left) {
-        const themes = [...new Set([...right.themes.slice(0, 2), ...left.themes.slice(0, 2)])];
-        return {
-          isPlaceholder: false,
-          title: `${fact.name} — bringing two teachings into conversation`,
-          contentMd:
-            `## ${fact.name}\n\n` +
-            `${fact.name} is a combined Odù whose right leg is **${right.title.split(" — ")[0]}** ` +
-            `and whose left leg is **${left.title.split(" — ")[0]}**. In this original educational ` +
-            `synthesis, the right leg frames the leading movement while the left leg adds context, ` +
-            `tension, or support.\n\n` +
-            `The paired themes are **${themes.join("**, **")}**. Read together, they invite a person ` +
-            `to consider both what is trying to move forward and what must be understood, completed, ` +
-            `or cared for before that movement can become wise action. Neither leg erases the other; ` +
-            `the teaching is in their relationship.\n\n` +
-            `For reflection, notice which leg most resembles the visible situation and which one names ` +
-            `a quieter influence. A grounded response holds both perspectives, proceeds without haste, ` +
-            `and remains open to guidance from knowledgeable people.\n\n` +
-            `*This is original educational content composed by Online Ifá from its reviewed principal-Odù ` +
-            `summaries. It is not a copied verse, a prediction, or a substitute for consultation with a trained Babalawo.*`,
-          sourceTitle: "Online Ifá — original combined-Odù synthesis",
-          licence: "ORIGINAL_APP_LICENCE",
-          reflectionQuestions: [
-            `What does the ${right.title.split(" — ")[0]} side of this pairing highlight in your situation?`,
-            `What additional perspective does ${left.title.split(" — ")[0]} ask you to include?`,
-            "What balanced next step respects both influences without treating this reading as a prediction?",
-          ],
-        };
-      }
-    }
-  }
+/** "Èjì Ogbè — light, beginnings, and clear potential" → the theme phrase. */
+function essenceOf(title: string): string {
+  const parts = title.split("—");
+  return (parts[1] ?? parts[0]).trim();
+}
 
-  if (!found) {
-    return {
-      isPlaceholder: true,
-      contentMd: PLACEHOLDER_INTERPRETATION,
-      title: null,
-      sourceTitle: null,
-      licence: null,
-      reflectionQuestions: [],
-    };
-  }
-
+function mejiDisplay(found: (typeof ORIGINAL_INTERPRETATIONS)[number]): LocalDisplay {
   return {
     isPlaceholder: false,
     contentMd: found.contentMd,
@@ -83,4 +56,54 @@ export function resolveLocalDisplay(oduSlug: string | null): LocalDisplay {
     licence: "ORIGINAL_APP_LICENCE",
     reflectionQuestions: found.reflectionQuestions,
   };
+}
+
+/** Original structural reading for a combined Odù, derived from its two legs. */
+function composedDisplay(slug: string): LocalDisplay {
+  const fact = oduFactBySlug(slug);
+  if (!fact || fact.isPrimary) return PLACEHOLDER;
+  const right = ORIGINAL_INTERPRETATIONS.find((i) => i.oduSlug === fact.rightSlug);
+  const left = ORIGINAL_INTERPRETATIONS.find((i) => i.oduSlug === fact.leftSlug);
+  const rightFact = oduFactBySlug(fact.rightSlug);
+  const leftFact = oduFactBySlug(fact.leftSlug);
+  if (!right || !left || !rightFact || !leftFact) return PLACEHOLDER;
+
+  const themes = Array.from(new Set([...right.themes, ...left.themes]));
+  const note = COMBINED_ODU_NOTES[slug];
+  const contentMd =
+    `## ${fact.name}\n\n` +
+    `**${fact.name}** is a combined Odù. **${rightFact.name}** stands on the right leg ` +
+    `and **${leftFact.name}** on the left. The right leg is read first and carries ` +
+    `seniority; the left leg colours and qualifies it. ${RIGHT_LEG_CHILD_NOTE}\n\n` +
+    (note ? `**What tradition records of this Odù:** ${note}\n\n` : "") +
+    `**From the right leg — ${rightFact.name}:** ${essenceOf(right.title)}.\n\n` +
+    `**From the left leg — ${leftFact.name}:** ${essenceOf(left.title)}.\n\n` +
+    `Read structurally, this pairing sets ${essenceOf(right.title)} in the foreground, ` +
+    `approached through ${essenceOf(left.title)}. Themes to sit with: ` +
+    themes.map((t) => `**${t}**`).join(", ") +
+    ".\n\n" +
+    "*This is an original structural reading composed from this Odù's two legs. A fuller " +
+    "reviewed interpretation for this specific Odù has not yet been published — you can " +
+    "help write one on the contribute page. This is educational content, not a substitute " +
+    "for divination by a trained Babalawo.*";
+
+  return {
+    isPlaceholder: false,
+    contentMd,
+    title: `${fact.name} — a structural reading`,
+    sourceTitle: "Online Ifá — original structural composition from the two legs",
+    licence: "ORIGINAL_APP_LICENCE",
+    reflectionQuestions: [
+      right.reflectionQuestions[0],
+      left.reflectionQuestions[0],
+      "Which of the two legs speaks more directly to your situation right now?",
+    ].filter(Boolean),
+  };
+}
+
+export function resolveLocalDisplay(oduSlug: string | null): LocalDisplay {
+  if (!oduSlug) return PLACEHOLDER;
+  const found = ORIGINAL_INTERPRETATIONS.find((i) => i.oduSlug === oduSlug);
+  if (found) return mejiDisplay(found);
+  return composedDisplay(oduSlug);
 }

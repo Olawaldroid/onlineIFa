@@ -236,6 +236,25 @@ our **own** translations; never from the copyrighted collections above.
 - [ ] Have a Yorùbá-language reviewer verify diacritics/orthography of all names.
 
 ## 8. Changelog
+- **2026-07-18 (every Odù readable; contributions durable and everywhere)** —
+  (1) `resolveLocalDisplay` now returns content for all 256 Odù with no DB:
+  the 16 reviewed méjì originals as before, plus an **original structural
+  reading** for each of the 240 combined Odù composed from its two legs'
+  reviewed summaries (right-leg seniority stated, themes merged, honest note
+  that a fuller reviewed interpretation is pending) — used by consultation
+  results AND `/odu/[slug]` pages (previously placeholder). (2) New
+  `src/lib/odu/combinedNotes.ts` for multi-source-verified notes on specific
+  combined Odù — first entry **Ọ̀ṣẹ́tùrá** (messenger Odù, tied to Èṣù,
+  carries sacrifice: Gleason 1973 + Fatunmbi, echoed across the shelf); plus
+  Bascom's "child of the right leg" framing in every composed reading, and two
+  Lopes-documented contracted names added to the engine (Ìdígbè = Òdí-Ogbè,
+  Ogbè Yọ́nú = Ogbè-Ògúndá). (3) `GET /api/interpretations?odu=` returns the
+  best published interpretation (gated DB → approved contribution) and the
+  consultation flow upgrades its result with it, so approved contributions
+  reach consultations. (4) Contribution store gained a **Vercel Blob** backend
+  (auto-selected when `BLOB_READ_WRITE_TOKEN` exists) — submissions and admin
+  review decisions now persist permanently on Vercel with no database.
+  (5) Admin pages no longer show dev-mode/storage banners.
 - **2026-07-18 (research pass over the full "Ifá brain" corpus — 20 files, 19
   unique works)** — Extracted and indexed text for 15 works (EPUBs unpacked in
   full; scanned PDFs via OCR extraction, partial for the longest). New to the

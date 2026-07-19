@@ -73,9 +73,9 @@ export async function getOduDetail(slug: string): Promise<OduDetailView | null> 
     // DB not available — facts-only mode. Placeholder meaning already set.
   }
 
-  // No approved DB content? Check the file-backed contribution store, so
-  // reviewed contributions publish even with no database (same gate: only
-  // APPROVED, unflagged submissions are ever returned by approvedForOdu).
+  // No approved DB content? Check the contribution store, so reviewed
+  // contributions publish even with no database (same gate: only APPROVED,
+  // unflagged submissions are ever returned by approvedForOdu).
   if (meaning.isPlaceholder) {
     try {
       const { approvedForOdu } = await import("@/lib/contributions/store");
@@ -92,7 +92,7 @@ export async function getOduDetail(slug: string): Promise<OduDetailView | null> 
         };
       }
     } catch {
-      // File store unreadable — keep the placeholder.
+      // Store unreadable — fall through.
     }
   }
 

@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { ReviewActions } from "@/components/ReviewActions";
-import { listSubmissions, storeLocation, type FileSubmission } from "@/lib/contributions/store";
+import { listSubmissions, type FileSubmission } from "@/lib/contributions/store";
 
 // Admin review queue. Lists submitted/in-review interpretations with their
 // source permission status so an admin can approve only publishable content.
@@ -23,7 +23,6 @@ async function load() {
       mode: "file" as const,
       pending: all.filter((s) => s.status === "SUBMITTED" || s.status === "CHANGES_REQUESTED"),
       decided: all.filter((s) => s.status === "APPROVED" || s.status === "REJECTED").slice(0, 10),
-      store: await storeLocation(),
     };
   }
 }

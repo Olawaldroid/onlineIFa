@@ -6,17 +6,22 @@
 // content surfaces on the Odù detail page. The same review gates apply as in
 // the DB path: only APPROVED, unflagged content is ever shown.
 //
-// Storage: data/contributions.json (override with CONTRIBUTIONS_FILE). If that
-// path isn't writable — e.g. a serverless filesystem — it falls back to the OS
-// temp dir, where data persists only per instance. This store is a
-// convenience for local / single-server setups; production-scale review
-// should still use Postgres. Server-side only (uses fs): import it from route
-// handlers and server components, never client components.
+// Storage backends, in order of preference:
+//   1. Vercel Blob — when BLOB_READ_WRITE_TOKEN is set (add a Blob store to
+//      the Vercel project and it's injected automatically). Durable across
+//      deploys and instances: submissions and review decisions stay
+//      permanently, no database needed.
+//   2. Local JSON file — data/contributions.json (override with
+//      CONTRIBUTIONS_FILE); falls back to the OS temp dir when the primary
+//      path isn't writable (per-instance only — for previews/dev).
+// Server-side only (uses fs / network): import from route handlers and server
+// components, never client components.
 // ===========================================================================
 
 import { promises as fs } from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
+import { put, list } from "@vercel/blob";
 
 export type SubmissionStatus = "SUBMITTED" | "APPROVED" | "REJECTED" | "CHANGES_REQUESTED";
 
@@ -71,8 +76,9 @@ async function resolveFile(): Promise<string> {
   return resolvedFile;
 }
 
-/** Where submissions are being stored (for display on the admin page). */
+/** Where submissions are being stored (diagnostics only). */
 export async function storeLocation(): Promise<{ file: string; ephemeral: boolean }> {
+  if (blobEnabled()) return { file: `vercel-blob:${BLOB_PATH}`, ephemeral: false };
   const file = await resolveFile();
   return { file, ephemeral: false };
 }
@@ -85,7 +91,41 @@ async function serializedMutation<T>(operation: () => Promise<T>): Promise<T> {
   return result;
 }
 
+// --- Vercel Blob backend ---------------------------------------------------
+
+const BLOB_PATH = "online-ifa/contributions.json";
+
+function blobEnabled(): boolean {
+  return !!process.env.BLOB_READ_WRITE_TOKEN;
+}
+
+async function blobLoad(): Promise<FileSubmission[]> {
+  try {
+    const { blobs } = await list({ prefix: BLOB_PATH, limit: 1 });
+    if (!blobs.length) return [];
+    // Cache-bust: blob URLs are CDN-cached; reviews must see fresh data.
+    const res = await fetch(`${blobs[0].url}?v=${Date.now()}`, { cache: "no-store" });
+    if (!res.ok) return [];
+    const parsed = await res.json();
+    return Array.isArray(parsed) ? (parsed as FileSubmission[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+async function blobSave(items: FileSubmission[]): Promise<void> {
+  await put(BLOB_PATH, JSON.stringify(items, null, 2), {
+    access: "public",
+    addRandomSuffix: false,
+    contentType: "application/json",
+    cacheControlMaxAge: 0,
+  });
+}
+
+// --- Backend dispatch ------------------------------------------------------
+
 async function load(): Promise<FileSubmission[]> {
+  if (blobEnabled()) return blobLoad();
   const file = await resolveFile();
   try {
     const raw = await fs.readFile(file, "utf8");
@@ -97,6 +137,7 @@ async function load(): Promise<FileSubmission[]> {
 }
 
 async function save(items: FileSubmission[]): Promise<void> {
+  if (blobEnabled()) return blobSave(items);
   const file = await resolveFile();
   const tmp = `${file}.${process.pid}.tmp`;
   await fs.writeFile(tmp, JSON.stringify(items, null, 2));
