@@ -171,17 +171,9 @@ export function CastingStage({
               <div className="h-[13px] w-[3px] rounded-sm bg-[#1f1711]" />
             </div>
             <div
-              className="absolute inset-[42px] shadow-[inset_0_8px_20px_rgba(90,61,36,.45),inset_0_-3px_10px_rgba(255,255,255,.25)] sm:inset-[52px]"
-              style={{ borderRadius: "48% 52% 51% 49%", background: "radial-gradient(circle at 44% 38%, #ecd9a8, #dcc389 58%, #c9ac70 88%, #b8985c)" }}
+              className="lab-sand-bed absolute inset-[42px] overflow-hidden shadow-[inset_0_7px_16px_rgba(92,64,34,.28),inset_0_-3px_9px_rgba(255,255,255,.8)] sm:inset-[52px]"
+              style={{ borderRadius: "48% 52% 51% 49%" }}
             >
-              <div
-                className="absolute inset-0 rounded-full"
-                style={{
-                  backgroundImage: "radial-gradient(rgba(120,84,44,.22) 1px, transparent 1.4px), radial-gradient(rgba(255,246,220,.55) 1px, transparent 1.3px)",
-                  backgroundSize: "9px 9px, 13px 13px",
-                  backgroundPosition: "0 0, 5px 7px",
-                }}
-              />
               <div className="absolute inset-0 flex items-center justify-center gap-9 sm:gap-[52px]">
                 <SandColumn marks={marks} offset={4} casting={animating} />
                 <SandColumn marks={marks} offset={0} casting={animating} />
@@ -303,8 +295,12 @@ function SandColumn({ marks, offset, casting }: { marks: number[]; offset: numbe
             {m === undefined ? <div className="h-2 w-2 rounded-full bg-[rgba(120,84,44,.28)]" /> : null}
             {showFinger ? (
               <div
-                className="absolute left-1/2 -top-1 z-[3] h-[26px] w-6 shadow-[0_3px_8px_rgba(0,0,0,.4)]"
-                style={{ borderRadius: "50% 50% 46% 54%", background: "radial-gradient(circle at 35% 30%, #a06b3c, #6b4426)", animation: "omFinger .7s ease both" }}
+                aria-hidden="true"
+                className="lab-drawing-hand absolute left-1/2 z-[4] h-24 w-24"
+                style={{
+                  backgroundImage: `url(/assets/casting/hand-${m === 1 ? "single" : "double"}.png)`,
+                  animation: "omFinger .9s cubic-bezier(.22,.61,.36,1) both",
+                }}
               />
             ) : null}
           </div>
