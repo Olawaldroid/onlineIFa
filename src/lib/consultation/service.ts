@@ -12,6 +12,7 @@ import {
   manualCast,
   userSelectedCast,
   CastResult,
+  AyewoOutcome,
 } from "@/lib/casting/cast";
 import { screenQuestion } from "@/lib/safety/guardrails";
 import { resolveDisplay } from "@/lib/interpretation/gate";
@@ -65,7 +66,12 @@ export async function acknowledgeSafety(id: string) {
 
 export async function performCast(
   id: string,
-  opts: { signature?: string; babalawoId?: string; seed?: string },
+  opts: {
+    signature?: string;
+    babalawoId?: string;
+    seed?: string;
+    ayewoOutcome?: AyewoOutcome;
+  },
 ) {
   const c = await getOrThrow(id);
   assertTransition(c.state, "CASTING");
@@ -74,7 +80,11 @@ export async function performCast(
   let result: CastResult;
   switch (c.castingMode) {
     case "MANUAL_BABALAWO":
-      result = manualCast(opts.signature ?? "", opts.babalawoId ?? "unknown");
+      result = manualCast(
+        opts.signature ?? "",
+        opts.babalawoId ?? "unknown",
+        opts.ayewoOutcome,
+      );
       break;
     case "USER_SELECTED":
       result = userSelectedCast(opts.signature ?? "");

@@ -1,9 +1,8 @@
 import Link from "next/link";
 
-// Homepage hero — spinning tray emblem, floating gold particles, title and
-// real onboarding CTAs. Visual treatment matches /lab's Hero exactly; this
-// component is independent (not imported from src/app/lab) so the two stay
-// decoupled and /lab can be retired without touching this page.
+// Homepage hero — a restrained vector-like ọpọ́n Ifá emblem, quiet particles,
+// and two clear journeys. The object stays still so it reads as a carved tray,
+// not as a generic spinning technology mark.
 
 function mulberry32(seed: number) {
   let a = seed;
@@ -31,10 +30,8 @@ const PARTICLES = Array.from({ length: 14 }, (_, i) => ({
 const EMBLEM_LEGS = [1, 2, 1, 2];
 
 const CTAS = [
-  { href: "/disclaimer?next=/learn", label: "Learn Ifá", primary: true },
-  { href: "/disclaimer?next=/consult", label: "Start Consultation", primary: false },
-  { href: "/learn", label: "Discover Mathematics", primary: false },
-  { href: "/history", label: "Watch History", primary: false },
+  { href: "/disclaimer?next=/consult", label: "Start a consultation", primary: true },
+  { href: "/learn", label: "Explore Ifá", primary: false },
 ];
 
 export function Hero() {
@@ -68,11 +65,8 @@ export function Hero() {
       {/* The ọpọn Ifá — carved notched rim, Èṣù face at the head, ìyẹ̀rọ̀sùn
           sand centre with the emblem pressed into it. Same tray language as
           the consultation's CastingStage so the two boards read as one. */}
-      <div className="relative mb-11 h-[330px] w-[330px]">
-        <div
-          className="absolute -inset-3 rounded-full border-2 border-dashed border-ifa-gold/30"
-          style={{ animation: "omSpin 46s linear infinite" }}
-        />
+      <div className="relative mb-11 aspect-square h-auto w-[76vw] max-w-[330px]">
+        <div className="absolute -inset-3 rounded-full border border-ifa-gold/25" />
         <div
           className="absolute inset-0 rounded-full"
           style={{

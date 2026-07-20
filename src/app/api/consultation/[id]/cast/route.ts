@@ -6,6 +6,7 @@ const Body = z.object({
   signature: z.string().regex(/^[12]{4}\|[12]{4}$/).optional(),
   babalawoId: z.string().optional(),
   seed: z.string().optional(),
+  ayewoOutcome: z.enum(["IRE", "IBI"]).optional(),
 });
 
 // POST /api/consultation/:id/cast — perform the cast for the session.

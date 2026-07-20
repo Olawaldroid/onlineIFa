@@ -6,13 +6,23 @@ import { SignatureDisplay } from "./SignatureDisplay";
 import { CastingStage, Instrument, IkinStage, WorkingStep } from "./CastingStage";
 import { markProgressFlag } from "@/lib/progress";
 import { screenQuestion, SafetyScreenResult } from "@/lib/safety/guardrails";
-import { simulatedCast, learningCast, userSelectedCast, manualCast } from "@/lib/casting/cast";
+import {
+  simulatedCast,
+  learningCast,
+  userSelectedCast,
+  manualCast,
+  type AyewoOutcome,
+  type AyewoResult,
+} from "@/lib/casting/cast";
 import { oduFactBySignature } from "@/lib/odu/facts";
 import { resolveLocalDisplay, LocalDisplay } from "@/lib/interpretation/localDisplay";
 import { EseVerses } from "./EseVerses";
 import { versesForOdu } from "@/lib/content/verses";
-import { IboRefinement } from "./IboRefinement";
 import { EboClosing } from "./EboClosing";
+import {
+  resolveConsultationSeed,
+  type ContinuityDecision,
+} from "@/lib/consultation/continuity";
 
 const AREAS = [
   "GENERAL", "HEALTH", "FAMILY", "MARRIAGE", "MONEY",
@@ -32,6 +42,7 @@ type SaveState = "idle" | "saving" | "saved" | "error";
 interface ResultShape {
   odu: { name: string; signature: string; factualSummary: string; slug: string } | null;
   display: LocalDisplay;
+  ayewo: AyewoResult | null;
 }
 
 const posName = (i: number) => `${i < 4 ? "right" : "left"} leg, position ${(i % 4) + 1}`;
@@ -49,7 +60,9 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
   const [area, setArea] = useState<string>("GENERAL");
   const [question, setQuestion] = useState("");
   const [signature, setSignature] = useState("1111|1111");
+  const [manualAyewo, setManualAyewo] = useState<AyewoOutcome | "">("");
   const [seed, setSeed] = useState<string | null>(null);
+  const [continuity, setContinuity] = useState<ContinuityDecision | null>(null);
   const [safety, setSafety] = useState<SafetyScreenResult | null>(null);
   const [result, setResult] = useState<ResultShape | null>(null);
   const [saveState, setSaveState] = useState<SaveState>("idle");
@@ -60,6 +73,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
   const [working, setWorking] = useState(true);
   const [animating, setAnimating] = useState(false);
   const [marks, setMarks] = useState<number[]>([]);
+  const [opeleFaces, setOpeleFaces] = useState<number[]>([]);
   const [workingSteps, setWorkingSteps] = useState<WorkingStep[]>([]);
   const [shaking, setShaking] = useState(false);
   const [chainLanded, setChainLanded] = useState(false);
@@ -76,18 +90,22 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
   }, []);
   useEffect(() => clearTimers, [clearTimers]);
 
-  function buildResult(sig: string): ResultShape {
+  function buildResult(sig: string, ayewo: AyewoResult | null): ResultShape {
     const fact = oduFactBySignature(sig);
     return {
       odu: fact
         ? { name: fact.name, signature: fact.signature, factualSummary: fact.factualSummary, slug: fact.slug }
         : null,
       display: resolveLocalDisplay(fact?.slug ?? null),
+      ayewo,
     };
   }
 
-  async function buildResolvedResult(sig: string): Promise<ResultShape> {
-    const fallback = buildResult(sig);
+  async function buildResolvedResult(
+    sig: string,
+    ayewo: AyewoResult | null,
+  ): Promise<ResultShape> {
+    const fallback = buildResult(sig, ayewo);
     if (!fallback.odu) return fallback;
     try {
       const response = await fetch(`/api/interpretations?oduSlug=${encodeURIComponent(fallback.odu.slug)}`);
@@ -120,40 +138,51 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
   // USER_SELECTED / MANUAL_BABALAWO: the Odù is already known (typed in) —
   // resolve it straight to a result, no animation needed.
   async function submitKnownOdu() {
-    const cast = mode === "MANUAL_BABALAWO" ? manualCast(signature, "") : userSelectedCast(signature);
+    const cast =
+      mode === "MANUAL_BABALAWO"
+        ? manualCast(signature, "", manualAyewo || undefined)
+        : userSelectedCast(signature);
     markProgressFlag("cast");
-    setResult(await buildResolvedResult(cast.signature));
+    setContinuity(null);
+    setResult(await buildResolvedResult(cast.signature, cast.ayewo));
     setStep("result");
   }
 
-  const finishAnimation = useCallback((all: number[], sig: string) => {
+  const finishAnimation = useCallback((all: number[], sig: string, ayewo: AyewoResult | null) => {
     setMarks(all);
     setIkinStage(null);
     setWorkingSteps((st) => [
       ...st,
       { n: "★", text: `The figure is complete: ${sig}. Read right leg first.` },
+      ...(ayewo
+        ? [{
+            n: "Ì",
+            text: "Àyẹ̀wò now follows the principal Odù: two auxiliary propositions are compared. They clarify this consultation; they do not replace its Odù.",
+          }]
+        : []),
     ]);
     after(600, async () => {
       setAnimating(false);
-      setResult(await buildResolvedResult(sig));
+      setResult(await buildResolvedResult(sig, ayewo));
       setStep("result");
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [after]);
 
   const animateOpele = useCallback(
-    (realMarks: number[], sig: string) => {
+    (realMarks: number[], sig: string, ayewo: AyewoResult | null) => {
       setShaking(true);
       setChainLanded(false);
       setWorkingSteps([
         {
           n: "·",
-          text: "The ọ̀pẹ̀lẹ̀ chain carries eight half-pods in two strands of four. It is held at the middle and swung. One throw gives the whole figure.",
+          text: "The ọ̀pẹ̀lẹ̀ is held at its midpoint. The midpoint is cast away first; its two free ends trail back toward the diviner and settle as parallel rows. One throw yields the complete figure.",
         },
       ]);
       after(1700, () => {
         setShaking(false);
         setChainLanded(true);
+        setOpeleFaces(realMarks);
         if (working) {
           realMarks.forEach((m, i) => {
             after((i + 1) * 850, () => {
@@ -162,19 +191,19 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
                 ...st,
                 {
                   n: String(i + 1),
-                  text: `Pod ${i + 1} (${posName(i)}) lands ${m === 1 ? "concave face up → a SINGLE mark ǀ" : "convex face up → a DOUBLE mark ǁ"}. `,
+                  text: `Reading pod ${i + 1} (${posName(i)}) shows ${m === 1 ? "concave face up → a SINGLE mark ǀ" : "convex face up → a DOUBLE mark ǁ"}. All eight landed together; this sequence records them without pretending they fell one by one. (Face mapping varies by lineage.)`,
                 },
               ]);
             });
           });
-          after(8 * 850 + 400, () => finishAnimation(realMarks, sig));
+          after(8 * 850 + 400, () => finishAnimation(realMarks, sig, ayewo));
         } else {
           setMarks(realMarks);
           setWorkingSteps((st) => [
             ...st,
             { n: "✓", text: "All eight pods read at once, right leg first, top to bottom." },
           ]);
-          after(500, () => finishAnimation(realMarks, sig));
+          after(500, () => finishAnimation(realMarks, sig, ayewo));
         }
       });
     },
@@ -182,7 +211,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
   );
 
   const animateIkin = useCallback(
-    (realMarks: number[], sig: string) => {
+    (realMarks: number[], sig: string, ayewo: AyewoResult | null) => {
       setWorkingSteps([
         {
           n: "·",
@@ -191,7 +220,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
       ]);
       const round = (i: number) => {
         if (i === 8) {
-          after(500, () => finishAnimation(realMarks, sig));
+          after(500, () => finishAnimation(realMarks, sig, ayewo));
           return;
         }
         setIkinStage({ round: i, phase: "beating" });
@@ -223,19 +252,25 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
     if (animating) return;
     clearTimers();
     setMarks([]);
+    setOpeleFaces([]);
     setWorkingSteps([]);
     setShaking(false);
     setChainLanded(false);
     setIkinStage(null);
     setSeedsLeft(16);
     setAnimating(true);
-    const newSeed = `${Date.now()}-${Math.random()}`;
+    const continuityDecision =
+      mode === "SIMULATED"
+        ? resolveConsultationSeed({ area, question })
+        : null;
+    const newSeed = continuityDecision?.seed ?? `${Date.now()}-${Math.random()}`;
+    setContinuity(continuityDecision);
     setSeed(newSeed);
     const cast = mode === "LEARNING" ? learningCast(newSeed) : simulatedCast(newSeed);
     markProgressFlag("cast");
     const realMarks = cast.signature.replace("|", "").split("").map(Number);
-    if (instrument === "opele") animateOpele(realMarks, cast.signature);
-    else animateIkin(realMarks, cast.signature);
+    if (instrument === "opele") animateOpele(realMarks, cast.signature, cast.ayewo);
+    else animateIkin(realMarks, cast.signature, cast.ayewo);
   }
 
   // The result is already known locally; this only persists it to the
@@ -270,7 +305,16 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
       const castRes = await fetch(`/api/consultation/${newId}/cast`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(animatedModes ? { seed } : { signature }),
+        body: JSON.stringify(
+          animatedModes
+            ? { seed }
+            : {
+                signature,
+                ...(mode === "MANUAL_BABALAWO" && manualAyewo
+                  ? { ayewoOutcome: manualAyewo }
+                  : {}),
+              },
+        ),
       });
       if (!castRes.ok) throw new Error("save failed");
 
@@ -280,6 +324,22 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
     } catch {
       setSaveState("error");
     }
+  }
+
+  function beginAnotherConsultation() {
+    clearTimers();
+    setStep("area");
+    setResult(null);
+    setSaveState("idle");
+    setSeed(null);
+    setContinuity(null);
+    setMarks([]);
+    setOpeleFaces([]);
+    setWorkingSteps([]);
+    setShaking(false);
+    setChainLanded(false);
+    setIkinStage(null);
+    setAnimating(false);
   }
 
   const animatedModes = mode === "SIMULATED" || mode === "LEARNING";
@@ -366,9 +426,34 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
 
       {step === "cast" && animatedModes && (
         <div className="space-y-4">
-          <p className="mx-auto max-w-2xl text-center text-xs text-ifa-sage">
-            Every draw is random and happens on your device.
-          </p>
+          <div className="mx-auto max-w-2xl rounded-[10px] border border-ifa-rust/40 bg-ifa-rust/[0.16] px-4 py-[9px] text-[13px] text-ifa-cream">
+            {mode === "SIMULATED" ? (
+              <>
+                One active consultation has one anchor. A materially new concern receives a
+                device-generated cast; similar wording on this device reuses it for 24 hours.
+                This is a digital integrity rule, not a claim of spiritual authority.
+              </>
+            ) : (
+              <>
+                Learning mode may be repeated freely so you can study the mechanics. Every
+                result is a transparent simulation, not spiritual authority.
+              </>
+            )}
+          </div>
+          {continuity && (
+            <div
+              role="status"
+              className={`mx-auto max-w-2xl rounded-[10px] border px-4 py-3 text-[13px] ${
+                continuity.reused
+                  ? "border-ifa-gold/40 bg-ifa-gold/[0.1] text-ifa-cream"
+                  : "border-ifa-sage/40 bg-ifa-sage/[0.1] text-ifa-cream"
+              }`}
+            >
+              {continuity.reused
+                ? "This matches an active concern, so the original seed and Odù are being replayed—not recast."
+                : "This is the first cast for this concern. A reduced fingerprint—not your question text—is kept on this device for 24 hours."}
+            </div>
+          )}
           <CastingStage
             instrument={instrument}
             onPickInstrument={setInstrument}
@@ -378,6 +463,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
             busy={false}
             animating={animating}
             marks={marks}
+            landedMarks={opeleFaces}
             workingSteps={workingSteps}
             shaking={shaking}
             chainLanded={chainLanded}
@@ -398,6 +484,20 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
               className="mt-1 w-full rounded-lg border border-ifa-border bg-ifa-surface p-2 font-mono text-ifa-cream outline-none"
             />
           </label>
+          {mode === "MANUAL_BABALAWO" && (
+            <label className="block text-sm">
+              Recorded Ìbò / Àyẹ̀wò outcome
+              <select
+                value={manualAyewo}
+                onChange={(event) => setManualAyewo(event.target.value as AyewoOutcome | "")}
+                className="mt-1 w-full rounded-lg border border-ifa-border bg-ifa-surface p-2 text-ifa-cream outline-none"
+              >
+                <option value="">Not recorded</option>
+                <option value="IRE">Ìrẹ — favourable orientation</option>
+                <option value="IBI">Ìbì / Òṣogbo — cautionary orientation</option>
+              </select>
+            </label>
+          )}
           <button className="btn-primary" onClick={submitKnownOdu}>
             Submit Odù
           </button>
@@ -406,18 +506,54 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
 
       {step === "result" && result && (
         <div className="mx-auto max-w-2xl">
-          <Result result={result} saveState={saveState} onSave={saveConsultation} />
+          <Result
+            result={result}
+            saveState={saveState}
+            continuity={continuity}
+            onSave={saveConsultation}
+            onAnother={beginAnotherConsultation}
+          />
         </div>
       )}
     </div>
   );
 }
 
-function Result({ result, saveState, onSave }: { result: ResultShape; saveState: SaveState; onSave: () => void }) {
+function Result({
+  result,
+  saveState,
+  continuity,
+  onSave,
+  onAnother,
+}: {
+  result: ResultShape;
+  saveState: SaveState;
+  continuity: ContinuityDecision | null;
+  onSave: () => void;
+  onAnother: () => void;
+}) {
   const odu = result.odu;
   const display = result.display;
   return (
     <div className="space-y-6">
+      {continuity && (
+        <div className="rounded-xl border border-ifa-gold/30 bg-ifa-gold/[0.08] px-4 py-3 text-sm leading-relaxed text-ifa-cream/80">
+          {continuity.reused ? (
+            <>
+              <strong className="text-ifa-gold">Active consultation restored.</strong>{" "}
+              The wording still points to the same concern, so this is the original cast—not
+              another attempt at a different answer.
+            </>
+          ) : (
+            <>
+              <strong className="text-ifa-gold">This Odù is now the consultation&rsquo;s anchor.</strong>{" "}
+              Rewording the same concern will revisit it for the next 24 hours. A materially new
+              event, person, decision, or time horizon begins a new consultation.
+            </>
+          )}
+        </div>
+      )}
+
       <div className="card text-center">
         <p className="text-sm text-ifa-sage">Selected Odù</p>
         <h2 className="font-serif text-3xl text-ifa-gold">{odu?.name ?? "—"}</h2>
@@ -430,6 +566,8 @@ function Result({ result, saveState, onSave }: { result: ResultShape; saveState:
           <p className="mt-3 text-sm text-ifa-cream/70">{odu.factualSummary}</p>
         )}
       </div>
+
+      {result.ayewo && <AyewoPanel ayewo={result.ayewo} />}
 
       <div className="card">
         <h3 className="mb-2 font-serif text-xl text-ifa-gold">
@@ -447,8 +585,6 @@ function Result({ result, saveState, onSave }: { result: ResultShape; saveState:
       {odu?.slug && <EseVerses verses={versesForOdu(odu.slug)} heading="Ifá speaks" />}
 
       <EboClosing />
-
-      <IboRefinement />
 
       <div className="card">
         <h3 className="mb-2 font-serif text-xl text-ifa-gold">Reflection questions</h3>
@@ -471,10 +607,138 @@ function Result({ result, saveState, onSave }: { result: ResultShape; saveState:
         <button className="btn-primary" disabled={saveState === "saving" || saveState === "saved"} onClick={onSave}>
           {saveState === "saved" ? "Saved ✓" : saveState === "saving" ? "Saving…" : "Save consultation"}
         </button>
+        <button className="btn-secondary" onClick={onAnother}>
+          Begin another consultation
+        </button>
         {saveState === "error" && (
           <span className="text-xs text-ifa-rust">Couldn&rsquo;t save. The reading above is still yours to keep.</span>
         )}
       </div>
+    </div>
+  );
+}
+
+function AyewoPanel({ ayewo }: { ayewo: AyewoResult }) {
+  const isIre = ayewo.outcome === "IRE";
+  const [ireCast, ibiCast] = ayewo.comparisons ?? [];
+  return (
+    <div className="card overflow-hidden p-0">
+      <div className="border-b border-ifa-border bg-ifa-deep/50 px-5 py-4">
+        <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-ifa-sage">
+          Ìbò · Àyẹ̀wò · secondary inquiry
+        </p>
+        <h3 className={`mt-2 font-serif text-2xl ${isIre ? "text-ifa-gold" : "text-ifa-rust"}`}>
+          {isIre ? "Ìrẹ — favourable orientation" : "Ìbì / Òṣogbo — cautionary orientation"}
+        </h3>
+        <p className="mt-2 text-sm leading-relaxed text-ifa-cream/70">
+          This does not replace the principal Odù. It records the follow-up inquiry that asks
+          whether the consultation opens favourably or calls for caution.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 p-5">
+        <IboObject
+          kind="cowries"
+          label="Cowries"
+          sub="favourable proposition"
+          selected={isIre}
+        />
+        <IboObject
+          kind="bone"
+          label="Bone"
+          sub="cautionary proposition"
+          selected={!isIre}
+        />
+      </div>
+
+      <details className="border-t border-ifa-border px-5 py-4 text-sm text-ifa-cream/70">
+        <summary className="cursor-pointer font-semibold text-ifa-cream">
+          How this simulated inquiry was determined
+        </summary>
+        {ayewo.method === "PAIRED_ODU_SENIORITY" && ireCast && ibiCast ? (
+          <div className="mt-3 space-y-2 leading-relaxed">
+            <p>
+              The favourable proposition cast <strong>{ireCast.oduName}</strong> (seniority {ireCast.rank});
+              the cautionary proposition cast <strong>{ibiCast.oduName}</strong> (seniority {ibiCast.rank}).
+              The more senior figure—lower rank number—selects the proposition.
+            </p>
+            <p className="text-xs text-ifa-sage">
+              The two comparison figures are auxiliary casts, not additional principal Odù. This
+              app uses one declared paired-alternative convention; lineages vary, and concealed
+              objects can be assigned differently by a practitioner.
+            </p>
+            <p className="text-xs text-ifa-sage">
+              Procedure reference: William Bascom&rsquo;s{" "}
+              <a
+                href="https://iupress.org/9780253206381/ifa-divination/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <em>Ifa Divination</em>
+              </a>{" "}
+              and Pogoson &amp; Akande&rsquo;s{" "}
+              <a
+                href="https://journals.openedition.org/cea/196"
+                target="_blank"
+                rel="noreferrer"
+              >
+                documented Ìbò account
+              </a>
+              .
+            </p>
+          </div>
+        ) : (
+          <p className="mt-3 leading-relaxed">
+            This outcome was recorded from a physical consultation. The app does not infer the
+            practitioner&rsquo;s lineage-specific procedure.
+          </p>
+        )}
+      </details>
+    </div>
+  );
+}
+
+function IboObject({
+  kind,
+  label,
+  sub,
+  selected,
+}: {
+  kind: "cowries" | "bone";
+  label: string;
+  sub: string;
+  selected: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-xl border px-3 py-4 text-center transition-colors ${
+        selected
+          ? "border-ifa-gold/70 bg-ifa-gold/[0.12]"
+          : "border-ifa-border bg-ifa-bg/30 opacity-55"
+      }`}
+    >
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 96 72"
+        className="mx-auto h-16 w-20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {kind === "cowries" ? (
+          <>
+            <path d="M10 37C10 20 22 9 37 10c13 1 21 12 19 27-2 16-12 25-27 24C17 60 10 51 10 37Z" fill="#E7D5AA" stroke="#8A5A33" strokeWidth="2" />
+            <path d="M27 18c-7 9-8 29 2 36M39 17c7 11 7 26-1 37" stroke="#8A5A33" strokeWidth="2" strokeLinecap="round" />
+            <path d="M43 38c0-16 10-27 25-27 13 0 21 10 19 25-2 17-12 26-27 25-11-1-17-10-17-23Z" fill="#F1DFC0" stroke="#8A5A33" strokeWidth="2" />
+            <path d="M59 18c-7 11-7 27 2 36M72 17c7 11 6 27-2 37" stroke="#8A5A33" strokeWidth="2" strokeLinecap="round" />
+          </>
+        ) : (
+          <path d="M19 26c-7-7-3-16 5-17 5-1 8 2 11 6l27 30c4-2 8-1 11 2 6 6 2 16-6 16-5 0-8-3-10-7L30 27c-4 3-8 3-11-1Z" fill="#D8C8AA" stroke="#795B3D" strokeWidth="2.5" strokeLinejoin="round" />
+        )}
+      </svg>
+      <div className={`font-serif text-lg ${selected ? "text-ifa-gold" : "text-ifa-cream"}`}>
+        {label}{selected ? " · selected" : ""}
+      </div>
+      <div className="mt-1 text-[11px] leading-snug text-ifa-sage">{sub}</div>
     </div>
   );
 }
