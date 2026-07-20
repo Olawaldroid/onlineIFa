@@ -10,6 +10,7 @@ import {
   ESE_VERSES,
   validateEseCorpus,
 } from "./verses";
+import { iweVerseForOdu, validateIweCorpus } from "./iweVerses";
 
 test("public Ẹsẹ corpus has complete, valid provenance", () => {
   assert.deepEqual(validateEseCorpus(), []);
@@ -47,4 +48,15 @@ test("every archived source has a stable checksum and explicit review state", ()
     assert.ok(source.use);
     assert.match(source.canonicalUrl, /^https:\/\//);
   }
+});
+
+test("permission-cleared Ìwé verses are valid and selected deterministically", () => {
+  assert.deepEqual(validateIweCorpus(), []);
+  const first = iweVerseForOdu("ogbe-meji", "stable-cast");
+  const repeated = iweVerseForOdu("ogbe-meji", "stable-cast");
+  assert.ok(first);
+  assert.deepEqual(repeated, first);
+  assert.equal(first.source.permission.status, "GRANTED");
+  assert.ok(first.pdfPages);
+  assert.equal(iweVerseForOdu("ofun-ogbe", "stable-cast"), null);
 });

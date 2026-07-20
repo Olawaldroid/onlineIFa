@@ -19,6 +19,8 @@ import { oduFactBySignature } from "@/lib/odu/facts";
 import { resolveLocalDisplay, LocalDisplay } from "@/lib/interpretation/localDisplay";
 import { EseVerses } from "./EseVerses";
 import { versesForOdu } from "@/lib/content/verses";
+import { IweEse } from "./IweEse";
+import type { IweVerse } from "@/lib/content/iweVerses";
 import { EboClosing } from "./EboClosing";
 import {
   resolveConsultationSeed,
@@ -44,6 +46,7 @@ interface ResultShape {
   odu: { name: string; signature: string; factualSummary: string; slug: string } | null;
   display: LocalDisplay;
   ayewo: AyewoResult | null;
+  iweVerse: IweVerse | null;
 }
 
 const posName = (i: number) => `${i < 4 ? "right" : "left"} leg, position ${(i % 4) + 1}`;
@@ -99,20 +102,30 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
         : null,
       display: resolveLocalDisplay(fact?.slug ?? null),
       ayewo,
+      iweVerse: null,
     };
   }
 
   async function buildResolvedResult(
     sig: string,
     ayewo: AyewoResult | null,
+    selectionKey: string,
   ): Promise<ResultShape> {
     const fallback = buildResult(sig, ayewo);
     if (!fallback.odu) return fallback;
     try {
-      const response = await fetch(`/api/interpretations?oduSlug=${encodeURIComponent(fallback.odu.slug)}`);
-      if (!response.ok) return fallback;
-      const payload = await response.json();
-      return { ...fallback, display: payload.display as LocalDisplay };
+      const slug = encodeURIComponent(fallback.odu.slug);
+      const [displayResponse, verseResponse] = await Promise.all([
+        fetch(`/api/interpretations?oduSlug=${slug}`),
+        fetch(`/api/verses?oduSlug=${slug}&key=${encodeURIComponent(selectionKey)}`),
+      ]);
+      const displayPayload = displayResponse.ok ? await displayResponse.json() : null;
+      const versePayload = verseResponse.ok ? await verseResponse.json() : null;
+      return {
+        ...fallback,
+        display: (displayPayload?.display as LocalDisplay | undefined) ?? fallback.display,
+        iweVerse: (versePayload?.verse as IweVerse | null | undefined) ?? null,
+      };
     } catch {
       return fallback;
     }
@@ -145,11 +158,16 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
         : userSelectedCast(signature);
     markProgressFlag("cast");
     setContinuity(null);
-    setResult(await buildResolvedResult(cast.signature, cast.ayewo));
+    setResult(await buildResolvedResult(cast.signature, cast.ayewo, `${mode}:${cast.signature}`));
     setStep("result");
   }
 
-  const finishAnimation = useCallback((all: number[], sig: string, ayewo: AyewoResult | null) => {
+  const finishAnimation = useCallback((
+    all: number[],
+    sig: string,
+    ayewo: AyewoResult | null,
+    selectionKey: string,
+  ) => {
     setMarks(all);
     setIkinStage(null);
     setWorkingSteps((st) => [
@@ -164,14 +182,14 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
     ]);
     after(600, async () => {
       setAnimating(false);
-      setResult(await buildResolvedResult(sig, ayewo));
+      setResult(await buildResolvedResult(sig, ayewo, selectionKey));
       setStep("result");
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [after]);
 
   const animateOpele = useCallback(
-    (realMarks: number[], sig: string, ayewo: AyewoResult | null) => {
+    (realMarks: number[], sig: string, ayewo: AyewoResult | null, selectionKey: string) => {
       setShaking(true);
       setChainLanded(false);
       setWorkingSteps([
@@ -197,14 +215,14 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
               ]);
             });
           });
-          after(8 * 850 + 400, () => finishAnimation(realMarks, sig, ayewo));
+          after(8 * 850 + 400, () => finishAnimation(realMarks, sig, ayewo, selectionKey));
         } else {
           setMarks(realMarks);
           setWorkingSteps((st) => [
             ...st,
             { n: "✓", text: "All eight pods read at once, right leg first, top to bottom." },
           ]);
-          after(500, () => finishAnimation(realMarks, sig, ayewo));
+          after(500, () => finishAnimation(realMarks, sig, ayewo, selectionKey));
         }
       });
     },
@@ -212,7 +230,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
   );
 
   const animateIkin = useCallback(
-    (realMarks: number[], sig: string, ayewo: AyewoResult | null) => {
+    (realMarks: number[], sig: string, ayewo: AyewoResult | null, selectionKey: string) => {
       setWorkingSteps([
         {
           n: "·",
@@ -221,7 +239,7 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
       ]);
       const round = (i: number) => {
         if (i === 8) {
-          after(500, () => finishAnimation(realMarks, sig, ayewo));
+          after(500, () => finishAnimation(realMarks, sig, ayewo, selectionKey));
           return;
         }
         setIkinStage({ round: i, phase: "beating" });
@@ -270,8 +288,8 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
     const cast = mode === "LEARNING" ? learningCast(newSeed) : simulatedCast(newSeed);
     markProgressFlag("cast");
     const realMarks = cast.signature.replace("|", "").split("").map(Number);
-    if (instrument === "opele") animateOpele(realMarks, cast.signature, cast.ayewo);
-    else animateIkin(realMarks, cast.signature, cast.ayewo);
+    if (instrument === "opele") animateOpele(realMarks, cast.signature, cast.ayewo, newSeed);
+    else animateIkin(realMarks, cast.signature, cast.ayewo, newSeed);
   }
 
   // The result is already known locally; this only persists it to the
@@ -427,32 +445,10 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
 
       {step === "cast" && animatedModes && (
         <div className="space-y-4">
-          <div className="mx-auto max-w-2xl rounded-[10px] border border-ifa-rust/40 bg-ifa-rust/[0.16] px-4 py-[9px] text-[13px] text-ifa-cream">
-            {mode === "SIMULATED" ? (
-              <>
-                One active consultation has one anchor. A materially new concern receives a
-                device-generated cast; similar wording on this device reuses it for 24 hours.
-                This is a digital integrity rule, not a claim of spiritual authority.
-              </>
-            ) : (
-              <>
-                Learning mode may be repeated freely so you can study the mechanics. Every
-                result is a transparent simulation, not spiritual authority.
-              </>
-            )}
-          </div>
-          {continuity && (
-            <div
-              role="status"
-              className={`mx-auto max-w-2xl rounded-[10px] border px-4 py-3 text-[13px] ${
-                continuity.reused
-                  ? "border-ifa-gold/40 bg-ifa-gold/[0.1] text-ifa-cream"
-                  : "border-ifa-sage/40 bg-ifa-sage/[0.1] text-ifa-cream"
-              }`}
-            >
-              {continuity.reused
-                ? "This matches an active concern, so the original seed and Odù are being replayed—not recast."
-                : "This is the first cast for this concern. A reduced fingerprint—not your question text—is kept on this device for 24 hours."}
+          {mode === "LEARNING" && (
+            <div className="mx-auto max-w-2xl rounded-[10px] border border-ifa-rust/40 bg-ifa-rust/[0.16] px-4 py-[9px] text-[13px] text-ifa-cream">
+              Learning mode may be repeated freely so you can study the mechanics. Every result
+              is a transparent simulation, not spiritual authority.
             </div>
           )}
           <CastingStage
@@ -510,7 +506,6 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
           <Result
             result={result}
             saveState={saveState}
-            continuity={continuity}
             onSave={saveConsultation}
             onAnother={beginAnotherConsultation}
           />
@@ -523,13 +518,11 @@ export function ConsultationFlow({ presetOduSlug }: { presetOduSlug?: string }) 
 function Result({
   result,
   saveState,
-  continuity,
   onSave,
   onAnother,
 }: {
   result: ResultShape;
   saveState: SaveState;
-  continuity: ContinuityDecision | null;
   onSave: () => void;
   onAnother: () => void;
 }) {
@@ -537,24 +530,6 @@ function Result({
   const display = result.display;
   return (
     <div className="space-y-6">
-      {continuity && (
-        <div className="rounded-xl border border-ifa-gold/30 bg-ifa-gold/[0.08] px-4 py-3 text-sm leading-relaxed text-ifa-cream/80">
-          {continuity.reused ? (
-            <>
-              <strong className="text-ifa-gold">Active consultation restored.</strong>{" "}
-              The wording still points to the same concern, so this is the original cast—not
-              another attempt at a different answer.
-            </>
-          ) : (
-            <>
-              <strong className="text-ifa-gold">This Odù is now the consultation&rsquo;s anchor.</strong>{" "}
-              Rewording the same concern will revisit it for the next 24 hours. A materially new
-              event, person, decision, or time horizon begins a new consultation.
-            </>
-          )}
-        </div>
-      )}
-
       <div className="card text-center">
         <p className="text-sm text-ifa-sage">Selected Odù</p>
         <h2 className="font-serif text-3xl text-ifa-gold">{odu?.name ?? "—"}</h2>
@@ -582,6 +557,8 @@ function Result({
         )}
         {display.citation && <p className="mt-1 text-xs text-ifa-sage">Citation: {display.citation}</p>}
       </div>
+
+      {result.iweVerse && <IweEse verse={result.iweVerse} />}
 
       {odu?.slug && (
         <EseVerses

@@ -19,6 +19,13 @@ An archived PDF is **not** publication approval. Each public passage needs:
 retain the source article's CC BY-NC-SA 4.0 terms. The surrounding metadata and
 editorial summaries are original project material.
 
+`iwe-fun-odu-ifa.json` is generated from the locally held 711-page scan after
+the project owner confirmed publication permission on 2026-07-20. It contains
+page-cited, source-spelling passages for 255 identified Odù sections. The build
+does not invent an Òfún–Ogbè section, which is not independently identifiable
+in this scan, and excludes passages that function as actionable spells,
+medicines, or violent instructions.
+
 The Lijadu scan is a high-value public-domain lead, but its old orthography,
 missionary framing, and lack of a modern rights-clean translation mean it stays
 in transcription review. We will not turn OCR into “authentic” Ẹsẹ automatically.

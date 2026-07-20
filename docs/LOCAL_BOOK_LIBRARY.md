@@ -30,13 +30,13 @@ Odù names. Its SHA-256 is
 `149cea153e8c4f2b5be29c6f626b80cd20bc0431c8a6f231b28156473724b450`.
 
 The book's PDF page 4 claims copyright for 2011–2018 and says that no part may
-be reproduced without author or publisher permission. It therefore remains
-`LOCAL_RESEARCH_ONLY` / `PENDING`: use it to locate candidate passages and
-compare Odù assignments, but do not show its text in a public consultation.
-Before a candidate verse can appear on the site, record its exact printed and
-PDF pages, confirm its Odù and Yorùbá with a practitioner, document translation
-and orthography, and obtain written publication permission from the rights
-holder.
+be reproduced without author or publisher permission. The project owner
+confirmed that publication permission had been obtained on 2026-07-20. The
+public, generated corpus records that permission, exact printed/PDF pages,
+source spelling, and Odù assignment in
+`content/ese-ifa/iwe-fun-odu-ifa.json`. Rebuild it with
+`npm run sources:iwe`; actionable spell, medicine, and violent-instruction
+passages are excluded automatically.
 
 ## Canonical open-source shelf
 

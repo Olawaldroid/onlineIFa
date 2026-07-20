@@ -20,6 +20,7 @@
     "books:index": "node scripts/ocr-local-books.cjs && node scripts/index-local-books.cjs && npm run books:translate && node scripts/build-english-book-index.cjs",
     "books:ingest": "node scripts/ingest-local-books.cjs",
     "books:notes": "node scripts/build-research-notes.cjs",
+    "sources:iwe": "python scripts/build-iwe-corpus.py",
     "sources:verify": "node scripts/verify-ese-sources.cjs --require-all"
   },
   "prisma": {
