@@ -34,6 +34,7 @@ export function CastingStage({
   busy,
   animating,
   marks,
+  landedMarks,
   workingSteps,
   shaking,
   chainLanded,
@@ -48,6 +49,7 @@ export function CastingStage({
   busy: boolean;
   animating: boolean;
   marks: number[];
+  landedMarks: number[];
   workingSteps: WorkingStep[];
   shaking: boolean;
   chainLanded: boolean;
@@ -99,8 +101,8 @@ export function CastingStage({
                 <HangingChain shaking={shaking} />
               ) : (
                 <div className="flex gap-[60px]">
-                  <LandedStrand label="ÒSÌ · LEFT" marks={marks} offset={4} />
-                  <LandedStrand label="Ọ̀TÚN · RIGHT" marks={marks} offset={0} />
+                  <LandedStrand label="ÒSÌ · LEFT" marks={landedMarks} offset={4} side="left" />
+                  <LandedStrand label="Ọ̀TÚN · RIGHT" marks={landedMarks} offset={0} side="right" />
                 </div>
               )}
             </div>
@@ -227,37 +229,69 @@ function InstrumentButton({ active, onClick, title, sub, disabled }: { active: b
 
 function HangingChain({ shaking }: { shaking: boolean }) {
   return (
-    <div className="flex flex-col items-center">
-      <div className="h-[22px] w-14 shadow-[0_4px_10px_rgba(0,0,0,.4)]" style={{ borderRadius: "12px 12px 18px 18px", background: "linear-gradient(#8a5a33,#5d3a20)" }} />
-      <div className="flex origin-top gap-[38px] pt-1" style={{ animation: shaking ? "omSwing .5s ease-in-out infinite" : "omSwing 3.8s ease-in-out infinite" }}>
-        {[5, -5].map((rot) => (
-          <div key={rot} className="flex origin-top flex-col items-center gap-1" style={{ transform: `rotate(${rot}deg)` }}>
-            {[0, 1, 2, 3].map((i) => (
-              <div key={i} className="contents">
-                <div className="h-[13px] w-1 rounded-sm bg-ifa-gold/45" />
-                <div className="h-10 w-[30px] shadow-[0_3px_6px_rgba(0,0,0,.35)]" style={{ borderRadius: "50% 50% 46% 46%", background: "radial-gradient(circle at 36% 28%, #7a4a26, #462c1a)" }} />
-              </div>
-            ))}
-          </div>
-        ))}
+    <div className="opele-perspective flex min-h-[230px] flex-col items-center justify-start">
+      <div
+        className={`opele-chain ${shaking ? "opele-chain-casting" : ""}`}
+        role="img"
+        aria-label={shaking ? "Ọ̀pẹ̀lẹ̀ cast unfolding away from the diviner" : "Ọ̀pẹ̀lẹ̀ held at its midpoint"}
+      >
+        <div className="opele-grip h-[22px] w-14 shadow-[0_4px_10px_rgba(0,0,0,.4)]" style={{ borderRadius: "12px 12px 18px 18px", background: "linear-gradient(#8a5a33,#5d3a20)" }} />
+        <div className="opele-arms flex origin-top gap-[38px] pt-1">
+          {["left", "right"].map((side) => (
+            <div key={side} className={`opele-arm opele-arm-${side} flex origin-top flex-col items-center gap-1`}>
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="contents">
+                  <div className="h-[13px] w-1 rounded-sm bg-ifa-gold/45" />
+                  <div
+                    className="opele-flight-pod h-10 w-[30px] shadow-[0_3px_6px_rgba(0,0,0,.35)]"
+                    style={{
+                      borderRadius: "50% 50% 46% 46%",
+                      background: "radial-gradient(circle at 36% 28%, #7a4a26, #462c1a)",
+                      animationDelay: shaking ? `${220 + i * 105}ms` : undefined,
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
       <div className="mt-4 text-[13.5px] text-ifa-cream/60">
-        {shaking ? "The chain is swung…" : "The ọ̀pẹ̀lẹ̀ hangs ready, two strands of four pods."}
+        {shaking
+          ? "The midpoint leads; the free ends unfurl outward and settle nearest the diviner…"
+          : "The ọ̀pẹ̀lẹ̀ hangs ready — four pods on each side of the midpoint."}
       </div>
     </div>
   );
 }
 
-function LandedStrand({ label, marks, offset }: { label: string; marks: number[]; offset: number }) {
+function LandedStrand({
+  label,
+  marks,
+  offset,
+  side,
+}: {
+  label: string;
+  marks: number[];
+  offset: number;
+  side: "left" | "right";
+}) {
   return (
-    <div className="relative flex flex-col items-center gap-3">
+    <div className={`opele-landed-strand opele-landed-${side} relative flex flex-col items-center gap-3`}>
       <div className="absolute left-1/2 top-[34px] bottom-[30px] w-[3px] -translate-x-1/2 rounded-sm" style={{ background: "linear-gradient(rgba(90,61,36,.9),rgba(90,61,36,.45))" }} />
       <div className="text-[10.5px] tracking-[0.2em] text-ifa-sage">{label}</div>
       {[0, 1, 2, 3].map((i) => {
         const m = marks[offset + i];
         const drawn = m !== undefined;
         return (
-          <div key={i} className="relative z-[1] flex flex-col items-center gap-[5px] opacity-0" style={{ animation: drawn ? "omFlipIn .55s ease both" : "none" }}>
+          <div
+            key={i}
+            className="relative z-[1] flex flex-col items-center gap-[5px] opacity-0"
+            style={{
+              animation: drawn ? "omOpeleLand .62s cubic-bezier(.2,.75,.3,1) both" : "none",
+              animationDelay: drawn ? `${i * 90}ms` : undefined,
+            }}
+          >
             <div
               className={`flex h-[58px] w-[46px] items-center justify-center border-2 shadow-[0_4px_10px_rgba(0,0,0,.35)] ${drawn ? "border-ifa-gold/60" : "border-ifa-border"}`}
               style={{ borderRadius: "50% 50% 46% 46%", background: drawn ? "radial-gradient(circle at 38% 30%, #7a4a26, #4a2f1c)" : "radial-gradient(circle at 38% 30%, #6b4426, #3f2917)" }}
