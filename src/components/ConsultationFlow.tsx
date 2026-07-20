@@ -12,6 +12,7 @@ import { resolveLocalDisplay, LocalDisplay } from "@/lib/interpretation/localDis
 import { EseVerses } from "./EseVerses";
 import { versesForOdu } from "@/lib/content/verses";
 import { IboRefinement } from "./IboRefinement";
+import { EboClosing } from "./EboClosing";
 
 const AREAS = [
   "GENERAL", "HEALTH", "FAMILY", "MARRIAGE", "MONEY",
@@ -444,6 +445,8 @@ function Result({ result, saveState, onSave }: { result: ResultShape; saveState:
       </div>
 
       {odu?.slug && <EseVerses verses={versesForOdu(odu.slug)} heading="Ifá speaks" />}
+
+      <EboClosing />
 
       <IboRefinement />
 
