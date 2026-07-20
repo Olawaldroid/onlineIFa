@@ -129,11 +129,10 @@ a {
   45%, 55% { transform: translateX(-152px); }
 }
 @keyframes omFinger {
-  0% { transform: translate(-50%, -47px) rotate(-2deg) scale(0.96); opacity: 0; }
-  14% { opacity: 1; }
-  25% { transform: translate(-50%, -32px) rotate(0deg) scale(1); opacity: 1; }
-  78% { transform: translate(-50%, 20px) rotate(1deg) scale(1); opacity: 1; }
-  100% { transform: translate(-50%, 31px) rotate(2deg) scale(0.98); opacity: 0; }
+  0% { transform: translate(-50%, -30px) scale(0.97); opacity: 0; }
+  25% { transform: translate(-50%, -4px) scale(1); opacity: 1; }
+  80% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, 5px) scale(0.98); opacity: 0; }
 }
 
 /* Carved tray rim: repeating notch ring, hollowed with a radial mask. */
@@ -169,8 +168,10 @@ a {
 }
 
 .lab-drawing-hand {
-  top: -69px;
-  background-position: center;
+  /* Positioned so the FINGERTIP rests on the mark it is drawing; the rest of
+     the hand trails down into the (still empty) rows below. */
+  top: -11px;
+  background-position: center top;
   background-repeat: no-repeat;
   background-size: contain;
   filter: drop-shadow(0 7px 5px rgba(45, 27, 14, 0.3));
