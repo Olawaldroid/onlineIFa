@@ -7,6 +7,7 @@ import { EseVerses } from "@/components/EseVerses";
 import { versesForOdu } from "@/lib/content/verses";
 import { PageSection } from "@/components/PageSection";
 import { MarkOduVisited } from "@/components/MarkOduVisited";
+import { OduAssistant } from "@/components/OduAssistant";
 
 // Odù library detail flow — shows name, slug, signature, rank, legs, type,
 // themes, related Odù, verses, interpretations by source, contributor notes,
@@ -98,6 +99,8 @@ export default async function OduDetailPage({ params }: { params: { slug: string
       </section>
 
       <EseVerses verses={versesForOdu(fact.slug)} />
+
+      <OduAssistant initialOduSlug={fact.slug} compact />
 
       {proverbs.length > 0 && (
         <section className="card">

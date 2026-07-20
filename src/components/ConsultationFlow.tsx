@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import { IboGlyph } from "@/components/IfaArtifactGlyphs";
 import { SignatureDisplay } from "./SignatureDisplay";
 import { CastingStage, Instrument, IkinStage, WorkingStep } from "./CastingStage";
 import { markProgressFlag } from "@/lib/progress";
@@ -582,7 +583,12 @@ function Result({
         {display.citation && <p className="mt-1 text-xs text-ifa-sage">Citation: {display.citation}</p>}
       </div>
 
-      {odu?.slug && <EseVerses verses={versesForOdu(odu.slug)} heading="Ifá speaks" />}
+      {odu?.slug && (
+        <EseVerses
+          verses={versesForOdu(odu.slug)}
+          heading="A recorded Ẹsẹ associated with this Odù"
+        />
+      )}
 
       <EboClosing />
 
@@ -717,24 +723,10 @@ function IboObject({
           : "border-ifa-border bg-ifa-bg/30 opacity-55"
       }`}
     >
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 96 72"
-        className="mx-auto h-16 w-20"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        {kind === "cowries" ? (
-          <>
-            <path d="M10 37C10 20 22 9 37 10c13 1 21 12 19 27-2 16-12 25-27 24C17 60 10 51 10 37Z" fill="#E7D5AA" stroke="#8A5A33" strokeWidth="2" />
-            <path d="M27 18c-7 9-8 29 2 36M39 17c7 11 7 26-1 37" stroke="#8A5A33" strokeWidth="2" strokeLinecap="round" />
-            <path d="M43 38c0-16 10-27 25-27 13 0 21 10 19 25-2 17-12 26-27 25-11-1-17-10-17-23Z" fill="#F1DFC0" stroke="#8A5A33" strokeWidth="2" />
-            <path d="M59 18c-7 11-7 27 2 36M72 17c7 11 6 27-2 37" stroke="#8A5A33" strokeWidth="2" strokeLinecap="round" />
-          </>
-        ) : (
-          <path d="M19 26c-7-7-3-16 5-17 5-1 8 2 11 6l27 30c4-2 8-1 11 2 6 6 2 16-6 16-5 0-8-3-10-7L30 27c-4 3-8 3-11-1Z" fill="#D8C8AA" stroke="#795B3D" strokeWidth="2.5" strokeLinejoin="round" />
-        )}
-      </svg>
+      <IboGlyph
+        variant={kind}
+        className="mx-auto h-16 w-24"
+      />
       <div className={`font-serif text-lg ${selected ? "text-ifa-gold" : "text-ifa-cream"}`}>
         {label}{selected ? " · selected" : ""}
       </div>

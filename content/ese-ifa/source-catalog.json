@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "downloadedAt": "2026-07-20",
+  "policy": "A locally archived article or public-domain scan is a research source, not an automatically publishable verse corpus. Publication requires verse-level rights, an exact locator, checked Yorùbá, and practitioner review.",
+  "sources": [
+    {
+      "id": "src-pogoson-akande-2011",
+      "title": "Ifa Divination Trays from Isale-Oyo",
+      "authors": "O. I. Pogoson and A. O. Akande",
+      "year": 2011,
+      "canonicalUrl": "https://journals.openedition.org/cea/196",
+      "rightsUrl": "https://journals.openedition.org/cea/246",
+      "rights": "CC-BY-NC-SA-4.0",
+      "localPath": "docs/originals/open-sources/pogoson-akande-2011-isale-oyo.pdf",
+      "sha256": "45970b2279f09df71cba22a4a14719be4a1fd44e8c95ff08f7e671c72aca4a3b",
+      "bytes": 5779234,
+      "pages": 27,
+      "status": "PUBLISHED_EXCERPTS",
+      "use": "Four source-recorded verses and one closing pattern, non-commercially quoted with page-level attribution. No silent orthographic modernization."
+    },
+    {
+      "id": "src-lijadu-1908-orunmila-nipa",
+      "title": "Ọ̀rúnmìlà! Nipa",
+      "authors": "E. M. Lijadu",
+      "year": 1908,
+      "canonicalUrl": "https://calmview.bham.ac.uk/Record.aspx?id=XHT%2FB%2F43%2F36%3F&src=CalmView.Catalog",
+      "downloadUrl": "https://temployorubapr.com/wp-content/uploads/2023/05/EM_Lijadu_1908_Orunmila_Nipa.pdf",
+      "rights": "PUBLIC-DOMAIN-UNDERLYING-TEXT",
+      "localPath": "docs/originals/open-sources/lijadu-1908-orunmila-nipa-public-domain.pdf",
+      "sha256": "c84d4c3cf371fb313f51b8b3df6438dad3b27635e4bc5d418b125d68f4bce040",
+      "bytes": 15311156,
+      "pages": 90,
+      "status": "TRANSCRIPTION_REVIEW",
+      "use": "Research and controlled transcription only. Exclude missionary framing; verify each Odù assignment, restore orthography with a Yorùbá specialist, create a new translation, and obtain lineage review before publication."
+    },
+    {
+      "id": "src-ofuasia-2023-hell-ifa-corpus",
+      "title": "Is There Any Evidence for Hell in the Ifá Literary Corpus?",
+      "authors": "Emmanuel Ofuasia",
+      "year": 2023,
+      "canonicalUrl": "https://www.mdpi.com/2077-1444/14/11/1416",
+      "downloadUrl": "https://repository.up.ac.za/server/api/core/bitstreams/d58fbeb9-be1e-471a-9111-02979994fa72/content",
+      "rights": "CC-BY-4.0",
+      "localPath": "docs/originals/open-sources/ofuasia-2023-hell-ifa-literary-corpus.pdf",
+      "sha256": "b4e48f84f5e23d8d9eca04ccbde4473aa166abd2f4dcd2a8efc7a4580c35bab5",
+      "bytes": 318405,
+      "pages": 10,
+      "status": "PERFORMER_PERMISSION_REVIEW",
+      "use": "Two field-recorded bilingual verses are promising, but obtain or document performer consent and practitioner review before corpus publication."
+    },
+    {
+      "id": "src-olomu-lawal-dosumu-2023-iwure",
+      "title": "Spirito-Physical Relevance of Iwure in the Growth and Development of Human Beings",
+      "authors": "Olomu and Lawal-Dosumu",
+      "year": 2023,
+      "canonicalUrl": "https://journal.hmjournals.com/index.php/JHMD/article/view/3309",
+      "downloadUrl": "https://journal.hmjournals.com/index.php/JHMD/article/download/3309/2731/6003",
+      "rights": "CC-BY-4.0",
+      "localPath": "docs/originals/open-sources/olomu-lawal-dosumu-2023-iwure.pdf",
+      "sha256": "fe4df0317fe8780cbf6b15f5d5c916301a5de9463c3f88c8d628cd24d48401e0",
+      "bytes": 638932,
+      "pages": 15,
+      "status": "PRACTITIONER_REVIEW",
+      "use": "The Ọ̀sá-Ìrẹtẹ̀ example is a useful comparison with public-domain Lijadu text. Verify lineage, performer rights, transcription, and translation before publication."
+    }
+  ]
+}

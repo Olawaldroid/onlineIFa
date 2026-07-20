@@ -6,10 +6,11 @@ keep the project honest about where facts come from and to keep the
 facts/interpretation boundary clean.
 
 > **Method:** We use these sources for *facts* (structure, names, instruments)
-> and to understand widely-shared cultural *themes*. We do **not** copy any
-> interpretation text. All interpretation content in the app is original
-> (`src/lib/odu/interpretations.ts`) or contributor-submitted and reviewed.
-> Sources marked copyrighted are cited for facts/attribution only.
+> and to understand widely-shared cultural *themes*. Interpretation content is
+> original (`src/lib/odu/interpretations.ts`) or contributor-submitted and
+> reviewed. A small number of Ẹsẹ passages are quoted from explicitly licensed
+> sources through a separate page-cited provenance manifest. Sources marked
+> copyrighted are cited for facts/attribution only.
 
 ---
 
@@ -76,6 +77,10 @@ legs identical for Méjì):
 
 | Source | Type | Licence | Permission | How we use it |
 |--------|------|---------|------------|---------------|
+| Pogoson & Akande, *Ifa Divination Trays from Isale-Oyo* (2011) | Peer-reviewed article / field record | **CC BY-NC-SA 4.0** | GRANTED while site remains non-commercial | Four page-cited bilingual passages and one recorded closing pattern; exact source orthography retained |
+| E. M. Lijadu, *Ọ̀rúnmìlà! Nipa* (1908) | Early Yorùbá text | **Public-domain underlying text** | LOCAL REVIEW ONLY | Locally archived for controlled transcription; requires new translation, orthography review, and lineage review before publication |
+| Ofuasia, *Is There Any Evidence for Hell in the Ifá Literary Corpus?* (2023) | Open-access field record | **CC BY 4.0** | PERFORMER REVIEW | Locally archived; two named-performer passages are candidates, not yet public corpus entries |
+| Olomu & Lawal-Dosumu, *Spirito-Physical Relevance of Iwure…* (2023) | Open-access article | **CC BY 4.0** | PRACTITIONER REVIEW | Locally archived for comparison with the Lijadu record; not yet public corpus content |
 | Wikipedia — *Ifá*, *Odu Ifa* | Encyclopaedia | CC BY-SA 4.0 (older edits 3.0) | GRANTED (attribution + share-alike) | Factual structure, names, instruments |
 | *African Traditional Religions Textbook: Ifa* (Pressbooks / OER) | Open educational resource | **CC BY-NC 4.0** (attrib. Will Coleman & Awo Fa'lokun Fatunmbi) | GRANTED (non-commercial) | Thematic grounding, educational depth |
 | Ellis, *The Yoruba-Speaking Peoples of the Slave Coast* (1894) | Ethnography | **Public domain** (archive.org) | NOT_REQUIRED | Historical/structural facts (read critically) |
@@ -96,6 +101,18 @@ These are seeded as `Source` rows so the permission flow is exercised from day
 one (see `prisma/seed.ts`). Copyrighted sources are stored with
 `permissionStatus = PENDING`/attribution-only and **cannot** back published
 verse text until permission is `GRANTED`.
+
+### Why there is no “complete 256-Odù verse download”
+
+No credible, rights-clean, definitive 256-Odù corpus was found. Ifá is a living
+oral corpus with many verses and lineage variants under each Odù. Search results
+that promise a complete free corpus frequently reproduce copyrighted Abímbọ́lá,
+Bascom, Epega, or modern Lijadu translations without permission. We do not use
+those copies.
+
+The long-term route is a commissioned corpus: named practitioners record,
+transcribe, translate, and approve passages under a clear reuse agreement.
+Until then, a result with no reviewed passage says so instead of fabricating one.
 
 ## 5. Principles applied
 

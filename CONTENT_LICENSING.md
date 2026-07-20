@@ -21,6 +21,11 @@ constraint, enforced in code.
    `licenceType` and `permissionStatus`, plus attribution text.
 5. Until original/approved content exists, the app shows:
    *"This Odù has not yet been reviewed by a contributor."*
+6. An article-level open licence does not automatically clear every quotation
+   it contains. Verse-level provenance records the performer, exact page,
+   translation, orthography, changes, and review state.
+7. Material under a non-commercial licence is suppressed automatically when
+   `NEXT_PUBLIC_SITE_COMMERCIAL=true`.
 
 ## Accepted source types
 
@@ -33,6 +38,20 @@ constraint, enforced in code.
 | `ORAL_TRADITION` | Transcribed oral tradition, attributed to lineage |
 | `ACADEMIC` | Cited academic work (facts/attribution only) |
 
+## Published Ẹsẹ corpus
+
+The first public source record is
+[`content/ese-ifa/pogoson-akande-2011.json`](content/ese-ifa/pogoson-akande-2011.json).
+It contains four passages recorded from named Isale-Ọyọ diviners and one
+documented closing pattern from Pogoson & Akande (2011), with exact printed and
+PDF page locators, DOI, translation credit, orthography warning, and review
+note. The journal applies **CC BY-NC-SA 4.0**. Quoted/adapted material retains
+those terms.
+
+The public interface calls these “source-verified,” not
+“practitioner-approved.” It also states that association with an Odù does not
+mean the app has selected the personally relevant verse for a seeker.
+
 ## Enforcement points
 
 - [`src/lib/interpretation/gate.ts`](src/lib/interpretation/gate.ts) — visibility
@@ -41,6 +60,11 @@ constraint, enforced in code.
   — approval is blocked unless the source is publishable.
 - [`src/lib/ai/retrieval.ts`](src/lib/ai/retrieval.ts) — the assistant can only
   read approved, permission-clean content.
+- [`src/lib/content/versePublication.ts`](src/lib/content/versePublication.ts)
+  — the shared database verse gate used by search and AI, including the
+  non-commercial licence check.
+- [`content/ese-ifa/source-catalog.json`](content/ese-ifa/source-catalog.json)
+  — hashes and review status for locally archived research documents.
 
 ## Attribution
 

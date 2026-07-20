@@ -20,6 +20,26 @@ source-permission, citation, or publication gates. Copyrighted book text must
 not be displayed publicly or copied into approved interpretations without the
 necessary permission.
 
+## Canonical open-source shelf
+
+Reusable and candidate source documents are kept separately under
+`docs/originals/open-sources/`. The tracked
+`content/ese-ifa/source-catalog.json` records each download URL, rights posture,
+local filename, byte size, page count, SHA-256 hash, and review state. This
+keeps a public-domain or Creative Commons document distinct from private books
+while still preventing multi-megabyte PDFs from entering the repository.
+
+The current local shelf contains:
+
+- Pogoson & Akande (2011), the source for the four public, page-cited passages;
+- E. M. Lijadu (1908), public-domain underlying Yorùbá text in transcription review;
+- Ofuasia (2023), CC BY 4.0, awaiting performer/practitioner clearance; and
+- Olomu & Lawal-Dosumu (2023), CC BY 4.0, awaiting practitioner review.
+
+Local availability never changes publication status. A passage reaches the
+site only through a checked-in file under `content/ese-ifa/` and the same
+approval/permission gates used by search and AI retrieval.
+
 ## Durable no-database content
 
 Community submissions, review decisions, reviewer comments, and file-backed

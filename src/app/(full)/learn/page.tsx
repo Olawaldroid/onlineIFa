@@ -7,6 +7,7 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { Photo } from "@/components/Photo";
 import { MathExplorer } from "@/components/MathExplorer";
 import { IfagrithmAccordion } from "@/components/IfagrithmAccordion";
+import { GamesPanel } from "@/components/GamesPanel";
 import { FACETS, CS_CARDS } from "@/lib/content/learn";
 
 // Learn Ifá — what Ifá is, how the corpus combines, the mathematics behind
@@ -94,8 +95,17 @@ export default function LearnPage() {
         </div>
       </PageSection>
 
+      <PageSection id="practice" tone="dark">
+        <SectionHeading num="03" title="Practice reading the figures" />
+        <p className="mb-0 mt-5 max-w-[660px] text-base leading-[1.7] text-ifa-cream/75">
+          Train your eye on the principal Odù and their marks. This is learning practice, separate
+          from consultation.
+        </p>
+        <GamesPanel />
+      </PageSection>
+
       <PageSection tone="light">
-        <SectionHeading num="03" title="The Mathematics of Ifá" light />
+        <SectionHeading num="04" title="The Mathematics of Ifá" light />
         <p className="mb-0 mt-5 max-w-[660px] text-[16.5px] leading-[1.7] text-ifa-ink/75">
           Each figure of Ifá is written as two columns of four positions, and each position holds a
           single or a double mark. Eight binary positions: 2⁸ = 256 figures. The structure has been
@@ -105,7 +115,7 @@ export default function LearnPage() {
       </PageSection>
 
       <PageSection tone="light">
-        <SectionHeading num="04" title="Ifá & Computer Science" light />
+        <SectionHeading num="05" title="Ifá & Computer Science" light />
         <p className="mb-0 mt-5 max-w-[680px] text-[16.5px] leading-[1.7] text-ifa-ink/75">
           The structures of Ifá and the structures of computing rhyme in striking ways. These are
           comparisons between ideas — Ifá did not invent computing, and computing does not explain
@@ -126,7 +136,7 @@ export default function LearnPage() {
       </PageSection>
 
       <PageSection tone="deep">
-        <div className="mb-3.5 text-xs tracking-[0.34em] text-ifa-peri">SECTION 05 · FIELD NOTES</div>
+        <div className="mb-3.5 text-xs tracking-[0.34em] text-ifa-peri">SECTION 06 · FIELD NOTES</div>
         <h2 className="m-0 font-serif text-4xl font-medium leading-[1.1] text-ifa-cream sm:text-[54px]">
           IFÀGRÌTHM<span className="text-ifa-gold">.</span>
         </h2>

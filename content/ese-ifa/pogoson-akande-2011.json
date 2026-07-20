@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "id": "src-pogoson-akande-2011",
+    "title": "Ifa Divination Trays from Isale-Oyo",
+    "authors": ["O. I. Pogoson", "A. O. Akande"],
+    "year": 2011,
+    "journal": "Cadernos de Estudos Africanos",
+    "issue": "21",
+    "articlePages": "15–41",
+    "doi": "10.4000/cea.196",
+    "canonicalUrl": "https://journals.openedition.org/cea/196",
+    "licence": {
+      "spdx": "CC-BY-NC-SA-4.0",
+      "label": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "policyUrl": "https://journals.openedition.org/cea/246",
+      "verifiedAt": "2026-07-20",
+      "scopeNote": "Quoted text is reused non-commercially with attribution and without silent editorial normalization. Share-alike applies to adapted quoted material."
+    },
+    "localCopy": {
+      "path": "docs/originals/open-sources/pogoson-akande-2011-isale-oyo.pdf",
+      "sha256": "45970b2279f09df71cba22a4a14719be4a1fd44e8c95ff08f7e671c72aca4a3b",
+      "pageCount": 27
+    },
+    "translationCredit": "English translations as printed by Pogoson and Akande (2011).",
+    "transcriptionNote": "The Yorùbá and English lines are reproduced as printed. The paper does not consistently print tone marks; Online Ifá has not silently modernized the orthography.",
+    "reviewNote": "The passages are source-verified quotations attributed by the article to named Isale-Ọyọ diviners. They have not yet received a separate lineage or practitioner review inside Online Ifá."
+  },
+  "verses": [
+    {
+      "id": "ese-pogoson-2011-oyeku-meji-leopard",
+      "oduSlug": "oyeku-meji",
+      "recordedFrom": "Ojebode Fabiyi, diviner",
+      "recordedPlace": "Isale-Ọyọ",
+      "recordedYear": 2011,
+      "context": "A verse of Ọ̀yẹ̀kú Méjì about the killing of a great leopard and the sharing of its body between kings. The article records it while explaining big cats carved on divination trays.",
+      "printedPages": "37–38",
+      "pdfPages": "23–24",
+      "excerpt": true,
+      "yoruba": [
+        "Oni ni won roko leti opon",
+        "Ola ni won sakaa lagbe …",
+        "Oni la o kun Ifa Olukorokorobojo",
+        "Ola la o kun Ifa Olukorokorobojo",
+        "Ani won o kun, Won kun",
+        "Won pa Ekun kan minijo-minijo",
+        "Ti nbe ni abe iti",
+        "Won gbe ori re fun Oba Ido",
+        "Omo Ejiworogbe Ile Ido",
+        "Won gbe yegese ara re fun Oba Eleyo Geji",
+        "Omo ajoju ebo gbara"
+      ],
+      "english": [
+        "Today we shall clear the forest on the edges of the tray",
+        "Tomorrow we shall fry bean cake in a gourd (impossibilities) …",
+        "Today we will divide it, a divination of Olukorokorobojo",
+        "Tomorrow we will cut it to pieces, a divination of Olukorokorobojo",
+        "We asked them to butcher it, they did",
+        "They killed a big tiger",
+        "They cover it and kept it under the plantain trees",
+        "They gave its head to the king of Ido",
+        "The son of Ejiworogbe of Ido",
+        "Another part was given to King Eleyo Geji",
+        "The one that thrives on sacrifice"
+      ]
+    },
+    {
+      "id": "ese-pogoson-2011-ogbe-ofun-esu-monkey",
+      "oduSlug": "ogbe-ofun",
+      "recordedFrom": "Fatokun Morakinyo, Oba Edu (Ifá chief)",
+      "recordedPlace": "Isale-Ọyọ",
+      "recordedYear": 2011,
+      "context": "The opening of the Ogbè Òfún story in which Èṣù tests Ọ̀rúnmìlà with a borrowed monkey. The article records it while discussing Èṣù's face on the head of a divination tray.",
+      "printedPages": "28",
+      "pdfPages": "14",
+      "excerpt": true,
+      "yoruba": [
+        "Ogbefohun folohun",
+        "Nko fohun folohun",
+        "Adia fun Esu on gbogbo irunmole ti won jo nsore",
+        "Adia fun Orunmila oun Esu odara ti won jo nsore"
+      ],
+      "english": [
+        "Ogbe return what was kept in your custody to the owner",
+        "No, I will not return it",
+        "The same performed divination for Esu and all other divinities who were friends",
+        "It also performed divination for Orunmila and Esu who were friends"
+      ]
+    },
+    {
+      "id": "ese-pogoson-2011-okanran-osa-snake",
+      "oduSlug": "okanran-osa",
+      "recordedFrom": "Fasakin, diviner",
+      "recordedPlace": "Isale-Ọyọ",
+      "recordedYear": 2009,
+      "context": "The verse of the Snake: harmless at creation and used for tying firewood, the snake sacrifices and receives its venom. The article records it while explaining snakes carved on tray borders.",
+      "printedPages": "31–32",
+      "pdfPages": "17–18",
+      "excerpt": false,
+      "yoruba": [
+        "Okaran Osa, awo Ejo",
+        "Adia fun ejo",
+        "Ejo nbe laarin ota",
+        "Nigba iwase",
+        "Ejo ko loro",
+        "Itakun ni ejo, won fi ndigi lati oko wale",
+        "Ejo to awon babalawo lo",
+        "Won ni ko bo ori",
+        "Ejo bo ori",
+        "Won ni ko rubo okini",
+        "O rubo",
+        "Ejo di oloro",
+        "Ejo di ohun iberu",
+        "Ori kan ti ejo ni",
+        "Nii fi tugba ori ka"
+      ],
+      "english": [
+        "Okaran Osa is the divination for the Snake",
+        "The Snake consulted ifa for solution",
+        "He was amidst enemies",
+        "At the time of creation",
+        "Snake was harmless",
+        "Snake was used for tying firewood",
+        "Snake could no longer contain this insult, he went to the diviner",
+        "He was asked to sacrifice in honour of his head",
+        "He performed the sacrifice",
+        "He was asked to sacrifice needle",
+        "He did",
+        "Snake became poisonous with venom",
+        "It became frightful",
+        "A snake has only one head",
+        "Yet, its appearance sends several heads restless"
+      ]
+    },
+    {
+      "id": "ese-pogoson-2011-ogunda-owonrin-pilgrim",
+      "oduSlug": "ogunda-owonrin",
+      "recordedFrom": "Ojebode Fabiyi, diviner",
+      "recordedPlace": "Isale-Ọyọ",
+      "recordedYear": 2011,
+      "context": "From Ògúndá Ọ̀wọ́nrín (also called Ogundanlare): a pilgrim's plea to Ifá for the prosperity given to others, ending with the honour of a horse. The article records it while explaining horsemen carved in Ifá art.",
+      "printedPages": "35–37",
+      "pdfPages": "21–23",
+      "excerpt": true,
+      "yoruba": [
+        "Emi ko ri eni ti nrele Alara",
+        "Ko ba mi ki gbogbo omo won nile Alara",
+        "Emi o ri eni tin lo si ode Ejigbo",
+        "Ko ba mi ki Orisatalabi ara ode Ejigbo …",
+        "Ifa ise re ni mo je kiri, n go je ngo mu",
+        "Ti mo fi de Oke Ijeti ile Agboniregun",
+        "Won ni iwo lo se fun Olu ti Olu fi lowo",
+        "Ifa ire ni ko se fun mi ki nlowo …",
+        "Ojo ti Owarangun Aga ku",
+        "Esin ni won fi ru oku Owarangun Aga wale",
+        "Ti mo ba gbogbogbo, ti mo ba tototo",
+        "Esin ni ki omo o fi ru oku mi dan dan dan"
+      ],
+      "english": [
+        "Whoever is going to Alara",
+        "Should salute inhabitants of Alara",
+        "Whoever is going to Ejigbo",
+        "Should salute Orisatalabi the son of Ejigbo …",
+        "Ifa it is your instructions that I am carrying out, that made me not eat nor drink",
+        "Till I got to Oke Ijeti the abode of Agboniregun",
+        "I overheard that you (Ifa) helped Olu to make plenty money",
+        "Ifa favour me also to make money …",
+        "The day Owarangun died",
+        "His corpse was transported home on a horse",
+        "Ifa, when I am old and aged",
+        "Let my children carry my corpse with horses"
+      ]
+    }
+  ],
+  "supplementaryPassages": [
+    {
+      "id": "ese-pogoson-2011-closing-pattern",
+      "kind": "RECORDED_CLOSING_PATTERN",
+      "recordedFrom": "A closing pattern described by Pogoson and Akande",
+      "recordedPlace": "Isale-Ọyọ",
+      "recordedYear": 2011,
+      "context": "The article gives these lines as a pattern used to close many narratives after the prescribed sacrifice has been performed. Online Ifá does not treat it as a universal close or prescribe an offering.",
+      "printedPages": "22",
+      "pdfPages": "8",
+      "excerpt": true,
+      "yoruba": [
+        "Igba ti o dafa",
+        "Won ni ebo ni o waa ru.",
+        "O si ru u.",
+        "Igba o rubo tan…",
+        "Lo ba dipe ohun gbogbo nlo deede.",
+        "Orin awo wa bo si lenu…"
+      ],
+      "english": [
+        "He took his problems to ifa",
+        "He was told to perform sacrifice,",
+        "And he performed it.",
+        "After he performed the sacrifice",
+        "He became a happy man.",
+        "He started to sing the song of ifa priests…"
+      ]
+    }
+  ]
+}

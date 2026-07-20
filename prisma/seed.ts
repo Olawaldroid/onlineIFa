@@ -26,6 +26,7 @@ import { generateAllOdu } from "../src/lib/odu/combine";
 import { ORIGINAL_INTERPRETATIONS } from "../src/lib/odu/interpretations";
 import { PUBLIC_DOMAIN_BOOKS } from "../src/lib/sources/publicDomain";
 import { hashPassword } from "../src/lib/auth/password";
+import { ESE_SOURCE, ESE_VERSES, validateEseCorpus } from "../src/lib/content/verses";
 
 const prisma = new PrismaClient();
 
@@ -217,6 +218,67 @@ async function main() {
       notes: b.note,
     };
     await prisma.source.upsert({ where: { id: b.id }, update: data, create: data });
+  }
+
+  // --- Source-verified Ẹsẹ passages ----------------------------------------
+  // Static rendering and Prisma use the same checked-in provenance record.
+  // The site is explicitly non-commercial; this source must be withdrawn or
+  // separately licensed before any commercial mode is enabled.
+  const corpusErrors = validateEseCorpus();
+  if (corpusErrors.length) {
+    throw new Error(`Ẹsẹ corpus validation failed:\n${corpusErrors.join("\n")}`);
+  }
+
+  const eseSource = await prisma.source.upsert({
+    where: { id: ESE_SOURCE.id },
+    update: {
+      title: ESE_SOURCE.title,
+      author: ESE_SOURCE.authors.join(" & "),
+      year: ESE_SOURCE.year,
+      sourceType: SourceType.LICENSED,
+      licenceType: LicenceType.CC_BY_NC_SA,
+      permissionStatus: PermissionStatus.GRANTED,
+      permissionDocUrl: ESE_SOURCE.licence.policyUrl,
+      attributionText: `${ESE_SOURCE.authors.join(" & ")} (${ESE_SOURCE.year}), “${ESE_SOURCE.title}”, ${ESE_SOURCE.journal} ${ESE_SOURCE.issue}, ${ESE_SOURCE.articlePages}. https://doi.org/${ESE_SOURCE.doi}. ${ESE_SOURCE.licence.label}.`,
+      notes: `${ESE_SOURCE.licence.scopeNote} Local source SHA-256: ${ESE_SOURCE.localCopy.sha256}. ${ESE_SOURCE.transcriptionNote}`,
+    },
+    create: {
+      id: ESE_SOURCE.id,
+      title: ESE_SOURCE.title,
+      author: ESE_SOURCE.authors.join(" & "),
+      year: ESE_SOURCE.year,
+      sourceType: SourceType.LICENSED,
+      licenceType: LicenceType.CC_BY_NC_SA,
+      permissionStatus: PermissionStatus.GRANTED,
+      permissionDocUrl: ESE_SOURCE.licence.policyUrl,
+      attributionText: `${ESE_SOURCE.authors.join(" & ")} (${ESE_SOURCE.year}), “${ESE_SOURCE.title}”, ${ESE_SOURCE.journal} ${ESE_SOURCE.issue}, ${ESE_SOURCE.articlePages}. https://doi.org/${ESE_SOURCE.doi}. ${ESE_SOURCE.licence.label}.`,
+      notes: `${ESE_SOURCE.licence.scopeNote} Local source SHA-256: ${ESE_SOURCE.localCopy.sha256}. ${ESE_SOURCE.transcriptionNote}`,
+    },
+  });
+
+  for (const verse of ESE_VERSES) {
+    const oduId = idBySlug.get(verse.oduSlug);
+    if (!oduId) throw new Error(`Unknown Odù slug in Ẹsẹ corpus: ${verse.oduSlug}`);
+    await prisma.verse.upsert({
+      where: { id: verse.id },
+      update: {
+        oduId,
+        language: "yo-en",
+        textYoruba: verse.yoruba.join("\n"),
+        textEnglish: verse.english.join("\n"),
+        sourceId: eseSource.id,
+        reviewStatus: ReviewStatus.APPROVED,
+      },
+      create: {
+        id: verse.id,
+        oduId,
+        language: "yo-en",
+        textYoruba: verse.yoruba.join("\n"),
+        textEnglish: verse.english.join("\n"),
+        sourceId: eseSource.id,
+        reviewStatus: ReviewStatus.APPROVED,
+      },
+    });
   }
 
   // --- Original APPROVED interpretations for the 16 principal Odù ----------

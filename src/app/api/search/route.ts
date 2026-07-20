@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchFacts } from "@/lib/odu/facts";
+import { buildPublicVerseWhere } from "@/lib/content/versePublication";
 
 // GET /api/search?q= — unified search.
 // Always searches the FACT layer (name, alt-name, slug, signature). When a DB
@@ -29,7 +30,7 @@ export async function GET(req: NextRequest) {
         take: 25,
       }),
       prisma.verse.findMany({
-        where: { OR: [{ textYoruba: { contains: q, mode: "insensitive" } }, { textEnglish: { contains: q, mode: "insensitive" } }] },
+        where: buildPublicVerseWhere(q),
         take: 25,
       }),
       prisma.source.findMany({

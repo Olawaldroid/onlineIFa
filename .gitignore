@@ -28,6 +28,7 @@ yarn-error.log*
 /docs/originals/
 /.local-research/
 /data/
+/tmp/
 
 # prisma
 /prisma/*.db

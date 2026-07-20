@@ -1,6 +1,6 @@
 "use client";
 
-// Lightweight cross-page progress tracking for the badge row on /games —
+// Lightweight cross-page progress tracking for the badge row on /learn#practice —
 // localStorage-backed so it survives navigation and reloads (unlike an
 // in-memory React context, which resets on every page change in a real
 // multi-route site).

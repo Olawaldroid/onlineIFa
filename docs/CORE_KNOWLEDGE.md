@@ -236,6 +236,18 @@ our **own** translations; never from the copyrighted collections above.
 - [ ] Have a Yorùbá-language reviewer verify diacritics/orthography of all names.
 
 ## 8. Changelog
+- **2026-07-20 (source-grade Ẹsẹ, researched vectors, merged journeys)** —
+  Replaced the hard-coded verse attribution with a tracked corpus manifest:
+  stable passage IDs, named reciters, exact printed/PDF pages, DOI,
+  CC BY-NC-SA 4.0 terms, translation/orthography notes, local SHA-256, and an
+  explicit practitioner-review caveat. Added shared search/AI publication
+  gates and commercial-mode blocking for non-commercial sources. Archived and
+  checksum-registered four local research PDFs; Lijadu 1908 and two modern CC
+  candidates remain in review rather than being auto-published. Rebuilt the
+  ọ̀pọ́n, ọ̀pẹ̀lẹ̀, ìkín, ìrọ̀kẹ́, and ìbò vectors from named museum references
+  and changed the cast from an in-place shake to an outward midpoint-led throw.
+  Merged Practice into Learn, History + Museum into Tradition, and the study
+  assistant into each Odù detail page while preserving old URLs as redirects.
 - **2026-07-19 (ẹsẹ Ifá verses on the site + public-domain scrub)** — First
   REAL verse layer: `src/lib/content/verses.ts` quotes four ẹsẹ verbatim
   (Yorùbá + English) from the OPEN-ACCESS Pogoson & Akande 2011 article, which

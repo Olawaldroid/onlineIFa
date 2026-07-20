@@ -86,14 +86,14 @@ retrieval, so unapproved or copyright-unclear content can never leak.
 ## Flows (all present from day one)
 
 1. **Onboarding** — `/` → `/disclaimer` → guest or account (`/signup`)
-2. **Learn Ifá** — `/learn` (16 primary, 256 combined, how combinations work)
-3. **Odù library** — `/odu`, `/odu/[slug]` (facts + gated meaning)
+2. **Learn Ifá** — `/learn` (foundations, 16 primary, 256 combined, embedded practice)
+3. **Odù library** — `/odu`, `/odu/[slug]` (facts + gated meaning + contextual study assistant)
 4. **Consultation** — `/consult` (area → question → safety → cast → result)
 5. **Casting** — simulated / learning / user-selected / manual (Babalawo)
 6. **Interpretation** — placeholder until approved; contributors submit
 7. **Contributor** — `/contribute` (submit → review → version)
 8. **Source & permission** — `/admin/sources` (licence + permission tracking)
-9. **AI assistant** — `/assistant` (approved content only, always cited)
+9. **Tradition** — `/tradition` (history, instruments, collections, living practice)
 10. **Admin** — `/admin/*` (review, sources, contributors, odù, audit)
 11. **Search** — `/search` (name, variant, keyword, signature, proverb, …)
 12. **Saved consultations** — `/saved` (revisit, notes, export PDF, delete)
@@ -107,6 +107,8 @@ retrieval, so unapproved or copyright-unclear content can never leak.
 
 - [`docs/CORE_KNOWLEDGE.md`](docs/CORE_KNOWLEDGE.md) — **living knowledge base** (facts, themes, open questions; update as we research)
 - [`docs/IFA_RESEARCH.md`](docs/IFA_RESEARCH.md) — research notes + open-source registry
+- [`content/ese-ifa/`](content/ese-ifa/) — page-cited public corpus records + local-source checksums
+- [`docs/VISUAL_REFERENCES.md`](docs/VISUAL_REFERENCES.md) — museum references and visual guardrails
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — folder structure, data model, design
 - [`docs/ROUTE_MAP.md`](docs/ROUTE_MAP.md) — page + API route maps
 - [`docs/CONSULTATION_STATE_MACHINE.md`](docs/CONSULTATION_STATE_MACHINE.md)

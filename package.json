@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/lib/casting/cast.test.ts src/lib/consultation/continuity.test.ts",
+    "test": "tsx --test src/lib/casting/cast.test.ts src/lib/consultation/continuity.test.ts src/lib/content/verses.test.ts src/lib/content/versePublication.test.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
@@ -19,7 +19,8 @@
     "books:translate": "C:\\Users\\info\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/translate-local-books.py",
     "books:index": "node scripts/ocr-local-books.cjs && node scripts/index-local-books.cjs && npm run books:translate && node scripts/build-english-book-index.cjs",
     "books:ingest": "node scripts/ingest-local-books.cjs",
-    "books:notes": "node scripts/build-research-notes.cjs"
+    "books:notes": "node scripts/build-research-notes.cjs",
+    "sources:verify": "node scripts/verify-ese-sources.cjs --require-all"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

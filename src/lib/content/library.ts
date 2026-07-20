@@ -21,6 +21,24 @@ export interface LibraryEntry {
 }
 
 export const LIBRARY_ENTRIES: LibraryEntry[] = [
+  {
+    id: "src-pogoson-akande-2011",
+    tag: "ẸṢẸ SOURCE · CC BY-NC-SA 4.0 · 2011",
+    title: "Ifa Divination Trays from Isale-Oyo",
+    author: "O. I. Pogoson & A. O. Akande",
+    note: "The page-cited source for the four recorded Ẹsẹ passages currently shown on Online Ifá. Source orthography and English translations are retained as printed.",
+    href: "https://journals.openedition.org/cea/196",
+    secondaryHref: "https://doi.org/10.4000/cea.196",
+    secondaryLabel: "DOI",
+  },
+  {
+    id: "src-lijadu-1908-orunmila-nipa",
+    tag: "PUBLIC DOMAIN · TRANSCRIPTION REVIEW · 1908",
+    title: "Ọ̀rúnmìlà! Nipa",
+    author: "E. M. Lijadu",
+    note: "An early Yorùbá source with many named passages. Archived locally for careful transcription, new translation, and practitioner review—not yet used as public result text.",
+    href: "https://calmview.bham.ac.uk/Record.aspx?id=XHT%2FB%2F43%2F36%3F&src=CalmView.Catalog",
+  },
   ...PUBLIC_DOMAIN_BOOKS.map((b) => ({
     id: b.id,
     tag: `PUBLIC DOMAIN · ${b.year}`,

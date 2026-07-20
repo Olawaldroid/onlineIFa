@@ -2,7 +2,7 @@ import { Nav } from "@/components/Nav";
 
 // Full-bleed chrome (nav + footer, no centered/padded <main>) for the
 // primary IFA LAB-styled pages: home, learn, odu, consult, library, graph,
-// history, games, museum. Each page composes its own edge-to-edge
+// tradition, plus compatibility redirects for history/games/museum. Each page composes its own edge-to-edge
 // <PageSection>s. Utility pages (search, admin, auth, …) stay in the
 // (site) group's centered layout instead.
 export default function FullBleedLayout({ children }: { children: React.ReactNode }) {

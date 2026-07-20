@@ -16,9 +16,8 @@ const GROUPS: { label: string; links: NavLink[] }[] = [
     label: "Learn",
     links: [
       { href: "/learn", label: "Learn Ifá", sub: "Foundations, structure, mathematics" },
-      { href: "/games", label: "Practice", sub: "Learn to recognise marks and figures" },
-      { href: "/history", label: "Tradition · history", sub: "The tradition across time" },
-      { href: "/museum", label: "Tradition · objects", sub: "Instruments, art, living practice" },
+      { href: "/learn#practice", label: "Practice", sub: "Recognise marks and figures" },
+      { href: "/tradition", label: "Tradition", sub: "History, instruments, art, living practice" },
       { href: "/library", label: "Sources & glossary", sub: "Research, provenance, Yorùbá terms" },
     ],
   },
@@ -27,7 +26,6 @@ const GROUPS: { label: string; links: NavLink[] }[] = [
     links: [
       { href: "/odu", label: "The 256 Odù", sub: "Browse names, marks, and structure" },
       { href: "/graph", label: "Connections", sub: "See concepts and figures as a network" },
-      { href: "/assistant", label: "Ask about an Odù", sub: "Explore reviewed material in context" },
       { href: "/search", label: "Search", sub: "Find anything" },
     ],
   },
@@ -44,13 +42,13 @@ export function Nav() {
         <div className="hidden flex-1 flex-wrap items-center gap-x-5 gap-y-1 text-[13px] tracking-[0.01em] sm:flex">
           {GROUPS.map((g) => (
             <div key={g.label} className="group relative">
-              <button
-                type="button"
-                className="flex cursor-pointer items-center gap-1 border-none bg-transparent p-0 text-[13px] tracking-[0.01em] text-ifa-cream/85 group-hover:text-ifa-gold group-focus-within:text-ifa-gold"
+              <Link
+                href={g.links[0].href}
+                className="flex items-center gap-1 text-[13px] tracking-[0.01em] text-ifa-cream/85 group-hover:text-ifa-gold group-focus-within:text-ifa-gold"
               >
                 {g.label}
                 <span aria-hidden className="text-[9px] text-ifa-cream/50">▾</span>
-              </button>
+              </Link>
               <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 pt-3 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
                 <div className="w-[236px] rounded-2xl border border-ifa-border bg-ifa-deep p-2 shadow-[0_24px_50px_rgba(0,0,0,0.5)]">
                   {g.links.map((l) => (

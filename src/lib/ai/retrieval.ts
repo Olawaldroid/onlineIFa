@@ -15,7 +15,8 @@
 // ===========================================================================
 
 import { prisma } from "@/lib/db";
-import { ReviewStatus, PermissionStatus } from "@prisma/client";
+import { ReviewStatus } from "@prisma/client";
+import { buildPublicVerseWhere } from "@/lib/content/versePublication";
 
 export interface RetrievedContext {
   odu: {
@@ -54,10 +55,7 @@ export async function retrieveForOdu(oduSlug: string): Promise<RetrievedContext>
         include: { source: true },
       },
       verses: {
-        where: {
-          reviewStatus: ReviewStatus.APPROVED,
-          source: { permissionStatus: { in: [PermissionStatus.GRANTED, PermissionStatus.NOT_REQUIRED] } },
-        },
+        where: buildPublicVerseWhere(),
         include: { source: true },
       },
     },

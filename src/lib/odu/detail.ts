@@ -8,6 +8,8 @@
 import { oduFactBySlug, legNames } from "./facts";
 import { CombinedOduFact } from "./combine";
 import { PLACEHOLDER_INTERPRETATION, resolveDisplay } from "@/lib/interpretation/gate";
+import { buildPublicVerseWhere } from "@/lib/content/versePublication";
+import { versesForOdu } from "@/lib/content/verses";
 
 export interface OduDetailView {
   fact: CombinedOduFact;
@@ -43,7 +45,7 @@ export async function getOduDetail(slug: string): Promise<OduDetailView | null> 
   };
   let themes: string[] = [];
   let proverbs: { yoruba: string; english: string | null }[] = [];
-  let verseCount = 0;
+  let verseCount = versesForOdu(slug).length;
   let reflectionQuestions: string[] = [];
 
   try {
@@ -54,7 +56,7 @@ export async function getOduDetail(slug: string): Promise<OduDetailView | null> 
         interpretations: { include: { source: true, reflectionQuestions: true } },
         themes: { include: { theme: true } },
         proverbs: true,
-        _count: { select: { verses: true } },
+        _count: { select: { verses: { where: buildPublicVerseWhere() } } },
       },
     });
 

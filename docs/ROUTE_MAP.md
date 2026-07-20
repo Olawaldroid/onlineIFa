@@ -12,17 +12,18 @@ Both share the same URL space — the grouping is invisible in the URL.
 | `/` | `(full)` | Onboarding | Animated hero → Learn or Start Consultation |
 | `/disclaimer?next=` | `(site)` | Onboarding | Accept cultural/educational disclaimer |
 | `/signup?next=` | `(site)` | Onboarding | Account creation (auth phase) |
-| `/learn` | `(full)` | Learn Ifá | What is Ifá, 16 primary + combinations, mathematics (binary explorer), Ifá & CS comparisons, IFÀGRÌTHM field notes |
+| `/learn` | `(full)` | Learn Ifá | Foundations, 16 primary + combinations, embedded practice, mathematics, Ifá & CS comparisons, IFÀGRÌTHM field notes |
 | `/odu` | `(full)` | Library | All 256, searchable glyph-tile grid |
-| `/odu/[slug]` | `(full)` | Library detail | Facts + gated interpretation + verses |
+| `/odu/[slug]` | `(full)` | Library detail | Facts + gated interpretation + page-cited verses + contextual study assistant |
 | `/consult?odu=` | `(full)` | Consultation | Runs entirely client-side by default — no account or database needed (mode → area → question → safety → cast → interpret → result all computed in the browser from the real `src/lib/{casting,safety,odu}/*` modules; SIMULATED/LEARNING modes get the chain-swing / nut-striking animation, `src/components/CastingStage.tsx`). "Save consultation" is the only step that touches the database — it replays the same inputs through the full audited API/state machine. |
 | `/graph` | `(full)` | Knowledge graph | Clickable concept map — Odù, òrìṣà, concepts, mathematics, history, instruments, virtues |
-| `/history` | `(full)` | Timeline | Six eras, horizontal scroll |
-| `/games` | `(full)` | Learning games | Two quick-fire games; cross-page badges (localStorage, `src/lib/progress.ts`) |
-| `/museum` | `(full)` | Instruments | The five instruments, credited photos where openly licensed |
+| `/tradition` | `(full)` | Tradition | History, instruments, collections, and living practice in one editorial journey |
+| `/history` | `(full)` | Redirect | Preserved → `/tradition#history` |
+| `/games` | `(full)` | Redirect | Preserved → `/learn#practice` |
+| `/museum` | `(full)` | Redirect | Preserved → `/tradition#objects` |
 | `/library` | `(full)` | Library | Public-domain/openly-licensed sources + glossary |
 | `/search` | `(site)` | Search | Odù, variants, keyword, signature, proverb, … |
-| `/assistant` | `(site)` | AI | Approved content only, cited |
+| `/assistant` | `(site)` | AI | Direct entry retained; the primary assistant entry is contextual on each Odù page |
 | `/contribute` | `(site)` | Contributor | Submit original interpretation |
 | `/pricing` | `(site)` | Payments | Tiers (Stripe later) |
 | `/saved` | `(site)` | Saved | Revisit, notes, export, delete |
