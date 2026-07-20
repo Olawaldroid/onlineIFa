@@ -8,6 +8,36 @@ import {
 } from "@/lib/ai/retrieval";
 import { callAnthropic } from "@/lib/ai/anthropic";
 
+function plainExcerpt(value: string | null | undefined, limit = 720): string | null {
+  if (!value) return null;
+  const plain = value
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/[*_`>]/g, "")
+    .replace(/\[(.*?)\]\([^)]*\)/g, "$1")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!plain) return null;
+  return plain.length <= limit ? plain : `${plain.slice(0, limit).trimEnd()}…`;
+}
+
+function buildReviewedAnswer(ctx: RetrievedContext): string {
+  if (!ctx.odu) return "That Odù could not be found.";
+
+  const sections = [`${ctx.odu.name} has the signature ${ctx.odu.signature}.`];
+  const interpretation = ctx.interpretations[0];
+  const interpretationText = plainExcerpt(interpretation?.contentMd);
+  if (interpretationText) {
+    sections.push(`${interpretation?.title ? `${interpretation.title}: ` : ""}${interpretationText}`);
+  }
+  const verse = ctx.verses.find((item) => item.textEnglish);
+  const verseText = plainExcerpt(verse?.textEnglish, 520);
+  if (verseText) {
+    sections.push(`From ${verse?.sourceTitle ?? "a reviewed source"}: ${verseText}`);
+  }
+  sections.push("This study response is drawn directly from the reviewed material available on Online Ifá.");
+  return sections.join("\n\n");
+}
+
 /** Build the user message from APPROVED context only — never outside knowledge. */
 function buildContextMessage(ctx: RetrievedContext, question?: string): string {
   const lines: string[] = [];
@@ -57,7 +87,7 @@ export async function POST(req: NextRequest) {
     if (context.isEmpty) {
       return NextResponse.json({
         answer:
-          `There is no approved interpretation or permission-cleared verse for ${context.odu.name} yet, ` +
+          `There is no reviewed interpretation or verse for ${context.odu.name} yet, ` +
           `so I cannot offer meaning for it. The factual signature is ${context.odu.signature}. ` +
           `A contributor can add original content for review.`,
         citations: [{ odu: context.odu.name, signature: context.odu.signature }],
@@ -65,19 +95,15 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // When no model provider is configured, return a deterministic, fully-cited
-    // summary built directly from approved content (no fabrication).
+    // When no model provider is configured, return useful excerpts directly
+    // from reviewed content. No generated interpretation is added.
     if (!isAssistantEnabled()) {
       const cites = [
         ...context.interpretations.map((i) => ({ type: "interpretation", title: i.title, source: i.sourceTitle, licence: i.licence })),
         ...context.verses.map((v) => ({ type: "verse", source: v.sourceTitle })),
       ];
       return NextResponse.json({
-        answer:
-          `Here is the approved content for ${context.odu.name} ` +
-          `(signature ${context.odu.signature}). The AI model is not enabled, so this is a ` +
-          `direct, unembellished summary of reviewed material. Online Ifá does not replace a trained Babalawo.`,
-        context,
+        answer: buildReviewedAnswer(context),
         citations: cites,
         contentMissing: false,
       });
@@ -97,13 +123,11 @@ export async function POST(req: NextRequest) {
         ],
         contentMissing: false,
       });
-    } catch (modelErr) {
+    } catch {
       // Fail safe: never fabricate. Return the approved content directly.
       return NextResponse.json({
         answer:
-          `The AI model is enabled but the request failed (${modelErr}). ` +
-          `Here is the approved content for ${context.odu.name} without model commentary.`,
-        context,
+          `${buildReviewedAnswer(context)}\n\nThe expanded study response is temporarily unavailable.`,
         citations: [{ odu: context.odu.name }],
         contentMissing: false,
       });

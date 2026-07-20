@@ -17,6 +17,10 @@
 import { prisma } from "@/lib/db";
 import { ReviewStatus } from "@prisma/client";
 import { buildPublicVerseWhere } from "@/lib/content/versePublication";
+import { oduFactBySlug } from "@/lib/odu/facts";
+import { resolveLocalDisplay } from "@/lib/interpretation/localDisplay";
+import { versesForOdu } from "@/lib/content/verses";
+import { iweVerseForOdu } from "@/lib/content/iweVerses";
 
 export interface RetrievedContext {
   odu: {
@@ -42,12 +46,58 @@ export interface RetrievedContext {
   isEmpty: boolean;
 }
 
+/** Checked-in, reviewed context used when Postgres is absent or unavailable. */
+export function retrieveStaticForOdu(oduSlug: string): RetrievedContext {
+  const fact = oduFactBySlug(oduSlug);
+  if (!fact) return { odu: null, interpretations: [], verses: [], isEmpty: true };
+
+  const display = resolveLocalDisplay(oduSlug);
+  const interpretations = display.isPlaceholder
+    ? []
+    : [{
+        id: `static-interpretation:${oduSlug}`,
+        title: display.title,
+        contentMd: display.contentMd,
+        sourceTitle: display.sourceTitle,
+        licence: display.licence,
+      }];
+  const recordedVerses = versesForOdu(oduSlug).map((verse) => ({
+    id: verse.id,
+    textEnglish: verse.english.join("\n"),
+    sourceTitle: verse.source.title,
+  }));
+  const iweVerse = iweVerseForOdu(oduSlug, "study-assistant");
+  if (iweVerse) {
+    recordedVerses.push({
+      id: iweVerse.id,
+      textEnglish: iweVerse.text,
+      sourceTitle: iweVerse.source.title,
+    });
+  }
+
+  return {
+    odu: {
+      id: `static-odu:${oduSlug}`,
+      slug: fact.slug,
+      name: fact.name,
+      signature: fact.signature,
+      factualSummary: fact.factualSummary,
+    },
+    interpretations,
+    verses: recordedVerses,
+    isEmpty: interpretations.length === 0 && recordedVerses.length === 0,
+  };
+}
+
 /**
  * Retrieve ONLY approved, permission-clean content for a given Odù.
  * This is the single gate the assistant is allowed to read through.
  */
 export async function retrieveForOdu(oduSlug: string): Promise<RetrievedContext> {
-  const odu = await prisma.odu.findUnique({
+  const staticContext = retrieveStaticForOdu(oduSlug);
+  if (!process.env.DATABASE_URL) return staticContext;
+
+  const queryDatabase = () => prisma.odu.findUnique({
     where: { slug: oduSlug },
     include: {
       interpretations: {
@@ -60,9 +110,15 @@ export async function retrieveForOdu(oduSlug: string): Promise<RetrievedContext>
       },
     },
   });
+  let odu: Awaited<ReturnType<typeof queryDatabase>>;
+  try {
+    odu = await queryDatabase();
+  } catch {
+    return staticContext;
+  }
 
   if (!odu) {
-    return { odu: null, interpretations: [], verses: [], isEmpty: true };
+    return staticContext;
   }
 
   const interpretations = odu.interpretations.map((i) => ({
@@ -79,6 +135,13 @@ export async function retrieveForOdu(oduSlug: string): Promise<RetrievedContext>
     sourceTitle: v.source?.title ?? null,
   }));
 
+  const combinedInterpretations = [...interpretations, ...staticContext.interpretations];
+  const knownVerseIds = new Set(verses.map((verse) => verse.id));
+  const combinedVerses = [
+    ...verses,
+    ...staticContext.verses.filter((verse) => !knownVerseIds.has(verse.id)),
+  ];
+
   return {
     odu: {
       id: odu.id,
@@ -87,9 +150,9 @@ export async function retrieveForOdu(oduSlug: string): Promise<RetrievedContext>
       signature: odu.signature,
       factualSummary: odu.factualSummary,
     },
-    interpretations,
-    verses,
-    isEmpty: interpretations.length === 0 && verses.length === 0,
+    interpretations: combinedInterpretations,
+    verses: combinedVerses,
+    isEmpty: combinedInterpretations.length === 0 && combinedVerses.length === 0,
   };
 }
 

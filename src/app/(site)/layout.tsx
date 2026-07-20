@@ -14,8 +14,8 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         <div className="font-serif text-base tracking-[0.1em] text-ifa-gold">Online Ifá</div>
         <p className="mx-auto mt-3 max-w-xl text-xs leading-relaxed text-ifa-sage">
           Online Ifá is an educational and cultural tool. It does not replace a
-          trained Babalawo or professional advice. Interpretations are original,
-          public-domain, licensed, or contributor-submitted — never copied.
+          trained Babalawo or professional advice. Published material is reviewed,
+          source-attributed, and presented within its publication terms.
         </p>
       </footer>
     </>

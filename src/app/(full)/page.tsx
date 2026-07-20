@@ -33,14 +33,14 @@ export default function HomePage() {
       <PageSection tone="light">
         <div className="mx-auto max-w-3xl text-center">
           <div className="font-mono text-xs uppercase tracking-[0.28em] text-ifa-rust">
-            One consultation · one anchor
+            A considered digital consultation
           </div>
           <h2 className="mt-3 font-serif text-3xl text-ifa-ink sm:text-4xl">
             A digital flow shaped by the real sequence
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-ifa-ink/70">
-            The experience separates the principal Odù from the questions that clarify it. Rewording
-            the same concern does not turn consultation into answer-shopping.
+            Move from one focused concern to a cast, orientation, sourced verse, and reflection.
+            Each stage is clearly explained while the experience stays calm and private.
           </p>
         </div>
         <div className="mt-10 grid gap-4 md:grid-cols-3">
@@ -48,7 +48,7 @@ export default function HomePage() {
             number="01"
             kind="concern"
             title="Frame one concern"
-            body="Name the area and the real question. Cosmetic wording changes stay with the same active consultation."
+            body="Choose an area and put the concern into clear words before beginning the cast."
           />
           <PathCard
             number="02"

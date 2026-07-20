@@ -25,7 +25,7 @@ export default function LibraryPage() {
           ["Original synthesis", "All 256 Odù have English educational summaries written for Online Ifá."],
           ["Contributor original", "Community teachings appear only after provenance and editorial review."],
           ["Public domain", "Verses may be shown with an exact source and page citation."],
-          ["Licensed", "Copyrighted verse appears only when written publication permission is recorded."],
+          ["Licensed", "Selected excerpts appear with clear author and source attribution after editorial review."],
         ].map(([title, description]) => (
           <div key={title} className="rounded-xl border border-ifa-border/[0.16] bg-ifa-parchment p-5">
             <h2 className="font-serif text-lg">{title}</h2>

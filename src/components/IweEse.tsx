@@ -12,9 +12,6 @@ export function IweEse({ verse }: { verse: IweVerse }) {
           <span className="rounded-full border border-ifa-sage/35 px-2.5 py-1 text-ifa-sage">
             Èsè {verse.number}
           </span>
-          <span className="rounded-full border border-ifa-gold/35 px-2.5 py-1 text-ifa-gold">
-            Published with permission
-          </span>
         </div>
         <div className="whitespace-pre-line rounded-xl border border-ifa-border bg-ifa-bg/60 p-4 font-serif text-[15px] leading-[1.75] text-ifa-cream">
           {verse.text}
@@ -30,7 +27,6 @@ export function IweEse({ verse }: { verse: IweVerse }) {
           </summary>
           <div className="mt-2 space-y-1.5 leading-relaxed text-ifa-cream/65">
             <p className="m-0">Local PDF pages {verse.pdfPages}. {verse.source.transcriptionNote}</p>
-            <p className="m-0">{verse.source.permission.scope}</p>
           </div>
         </details>
       </article>

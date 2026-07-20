@@ -33,6 +33,25 @@ body {
   background-repeat: no-repeat;
 }
 
+::selection {
+  background: rgba(201, 162, 39, 0.32);
+  color: #fffaf0;
+}
+
+:where(a, button, input, textarea, select, summary):focus-visible {
+  outline: 2px solid #c9a227;
+  outline-offset: 3px;
+}
+
+:where(input, textarea, select) {
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+:where(input, textarea, select):focus-visible {
+  border-color: rgba(201, 162, 39, 0.8);
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.12);
+}
+
 a {
   @apply text-ifa-gold hover:text-ifa-cream transition-colors;
 }
@@ -45,7 +64,7 @@ a {
   }
 
   .btn {
-    @apply inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold transition-colors;
+    @apply inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold transition duration-150 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .btn-primary {

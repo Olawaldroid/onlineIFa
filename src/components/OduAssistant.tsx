@@ -15,6 +15,12 @@ interface OduAssistantProps {
   compact?: boolean;
 }
 
+function citationLabel(citation: Record<string, unknown>): string {
+  const values = [citation.title, citation.source, citation.odu, citation.signature]
+    .filter((value): value is string => typeof value === "string" && value.length > 0);
+  return values.length > 0 ? values.join(" · ") : "Reviewed Online Ifá material";
+}
+
 export function OduAssistant({
   initialOduSlug,
   allowOduEdit = false,
@@ -37,7 +43,7 @@ export function OduAssistant({
         body: JSON.stringify({ oduSlug, question }),
       });
       const result = (await response.json()) as AssistantResponse;
-      setAnswer(result);
+      setAnswer(response.ok ? result : { error: result.error ?? "The study assistant could not answer that request." });
     } catch {
       setAnswer({ error: "The study assistant is unavailable right now." });
     } finally {
@@ -65,7 +71,11 @@ export function OduAssistant({
           className="mt-1 w-full rounded-lg border border-ifa-border bg-ifa-bg px-3 py-2 text-ifa-cream"
           placeholder="Explain, compare, summarise, or translate reviewed material…"
           maxLength={1000}
+          aria-describedby="study-question-hint"
         />
+        <span id="study-question-hint" className="mt-1 block text-xs text-ifa-cream/45">
+          Leave blank for a general explanation.
+        </span>
       </label>
       <button type="submit" className="btn-primary" disabled={busy || !oduSlug.trim()}>
         {busy ? "Checking reviewed sources…" : "Ask about this Odù"}
@@ -75,7 +85,7 @@ export function OduAssistant({
 
   const response = answer && (
     <div className="mt-4 rounded-xl border border-ifa-border bg-ifa-bg/55 p-4" aria-live="polite">
-      <p className="m-0 text-sm leading-relaxed text-ifa-cream/90">
+      <p className="m-0 whitespace-pre-line text-sm leading-relaxed text-ifa-cream/90">
         {answer.answer ?? answer.error ?? "No answer was returned."}
       </p>
       {answer.contentMissing && (
@@ -88,7 +98,7 @@ export function OduAssistant({
           <summary className="cursor-pointer">Sources used</summary>
           <ul className="mb-0 mt-2 list-disc space-y-1 pl-4">
             {answer.citations.map((citation, index) => (
-              <li key={`${index}-${JSON.stringify(citation)}`}>{JSON.stringify(citation)}</li>
+              <li key={`${index}-${JSON.stringify(citation)}`}>{citationLabel(citation)}</li>
             ))}
           </ul>
         </details>
@@ -102,8 +112,8 @@ export function OduAssistant({
         <details>
           <summary className="cursor-pointer font-serif text-xl text-ifa-gold">Ask about this Odù</summary>
           <p className="mt-2 text-xs leading-relaxed text-ifa-cream/60">
-            Answers use only approved, permission-cleared material. The assistant says when the
-            corpus does not contain an answer.
+            Answers use reviewed material available on this site. The assistant says when the
+            available sources do not contain an answer.
           </p>
           <div className="mt-4">{form}</div>
           {response}
@@ -117,7 +127,7 @@ export function OduAssistant({
       <header>
         <h1 className="font-serif text-3xl font-bold text-ifa-gold">Study assistant</h1>
         <p className="mt-1 text-sm text-ifa-cream/70">
-          Answers come only from approved content with citations. This is a study tool, not a
+          Answers come only from reviewed material with citations. This is a study tool, not a
           substitute for a trained practitioner.
         </p>
       </header>
