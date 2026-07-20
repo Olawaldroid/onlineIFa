@@ -20,6 +20,24 @@ source-permission, citation, or publication gates. Copyrighted book text must
 not be displayed publicly or copied into approved interpretations without the
 necessary permission.
 
+## Priority Èsè lead: Ìwé fún Odù Ifá
+
+The local shelf includes *Ìwé fún Odù Ifá — Ancient Afrikan Sacred Text*,
+researched and compiled by Ayinon (His Royal Majesty) Axɔsú Àgèlògbàgàn
+Àgbɔ̀vì I and published by Kilombo Productions. The 711-page scan is a useful
+Odù-to-Èsè research lead: the local index finds material under all 16 principal
+Odù names. Its SHA-256 is
+`149cea153e8c4f2b5be29c6f626b80cd20bc0431c8a6f231b28156473724b450`.
+
+The book's PDF page 4 claims copyright for 2011–2018 and says that no part may
+be reproduced without author or publisher permission. It therefore remains
+`LOCAL_RESEARCH_ONLY` / `PENDING`: use it to locate candidate passages and
+compare Odù assignments, but do not show its text in a public consultation.
+Before a candidate verse can appear on the site, record its exact printed and
+PDF pages, confirm its Odù and Yorùbá with a practitioner, document translation
+and orthography, and obtain written publication permission from the rights
+holder.
+
 ## Canonical open-source shelf
 
 Reusable and candidate source documents are kept separately under

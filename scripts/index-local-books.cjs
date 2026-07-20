@@ -12,6 +12,14 @@ const sourceDir = path.resolve(
 const outputDir = path.join(projectRoot, ".local-research");
 const outputFile = path.join(outputDir, "book-index-source.json");
 const supported = new Set([".pdf", ".epub"]);
+const knownTitles = [
+  [/iwe-fun-odu-ifa/i, "Ìwé fún Odù Ifá — Ancient Afrikan Sacred Text"],
+];
+
+function displayTitle(file, extractedTitle) {
+  const known = knownTitles.find(([pattern]) => pattern.test(path.basename(file)));
+  return known?.[1] || extractedTitle;
+}
 
 function cleanText(value) {
   return value
@@ -92,7 +100,7 @@ async function main() {
       const text = cleanText(extracted.text);
       documents.push({
         id,
-        title: extracted.title,
+        title: displayTitle(file, extracted.title),
         filename: path.basename(file),
         format: extension.slice(1),
         classification: "LOCAL_RESEARCH_ONLY",
