@@ -1,7 +1,5 @@
 "use client";
 
-import { OpeleGlyph, OponIfaEmblem } from "@/components/IfaArtifactGlyphs";
-
 // The visual casting stage for the real consultation flow — chain-swing /
 // nut-striking animation, the carved ọpọn tray with ìyẹ̀rọ̀sùn sand marks,
 // and the "show your working" log. Purely presentational: it reveals marks
@@ -163,14 +161,23 @@ export function CastingStage({
         </div>
 
         <div className="mt-6 flex flex-col items-center gap-3.5">
-          <div className="relative h-[280px] w-[280px] sm:h-[340px] sm:w-[340px]">
-            <OponIfaEmblem
-              showSignature={false}
-              className="absolute inset-0 h-full w-full drop-shadow-[0_26px_28px_rgba(0,0,0,.55)]"
-            />
+          <div className="relative h-[280px] w-[280px] rounded-full shadow-[0_26px_60px_rgba(0,0,0,.55),inset_0_2px_6px_rgba(255,255,255,.08)] sm:h-[340px] sm:w-[340px]" style={{ background: "radial-gradient(circle at 40% 32%, #5a3d24, #3a2817 72%)" }}>
+            <div className="lab-tray-rim absolute inset-1 rounded-full opacity-90" />
+            <div className="absolute inset-[18px] rounded-full border-[3px] border-ifa-gold/[0.28]" />
+            <div className="lab-tray-rays absolute inset-[26px] rounded-full" />
             <div
-              className="lab-sand-bed absolute bottom-[13%] left-[16%] right-[14%] top-[22%] overflow-hidden shadow-[inset_0_7px_16px_rgba(92,64,34,.28),inset_0_-3px_9px_rgba(255,255,255,.8)]"
-              style={{ borderRadius: "47% 53% 49% 51% / 43% 46% 54% 57%" }}
+              className="absolute left-1/2 top-[5px] z-[2] flex h-[54px] w-11 -translate-x-1/2 flex-col items-center justify-center gap-[5px] border-2 border-[#2e2012] shadow-[0_4px_10px_rgba(0,0,0,.45)]"
+              style={{ borderRadius: "50% 50% 42% 42%", background: "linear-gradient(#6b4426,#3f2917)" }}
+            >
+              <div className="flex gap-[9px]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#1f1711]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-[#1f1711]" />
+              </div>
+              <div className="h-[13px] w-[3px] rounded-sm bg-[#1f1711]" />
+            </div>
+            <div
+              className="lab-sand-bed absolute inset-[42px] overflow-hidden shadow-[inset_0_7px_16px_rgba(92,64,34,.28),inset_0_-3px_9px_rgba(255,255,255,.8)] sm:inset-[52px]"
+              style={{ borderRadius: "48% 52% 51% 49%" }}
             >
               <div className="absolute inset-0 flex items-center justify-center gap-9 sm:gap-[52px]">
                 <SandColumn marks={marks} offset={4} casting={animating} />
@@ -226,10 +233,32 @@ function InstrumentButton({ active, onClick, title, sub, disabled }: { active: b
 function HangingChain({ shaking }: { shaking: boolean }) {
   return (
     <div className="opele-perspective flex min-h-[230px] flex-col items-center justify-start">
-      <OpeleGlyph
-        label={shaking ? "Ọ̀pẹ̀lẹ̀ cast opening from its midpoint and turning toward the mat" : "Ọ̀pẹ̀lẹ̀ held at its midpoint, with eight plates on one chain"}
-        className={`opele-chain h-[190px] w-[260px] drop-shadow-[0_12px_12px_rgba(0,0,0,.45)] ${shaking ? "opele-chain-casting" : ""}`}
-      />
+      <div
+        className={`opele-chain ${shaking ? "opele-chain-casting" : ""}`}
+        role="img"
+        aria-label={shaking ? "Ọ̀pẹ̀lẹ̀ cast unfolding away from the diviner" : "Ọ̀pẹ̀lẹ̀ held at its midpoint"}
+      >
+        <div className="opele-grip h-[22px] w-14 shadow-[0_4px_10px_rgba(0,0,0,.4)]" style={{ borderRadius: "12px 12px 18px 18px", background: "linear-gradient(#8a5a33,#5d3a20)" }} />
+        <div className="opele-arms flex origin-top gap-[38px] pt-1">
+          {["left", "right"].map((side) => (
+            <div key={side} className={`opele-arm opele-arm-${side} flex origin-top flex-col items-center gap-1`}>
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="contents">
+                  <div className="h-[13px] w-1 rounded-sm bg-ifa-gold/45" />
+                  <div
+                    className="opele-flight-pod h-10 w-[30px] shadow-[0_3px_6px_rgba(0,0,0,.35)]"
+                    style={{
+                      borderRadius: "50% 50% 46% 46%",
+                      background: "radial-gradient(circle at 36% 28%, #7a4a26, #462c1a)",
+                      animationDelay: shaking ? `${220 + i * 105}ms` : undefined,
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
       <div className="mt-4 text-[13.5px] text-ifa-cream/60">
         {shaking
           ? "The midpoint leads; the free ends unfurl outward and settle nearest the diviner…"
